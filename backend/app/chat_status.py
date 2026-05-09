@@ -38,6 +38,7 @@ def _count(payload: Any) -> int | None:
 
 # --- per-tool descriptions ----------------------------------------------------
 
+
 def _start_listar_unidades(_args: dict) -> str:
     return "Revisando las unidades del Programa de Estudio…"
 

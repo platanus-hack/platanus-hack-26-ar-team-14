@@ -57,7 +57,9 @@ def main() -> None:
     with SessionLocal() as db:
         teacher = db.query(Teacher).filter_by(email=TEACHER_EMAIL).one_or_none()
         if teacher is not None:
-            print(f"Teacher {TEACHER_EMAIL} already exists (id={teacher.id}); skipping.")
+            print(
+                f"Teacher {TEACHER_EMAIL} already exists (id={teacher.id}); skipping."
+            )
             return
 
         teacher = Teacher(

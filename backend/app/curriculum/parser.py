@@ -97,10 +97,14 @@ def extract_oas_mate_5to(pdf_path: str | Path) -> list[OA]:
     }
     # Eje labels appearing on their own line (skip; eje is assigned by number).
     skip_eje_fragments = {
-        "Números y", "Operaciones",
-        "Patrones y", "álgebra",
-        "Geometría", "Medición",
-        "datos y", "Probabilidades",
+        "Números y",
+        "Operaciones",
+        "Patrones y",
+        "álgebra",
+        "Geometría",
+        "Medición",
+        "datos y",
+        "Probabilidades",
     }
 
     for line in lines:
@@ -109,14 +113,18 @@ def extract_oas_mate_5to(pdf_path: str | Path) -> list[OA]:
             continue
         if re.fullmatch(r"\d{1,3}", stripped):
             continue
-        if stripped.startswith("Bases Curriculares") or stripped.startswith("Matemática 5"):
+        if stripped.startswith("Bases Curriculares") or stripped.startswith(
+            "Matemática 5"
+        ):
             continue
 
         m = OA_LINE_RE.match(stripped)
         # An OA number line is `<num> <text>` where num is 1-27 and not a bullet.
         if m and not stripped.startswith("ú"):
             num = int(m.group(1))
-            if 1 <= num <= 27 and (current_num is None or num == current_num + 1 or num == 1):
+            if 1 <= num <= 27 and (
+                current_num is None or num == current_num + 1 or num == 1
+            ):
                 flush()
                 current_num = num
                 buffer.append(m.group(2))

@@ -4,16 +4,16 @@ import { getCurrentTeacher } from "../../lib/auth";
 import { getCourseById } from "../../lib/bitacora-data";
 
 type CoursePageProps = {
-  params: Promise<{ courseId: string }>;
+	params: Promise<{ courseId: string }>;
 };
 
 export default async function CoursePage({ params }: CoursePageProps) {
-  const teacher = await getCurrentTeacher();
-  if (!teacher) redirect("/login");
+	const teacher = await getCurrentTeacher();
+	if (!teacher) redirect("/login");
 
-  const { courseId } = await params;
-  const course = getCourseById(courseId);
-  if (!course) notFound();
+	const { courseId } = await params;
+	const course = getCourseById(courseId);
+	if (!course) notFound();
 
-  return <BitacoraCourseWorkspace course={course} />;
+	return <BitacoraCourseWorkspace course={course} />;
 }
