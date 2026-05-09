@@ -47,5 +47,8 @@ jobs:
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_DIR: /home/deploy/app
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
+          ssh "$DEPLOY_HOST" "mkdir -p $DEPLOY_DIR/backend"
+          printf '%s\n' "ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY" | ssh "$DEPLOY_HOST" "cat > $DEPLOY_DIR/backend/.env"
           ssh "$DEPLOY_HOST" "cd $DEPLOY_DIR && docker compose up -d --build --remove-orphans && docker compose restart caddy && docker image prune -f"
