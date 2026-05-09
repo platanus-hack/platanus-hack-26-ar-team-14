@@ -46,3 +46,7 @@ Thumbs.db
 # Coverage / misc
 coverage/
 .cache/
+
+# Local tooling artifacts
+.claude/scheduled_tasks.lock
+.playwright-cli/
