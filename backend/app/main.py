@@ -67,7 +67,7 @@ def me(teacher: Teacher = Depends(get_current_teacher)):
 
 class ChatMessage(BaseModel):
     role: str
-    content: str
+    content: str | list[dict]
 
 
 class ChatRequest(BaseModel):

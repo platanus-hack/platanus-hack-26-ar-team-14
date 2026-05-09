@@ -3,7 +3,7 @@ import { LogoutButton } from "./logout-button";
 
 type NavbarProps = {
 	teacherName: string;
-	active: "cuaderno" | "banco" | "guias";
+	active: "cuaderno" | "banco" | "guias" | "planificacion";
 };
 
 const activeLinkClass =
@@ -34,6 +34,12 @@ export function Navbar({ teacherName, active }: NavbarProps) {
 					</Link>
 					<Link href="/guias" className={linkClass("guias", active)}>
 						Guías
+					</Link>
+					<Link
+						href="/planificacion"
+						className={linkClass("planificacion", active)}
+					>
+						Planificación
 					</Link>
 				</div>
 			</nav>

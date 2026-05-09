@@ -4,6 +4,12 @@ db-up:
 dev:
 	uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
+dev-docker:
+	docker compose -f ../docker-compose.dev.yml up --build
+
+dev-docker-down:
+	docker compose -f ../docker-compose.dev.yml down
+
 lint:
 	uv run ruff format .
 	uv run ruff check .
