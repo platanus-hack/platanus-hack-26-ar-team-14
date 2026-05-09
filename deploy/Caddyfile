@@ -1,0 +1,4 @@
+hack26.v4rgas.com {
+    encode zstd gzip
+    reverse_proxy frontend:3000
+}
