@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LogoutButton } from "./components/logout-button";
+import { Navbar } from "./components/navbar";
 import { getCurrentTeacher } from "./lib/auth";
 import {
 	getCourseById,
@@ -18,29 +18,19 @@ export default async function Home() {
 
 	return (
 		<main className="bitacora-dashboard-shell">
-			<section className="bitacora-hero">
-				<div className="flex flex-wrap items-start justify-between gap-6">
-					<div className="max-w-4xl">
-						<p className="bitacora-kicker">Bitácora · copiloto pedagógico</p>
-						<h1 className="mt-4 font-display text-[clamp(2.8rem,6vw,5.8rem)] leading-[0.92] tracking-[-0.06em] text-slate-950">
-							{teacher.name}, necesitamos corregir {priorityCourses.length}{" "}
-							planes esta semana.
-						</h1>
-						<p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">
-							Priorizamos tus cursos según brecha curricular, aprendizaje medido
-							y avance respecto de la planificación anual.
-						</p>
-					</div>
+			<Navbar teacherName={teacher.name} active="cuaderno" />
 
-					<div className="flex items-center gap-4 rounded-full border border-white/65 bg-white/75 px-5 py-3 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur">
-						<div>
-							<p className="text-sm font-medium text-slate-500">Profesor</p>
-							<p className="text-base font-semibold text-slate-900">
-								{teacher.name}
-							</p>
-						</div>
-						<LogoutButton />
-					</div>
+			<section className="bitacora-hero">
+				<div className="max-w-4xl">
+					<p className="bitacora-kicker">Bitácora · copiloto pedagógico</p>
+					<h1 className="mt-4 font-display text-[clamp(2.8rem,6vw,5.8rem)] leading-[0.92] tracking-[-0.06em] text-slate-950">
+						{teacher.name}, necesitamos corregir {priorityCourses.length}{" "}
+						planes esta semana.
+					</h1>
+					<p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">
+						Priorizamos tus cursos según brecha curricular, aprendizaje medido y
+						avance respecto de la planificación anual.
+					</p>
 				</div>
 			</section>
 
