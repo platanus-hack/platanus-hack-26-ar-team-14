@@ -11,7 +11,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN pnpm build
+RUN --mount=type=cache,id=next,target=/app/.next/cache \
+    pnpm build
 
 FROM node:22-alpine AS runtime
 RUN corepack enable && corepack prepare pnpm@10.15.0 --activate

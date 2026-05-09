@@ -61,4 +61,4 @@ jobs:
             printf 'LANGSMITH_API_KEY=%s\n' "$LANGSMITH_API_KEY"
             printf 'LANGSMITH_PROJECT=%s\n' "$LANGSMITH_PROJECT"
           } | ssh "$DEPLOY_HOST" "cat > $DEPLOY_DIR/backend/.env"
-          ssh "$DEPLOY_HOST" "cd $DEPLOY_DIR && docker compose up -d --build --remove-orphans && docker compose restart caddy && docker image prune -f"
+          ssh "$DEPLOY_HOST" "cd $DEPLOY_DIR && docker compose up -d --build --remove-orphans && docker image prune -f"

@@ -19,4 +19,4 @@ rsync -az --delete \
     --exclude '.env' \
     ./ "$HOST:$REMOTE_DIR/"
 
-ssh "$HOST" "cd $REMOTE_DIR && docker compose up -d --build --remove-orphans && docker compose restart caddy && docker image prune -f"
+ssh "$HOST" "cd $REMOTE_DIR && docker compose up -d --build --remove-orphans && docker image prune -f"
