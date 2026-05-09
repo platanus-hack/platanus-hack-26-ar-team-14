@@ -23,7 +23,7 @@ type Question = {
 	image_height: number | null;
 };
 
-export function WorksheetsClient() {
+export function BancoClient() {
 	const [questions, setQuestions] = useState<Question[]>([]);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);

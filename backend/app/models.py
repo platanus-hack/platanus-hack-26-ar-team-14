@@ -100,3 +100,43 @@ class Question(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+
+
+class Guia(Base):
+    """A teacher-built guía: a named, ordered collection of questions."""
+
+    __tablename__ = "guias"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    teacher_id: Mapped[int] = mapped_column(
+        ForeignKey("teachers.id", ondelete="CASCADE"), index=True
+    )
+    name: Mapped[str] = mapped_column(String(255))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    teacher: Mapped["Teacher"] = relationship()
+    items: Mapped[list["GuiaItem"]] = relationship(
+        back_populates="guia",
+        cascade="all, delete-orphan",
+        order_by="GuiaItem.ordinal",
+    )
+
+
+class GuiaItem(Base):
+    """Ordered link from a guía to a question (no duplication of text)."""
+
+    __tablename__ = "guia_items"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    guia_id: Mapped[int] = mapped_column(
+        ForeignKey("guias.id", ondelete="CASCADE"), index=True
+    )
+    question_id: Mapped[int] = mapped_column(
+        ForeignKey("questions.id", ondelete="CASCADE"), index=True
+    )
+    ordinal: Mapped[int] = mapped_column()
+
+    guia: Mapped["Guia"] = relationship(back_populates="items")
+    question: Mapped["Question"] = relationship()

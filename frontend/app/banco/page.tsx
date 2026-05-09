@@ -1,15 +1,15 @@
 import { redirect } from "next/navigation";
 import { Navbar } from "../components/navbar";
 import { getCurrentTeacher } from "../lib/auth";
-import { WorksheetsClient } from "./worksheets-client";
+import { BancoClient } from "./banco-client";
 
-export default async function WorksheetsPage() {
+export default async function BancoPage() {
 	const teacher = await getCurrentTeacher();
 	if (!teacher) redirect("/login");
 
 	return (
 		<main className="bitacora-dashboard-shell" style={{ maxWidth: "none" }}>
-			<Navbar teacherName={teacher.name} active="guias" />
+			<Navbar teacherName={teacher.name} active="banco" />
 
 			<section className="bitacora-hero">
 				<div className="max-w-4xl">
@@ -26,7 +26,7 @@ export default async function WorksheetsPage() {
 			</section>
 
 			<section className="mt-10">
-				<WorksheetsClient />
+				<BancoClient />
 			</section>
 		</main>
 	);

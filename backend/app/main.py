@@ -10,7 +10,7 @@ from app.chat_status import describe_tool_end, describe_tool_start
 from app.config import settings
 from app.curriculum import buscar_actividades, listar_unidades, obtener_oa
 from app.db import get_db
-from app.models import Question, Teacher
+from app.models import Guia, GuiaItem, Question, Teacher
 from app.worksheets.store import ingest_pdf
 
 app = FastAPI(title="Backend API")
@@ -255,3 +255,141 @@ def delete_all_questions(
     deleted = db.query(Question).delete()
     db.commit()
     return {"deleted": deleted}
+
+
+# ──────────────────────────── Guías (worksheet builder) ────────────────────────────
+
+
+class GuiaCreate(BaseModel):
+    name: str
+    question_ids: list[int]
+
+
+class GuiaSummary(BaseModel):
+    id: int
+    name: str
+    question_count: int
+
+
+class GuiaDetail(BaseModel):
+    id: int
+    name: str
+    questions: list[QuestionOut]
+
+
+def _guia_detail(g: Guia) -> GuiaDetail:
+    return GuiaDetail(
+        id=g.id,
+        name=g.name,
+        questions=[_question_out(item.question) for item in g.items],
+    )
+
+
+@app.post("/guias", response_model=GuiaDetail)
+def create_guia(
+    body: GuiaCreate,
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    name = body.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Falta el nombre")
+    if not body.question_ids:
+        raise HTTPException(status_code=400, detail="Selecciona al menos una pregunta")
+
+    found = (
+        db.query(Question.id).filter(Question.id.in_(body.question_ids)).all()
+    )
+    found_ids = {row.id for row in found}
+    missing = [qid for qid in body.question_ids if qid not in found_ids]
+    if missing:
+        raise HTTPException(
+            status_code=400, detail=f"Preguntas inexistentes: {missing}"
+        )
+
+    guia = Guia(teacher_id=teacher.id, name=name)
+    for ord_, qid in enumerate(body.question_ids, start=1):
+        guia.items.append(GuiaItem(question_id=qid, ordinal=ord_))
+    db.add(guia)
+    db.commit()
+    db.refresh(guia)
+    return _guia_detail(guia)
+
+
+@app.get("/guias", response_model=list[GuiaSummary])
+def list_guias(
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    rows = (
+        db.query(Guia)
+        .filter(Guia.teacher_id == teacher.id)
+        .order_by(Guia.created_at.desc())
+        .all()
+    )
+    return [
+        GuiaSummary(id=r.id, name=r.name, question_count=len(r.items))
+        for r in rows
+    ]
+
+
+@app.get("/guias/{guia_id}", response_model=GuiaDetail)
+def get_guia(
+    guia_id: int,
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    guia = db.get(Guia, guia_id)
+    if guia is None or guia.teacher_id != teacher.id:
+        raise HTTPException(status_code=404, detail="Guía no existe")
+    return _guia_detail(guia)
+
+
+@app.put("/guias/{guia_id}", response_model=GuiaDetail)
+def update_guia(
+    guia_id: int,
+    body: GuiaCreate,
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    guia = db.get(Guia, guia_id)
+    if guia is None or guia.teacher_id != teacher.id:
+        raise HTTPException(status_code=404, detail="Guía no existe")
+
+    name = body.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Falta el nombre")
+    if not body.question_ids:
+        raise HTTPException(status_code=400, detail="Selecciona al menos una pregunta")
+
+    found = db.query(Question.id).filter(Question.id.in_(body.question_ids)).all()
+    found_ids = {row.id for row in found}
+    missing = [qid for qid in body.question_ids if qid not in found_ids]
+    if missing:
+        raise HTTPException(
+            status_code=400, detail=f"Preguntas inexistentes: {missing}"
+        )
+
+    guia.name = name
+    for item in list(guia.items):
+        db.delete(item)
+    db.flush()
+    for ord_, qid in enumerate(body.question_ids, start=1):
+        guia.items.append(GuiaItem(question_id=qid, ordinal=ord_))
+    db.commit()
+    db.refresh(guia)
+    return _guia_detail(guia)
+
+
+@app.delete("/guias/{guia_id}")
+def delete_guia(
+    guia_id: int,
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    guia = db.get(Guia, guia_id)
+    if guia is None or guia.teacher_id != teacher.id:
+        raise HTTPException(status_code=404, detail="Guía no existe")
+    db.delete(guia)
+    db.commit()
+    return {"deleted": guia_id}

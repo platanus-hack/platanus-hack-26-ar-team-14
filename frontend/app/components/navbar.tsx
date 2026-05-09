@@ -3,13 +3,16 @@ import { LogoutButton } from "./logout-button";
 
 type NavbarProps = {
 	teacherName: string;
-	active: "cuaderno" | "guias";
+	active: "cuaderno" | "banco" | "guias";
 };
 
 const activeLinkClass =
 	"text-slate-900 underline decoration-vermilion decoration-2 underline-offset-[6px]";
 const inactiveLinkClass =
 	"text-slate-500 transition-colors hover:text-slate-900";
+
+const linkClass = (target: NavbarProps["active"], current: NavbarProps["active"]) =>
+	target === current ? activeLinkClass : inactiveLinkClass;
 
 export function Navbar({ teacherName, active }: NavbarProps) {
 	return (
@@ -23,20 +26,13 @@ export function Navbar({ teacherName, active }: NavbarProps) {
 				</Link>
 				<span className="hidden h-5 w-px bg-slate-200 sm:block" />
 				<div className="flex items-center gap-5 text-sm font-medium">
-					<Link
-						href="/"
-						className={
-							active === "cuaderno" ? activeLinkClass : inactiveLinkClass
-						}
-					>
+					<Link href="/" className={linkClass("cuaderno", active)}>
 						Cuaderno
 					</Link>
-					<Link
-						href="/worksheets"
-						className={
-							active === "guias" ? activeLinkClass : inactiveLinkClass
-						}
-					>
+					<Link href="/banco" className={linkClass("banco", active)}>
+						Banco
+					</Link>
+					<Link href="/guias" className={linkClass("guias", active)}>
 						Guías
 					</Link>
 				</div>
