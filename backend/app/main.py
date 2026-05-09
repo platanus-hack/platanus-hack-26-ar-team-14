@@ -10,7 +10,8 @@ from app.chat_status import describe_tool_end, describe_tool_start
 from app.config import settings
 from app.curriculum import buscar_actividades, listar_unidades, obtener_oa
 from app.db import get_db
-from app.models import Guia, GuiaItem, Question, Teacher
+from app.models import Guia, GuiaItem, PlanAnual, PlanAnualItem, Question, Teacher
+from app.planificacion import PlanAnualDraft, extract_plan_from_pdf
 from app.worksheets.store import ingest_pdf
 
 app = FastAPI(title="Backend API")
@@ -133,6 +134,127 @@ def get_oa(codigo: str | None = None, eje: str | None = None):
 @app.get("/unidades")
 def get_unidades():
     return listar_unidades.invoke({})
+
+
+# ──────────────────────────── Planificación anual (extracción) ────────────────────────────
+
+
+class PlanItemOut(BaseModel):
+    id: int
+    ordinal: int
+    mes: str | None
+    unidad: str | None
+    oa_codes: list[str]
+    objetivo: str
+    cantidad_clases: int | None
+
+
+class PlanOut(BaseModel):
+    id: int
+    name: str
+    asignatura: str | None
+    curso: str | None
+    anio: int | None
+    docente: str | None
+    items: list[PlanItemOut]
+
+
+class PlanSummary(BaseModel):
+    id: int
+    name: str
+
+
+def _plan_out(plan: PlanAnual) -> PlanOut:
+    return PlanOut(
+        id=plan.id,
+        name=plan.name,
+        asignatura=plan.asignatura,
+        curso=plan.curso,
+        anio=plan.anio,
+        docente=plan.docente,
+        items=[
+            PlanItemOut(
+                id=it.id,
+                ordinal=it.ordinal,
+                mes=it.mes,
+                unidad=it.unidad,
+                oa_codes=list(it.oa_codes or []),
+                objetivo=it.objetivo,
+                cantidad_clases=it.cantidad_clases,
+            )
+            for it in plan.items
+        ],
+    )
+
+
+@app.post("/planificacion/extract", response_model=PlanOut)
+async def extract_planificacion(
+    file: UploadFile = File(...),
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    """Lee un PDF de planificación, extrae su estructura y la persiste como
+    `PlanAnual` + `PlanAnualItem`s. El agente UTP edita estos items con sus
+    herramientas CRUD."""
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Sube un archivo .pdf")
+    file_bytes = await file.read()
+    if not file_bytes:
+        raise HTTPException(status_code=400, detail="Archivo vacío")
+    try:
+        draft = extract_plan_from_pdf(file_bytes)
+    except Exception as e:  # noqa: BLE001
+        raise HTTPException(status_code=500, detail=f"Falló la extracción: {e}") from e
+
+    plan = PlanAnual(
+        teacher_id=teacher.id,
+        name=file.filename,
+        asignatura=draft.asignatura,
+        curso=draft.curso,
+        anio=draft.anio,
+        docente=draft.docente,
+    )
+    for ord_, it in enumerate(draft.items):
+        plan.items.append(
+            PlanAnualItem(
+                ordinal=ord_,
+                mes=it.mes,
+                unidad=it.unidad,
+                oa_codes=list(it.oa_codes),
+                objetivo=it.objetivo,
+                cantidad_clases=it.cantidad_clases,
+            )
+        )
+    db.add(plan)
+    db.commit()
+    db.refresh(plan)
+    return _plan_out(plan)
+
+
+@app.get("/planificacion", response_model=list[PlanSummary])
+def list_planificaciones(
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    rows = (
+        db.query(PlanAnual)
+        .filter(PlanAnual.teacher_id == teacher.id)
+        .order_by(PlanAnual.created_at.desc())
+        .all()
+    )
+    return [PlanSummary(id=r.id, name=r.name) for r in rows]
+
+
+@app.get("/planificacion/{plan_id}", response_model=PlanOut)
+def get_planificacion(
+    plan_id: int,
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    plan = db.get(PlanAnual, plan_id)
+    if plan is None or plan.teacher_id != teacher.id:
+        raise HTTPException(status_code=404, detail="Planificación no existe")
+    return _plan_out(plan)
 
 
 # ──────────────────────────── Question bank ────────────────────────────

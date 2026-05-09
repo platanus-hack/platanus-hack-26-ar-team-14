@@ -158,13 +158,19 @@ class Material(Base):
 
 
 class PlanAnual(Base):
-    """Planificación anual: cabecera con nombre y fecha."""
+    """Planificación anual del docente. Cabecera con nombre y items."""
 
     __tablename__ = "plan_anuales"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    teacher_id: Mapped[int] = mapped_column(
+        ForeignKey("teachers.id", ondelete="CASCADE"), index=True
+    )
     name: Mapped[str] = mapped_column(String(255))
-    fecha: Mapped[date] = mapped_column(Date)
+    asignatura: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    curso: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    anio: Mapped[int | None] = mapped_column(nullable=True)
+    docente: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -172,11 +178,12 @@ class PlanAnual(Base):
     items: Mapped[list["PlanAnualItem"]] = relationship(
         back_populates="plan",
         cascade="all, delete-orphan",
+        order_by="PlanAnualItem.ordinal",
     )
 
 
 class PlanAnualItem(Base):
-    """Fila de la planificación anual: mes + OA + cantidad de clases + material."""
+    """Fila de la planificación anual editable por el agente UTP."""
 
     __tablename__ = "plan_anual_items"
 
@@ -184,9 +191,12 @@ class PlanAnualItem(Base):
     plan_anual_id: Mapped[int] = mapped_column(
         ForeignKey("plan_anuales.id", ondelete="CASCADE"), index=True
     )
-    mes: Mapped[str] = mapped_column(String(32))
-    oa: Mapped[str] = mapped_column(String(16), index=True)
-    cantidad_clases: Mapped[int] = mapped_column()
+    ordinal: Mapped[int] = mapped_column(default=0)
+    mes: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    unidad: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    oa_codes: Mapped[list] = mapped_column(JSON, default=list)
+    objetivo: Mapped[str] = mapped_column(Text, default="")
+    cantidad_clases: Mapped[int | None] = mapped_column(nullable=True)
     material_id: Mapped[int | None] = mapped_column(
         ForeignKey("materials.id", ondelete="SET NULL"), nullable=True, index=True
     )

@@ -103,14 +103,30 @@ function AssistantText({ text }: { text: string }) {
 		if (md) blocks.push(<Markdown key={key++} text={md} />);
 	};
 
+	let lastTool: { text: string; count: number; index: number } | null = null;
 	for (const line of text.split("\n")) {
-		if (line.startsWith("⏳") || line.startsWith("✓")) {
+		if (line.startsWith("✓")) {
 			flush();
-			blocks.push(
-				<ToolLine key={key++}>{line.replace(/^[⏳✓]\s*/, "")}</ToolLine>,
-			);
+			lastTool = null;
+			continue;
+		}
+		if (line.startsWith("⏳")) {
+			flush();
+			const toolText = line.replace(/^⏳\s*/, "");
+			if (lastTool && lastTool.text === toolText) {
+				lastTool.count += 1;
+				blocks[lastTool.index] = (
+					<ToolLine key={key++} count={lastTool.count}>
+						{toolText}
+					</ToolLine>
+				);
+			} else {
+				lastTool = { text: toolText, count: 1, index: blocks.length };
+				blocks.push(<ToolLine key={key++}>{toolText}</ToolLine>);
+			}
 		} else {
 			buffer.push(line);
+			lastTool = null;
 		}
 	}
 	flush();

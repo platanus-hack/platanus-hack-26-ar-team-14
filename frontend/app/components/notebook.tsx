@@ -79,8 +79,21 @@ export function MessageBlock({
 	);
 }
 
-export function ToolLine({ children }: { children: ReactNode }) {
-	return <div className="tool-tag">↳ {children}</div>;
+export function ToolLine({
+	children,
+	count,
+}: {
+	children: ReactNode;
+	count?: number;
+}) {
+	return (
+		<div className="tool-tag">
+			↳ {children}
+			{count && count > 1 ? (
+				<span className="ml-1 tabular-nums opacity-70">×{count}</span>
+			) : null}
+		</div>
+	);
 }
 
 export function ThinkingDots() {

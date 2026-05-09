@@ -3,13 +3,21 @@ import { getToken } from "../../lib/auth";
 
 const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:8000";
 
-type ChatBody = { messages: UIMessage[] };
+type IncomingMessage =
+	| UIMessage
+	| { role: "user" | "assistant" | "system"; content: string };
 
-function extractText(message: UIMessage): string {
-	return message.parts
-		.filter((p): p is { type: "text"; text: string } => p.type === "text")
-		.map((p) => p.text)
-		.join("");
+type ChatBody = { messages: IncomingMessage[] };
+
+function messageText(m: IncomingMessage): string {
+	if ("content" in m && typeof m.content === "string") return m.content;
+	if ("parts" in m && Array.isArray(m.parts)) {
+		return m.parts
+			.filter((p): p is { type: "text"; text: string } => p.type === "text")
+			.map((p) => p.text)
+			.join("");
+	}
+	return "";
 }
 
 export async function POST(req: Request) {
@@ -27,7 +35,7 @@ export async function POST(req: Request) {
 		body: JSON.stringify({
 			messages: messages.map((m) => ({
 				role: m.role,
-				content: extractText(m),
+				content: messageText(m),
 			})),
 		}),
 	});

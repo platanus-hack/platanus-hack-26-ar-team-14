@@ -96,4 +96,3 @@ def clases_restantes_mes(fecha: str | None = None) -> dict:
     }
 
 
-PLANIFICACION_TOOLS = [clases_en_mes, clases_restantes_mes]

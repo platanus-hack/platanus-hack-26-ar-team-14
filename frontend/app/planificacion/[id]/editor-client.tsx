@@ -1,15 +1,19 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
 	type FormEvent,
 	useEffect,
-	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
+import {
+	getPlanificacionAction,
+	type Plan,
+} from "../../actions/planificacion";
 
 const markdownComponents: Components = {
 	p: ({ children }) => <p className="my-2 first:mt-0 last:mb-0">{children}</p>,
@@ -52,135 +56,43 @@ function Markdown({ text }: { text: string }) {
 type Role = "user" | "assistant";
 type Msg = { id: string; role: Role; text: string };
 
-const REVIEW_PROMPT =
-	"Actúa como jefe de UTP en una audiencia con el docente. Te adjunto la planificación anual de Matemática 5° básico en PDF. Revísala: verifica cobertura contra los 27 OA del nivel, ubicación de OA por unidad, OA mal escritos o inventados, y propone ajustes concretos. Usa el formato de revisión de plan anual.";
-
-async function fileToBase64(file: File): Promise<string> {
-	const buf = await file.arrayBuffer();
-	const bytes = new Uint8Array(buf);
-	let binary = "";
-	const chunk = 0x8000;
-	for (let i = 0; i < bytes.length; i += chunk) {
-		binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
-	}
-	return btoa(binary);
+function buildReviewPrompt(planId: number): string {
+	return [
+		`Plan ID: ${planId}.`,
+		"Estás en una audiencia UTP sobre la planificación anual de Matemática 5° básico.",
+		"Carga el plan con `listar_plan(" + planId + ")`, audita cobertura de los 27 OA,",
+		"ubicación por unidad, OA mal escritos, y factibilidad por mes con `clases_en_mes`.",
+		"Propón las correcciones en texto y espera mi confirmación antes de tocar el plan",
+		"con `crear_item_plan`, `actualizar_item_plan` o `eliminar_item_plan`.",
+		"No reescribas el plan en prosa: el frontend lo recarga desde la base de datos.",
+		"Cierra con la sección # Correcciones según tu formato.",
+	].join(" ");
 }
 
-export function PlanificacionClient() {
-	const [file, setFile] = useState<File | null>(null);
-	const [pdfBase64, setPdfBase64] = useState<string | null>(null);
-	const [error, setError] = useState<string | null>(null);
-	const [preparing, setPreparing] = useState(false);
-	const [started, setStarted] = useState(false);
-
+export function EditorClient({ initialPlan }: { initialPlan: Plan }) {
+	const router = useRouter();
+	const [plan, setPlan] = useState<Plan>(initialPlan);
 	const [messages, setMessages] = useState<Msg[]>([]);
 	const [busy, setBusy] = useState(false);
 	const [input, setInput] = useState("");
+	const [error, setError] = useState<string | null>(null);
 	const startedRef = useRef(false);
 	const abortRef = useRef<AbortController | null>(null);
 
 	const scrollRef = useRef<HTMLDivElement | null>(null);
 	const lastTextLength = messages.reduce((a, m) => a + m.text.length, 0);
-	useLayoutEffect(() => {
+	useEffect(() => {
 		const el = scrollRef.current;
 		if (!el) return;
 		el.scrollTop = el.scrollHeight;
 	}, [messages.length, lastTextLength, busy]);
 
-	const fileUrl = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
-	useEffect(() => {
-		if (!fileUrl) return;
-		return () => URL.revokeObjectURL(fileUrl);
-	}, [fileUrl]);
-
 	async function streamReply(history: Msg[]) {
 		setBusy(true);
 		const ctrl = new AbortController();
 		abortRef.current = ctrl;
-
-		const isFirstWithPdf = history.length === 1 && pdfBase64 != null;
 		const body = {
 			messages: history.map((m) => ({ role: m.role, content: m.text })),
-			pdf: isFirstWithPdf
-				? {
-						name: file?.name ?? "planificacion.pdf",
-						mediaType: "application/pdf",
-						data: pdfBase64,
-					}
-				: null,
-		};
-
-		const assistantId = crypto.randomUUID();
-		setMessages((prev) => [...prev, { id: assistantId, role: "assistant", text: "" }]);
-
-		try {
-			const res = await fetch("/api/planificacion/chat", {
-				method: "POST",
-				headers: { "content-type": "application/json" },
-				body: JSON.stringify(body),
-				signal: ctrl.signal,
-			});
-			if (!res.ok || !res.body) {
-				throw new Error(`${res.status}: ${await res.text()}`);
-			}
-			const reader = res.body.getReader();
-			const decoder = new TextDecoder();
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) break;
-				const chunk = decoder.decode(value, { stream: true });
-				setMessages((prev) =>
-					prev.map((m) =>
-						m.id === assistantId ? { ...m, text: m.text + chunk } : m,
-					),
-				);
-			}
-		} catch (err) {
-			if ((err as Error).name === "AbortError") return;
-			setError(err instanceof Error ? err.message : String(err));
-		} finally {
-			setBusy(false);
-			abortRef.current = null;
-		}
-	}
-
-	async function onUpload(e: FormEvent) {
-		e.preventDefault();
-		if (!file || startedRef.current) return;
-		startedRef.current = true;
-		setPreparing(true);
-		setError(null);
-		try {
-			const b64 = await fileToBase64(file);
-			setPdfBase64(b64);
-			setStarted(true);
-			const first: Msg = {
-				id: crypto.randomUUID(),
-				role: "user",
-				text: REVIEW_PROMPT,
-			};
-			setMessages([first]);
-			// stream uses pdfBase64 from closure: pass directly
-			void streamReplyWithPdf([first], b64);
-		} catch (err) {
-			startedRef.current = false;
-			setError(err instanceof Error ? err.message : String(err));
-		} finally {
-			setPreparing(false);
-		}
-	}
-
-	async function streamReplyWithPdf(history: Msg[], b64: string) {
-		setBusy(true);
-		const ctrl = new AbortController();
-		abortRef.current = ctrl;
-		const body = {
-			messages: history.map((m) => ({ role: m.role, content: m.text })),
-			pdf: {
-				name: file?.name ?? "planificacion.pdf",
-				mediaType: "application/pdf",
-				data: b64,
-			},
 		};
 		const assistantId = crypto.randomUUID();
 		setMessages((prev) => [
@@ -188,7 +100,7 @@ export function PlanificacionClient() {
 			{ id: assistantId, role: "assistant", text: "" },
 		]);
 		try {
-			const res = await fetch("/api/planificacion/chat", {
+			const res = await fetch("/api/chat", {
 				method: "POST",
 				headers: { "content-type": "application/json" },
 				body: JSON.stringify(body),
@@ -209,6 +121,12 @@ export function PlanificacionClient() {
 					),
 				);
 			}
+			try {
+				const fresh = await getPlanificacionAction(plan.id);
+				setPlan(fresh);
+			} catch {
+				// best-effort refresh — agent might not have edited
+			}
 		} catch (err) {
 			if ((err as Error).name === "AbortError") return;
 			setError(err instanceof Error ? err.message : String(err));
@@ -217,6 +135,18 @@ export function PlanificacionClient() {
 			abortRef.current = null;
 		}
 	}
+
+	useEffect(() => {
+		if (startedRef.current) return;
+		startedRef.current = true;
+		const first: Msg = {
+			id: crypto.randomUUID(),
+			role: "user",
+			text: buildReviewPrompt(plan.id),
+		};
+		setMessages([first]);
+		void streamReply([first]);
+	}, [plan.id]);
 
 	function onSendFollowup(e: FormEvent) {
 		e.preventDefault();
@@ -229,106 +159,21 @@ export function PlanificacionClient() {
 		void streamReply(history);
 	}
 
-	function reset() {
+	function onBack() {
 		abortRef.current?.abort();
-		setFile(null);
-		setPdfBase64(null);
-		setMessages([]);
-		setError(null);
-		setStarted(false);
-		startedRef.current = false;
-	}
-
-	if (!started) {
-		return (
-			<article className="bitacora-card mx-auto w-full max-w-3xl">
-				<form onSubmit={onUpload} className="flex flex-col gap-6">
-					<div>
-						<p className="bitacora-kicker">Momento 1 · revisión con UTP</p>
-						<h2 className="mt-2 font-display text-[clamp(1.6rem,2.4vw,2.4rem)] leading-tight tracking-tight text-slate-950">
-							Sube tu planificación anual
-						</h2>
-						<p className="mt-2 text-base text-slate-600">
-							PDF con la distribución de OA por unidad o por mes. La audiencia
-							UTP empieza apenas terminemos de leerlo.
-						</p>
-					</div>
-
-					<label className="flex flex-col gap-2">
-						<span className="bitacora-kicker">Archivo PDF</span>
-						<input
-							type="file"
-							accept="application/pdf"
-							onChange={(ev) => setFile(ev.target.files?.[0] ?? null)}
-							className="rounded-2xl border border-slate-200 bg-white/70 px-4 py-3 text-sm text-slate-700 file:mr-3 file:rounded-full file:border-0 file:bg-slate-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-slate-700"
-						/>
-					</label>
-
-					<button
-						type="submit"
-						className="bitacora-primary-button self-start"
-						disabled={!file || preparing}
-					>
-						{preparing ? "Preparando…" : "Iniciar audiencia"}
-					</button>
-
-					{error ? (
-						<pre className="max-w-full overflow-x-auto whitespace-pre-wrap break-words rounded-2xl border border-red-200 bg-red-50 px-4 py-3 font-mono text-[12px] text-red-700">
-							{error}
-						</pre>
-					) : null}
-				</form>
-			</article>
-		);
+		router.push("/planificacion");
 	}
 
 	return (
 		<div className="grid h-[calc(100vh-260px)] min-h-[640px] gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-			<article className="bitacora-card flex min-h-0 flex-col overflow-hidden p-0">
-				<header className="flex items-center justify-between gap-3 border-b border-slate-200/70 px-5 py-4">
-					<div className="min-w-0">
-						<p className="bitacora-kicker">Plan en revisión</p>
-						<p className="truncate text-sm font-semibold text-slate-900">
-							{file?.name ?? "planificacion.pdf"}
-						</p>
-					</div>
-					<button
-						type="button"
-						onClick={reset}
-						className="rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-					>
-						Subir otro
-					</button>
-				</header>
-				<div className="flex-1 bg-slate-100">
-					{fileUrl ? (
-						<object
-							data={fileUrl}
-							type="application/pdf"
-							className="h-full w-full"
-						>
-							<p className="p-6 text-sm text-slate-600">
-								Tu navegador no puede mostrar el PDF.{" "}
-								<a
-									href={fileUrl}
-									target="_blank"
-									rel="noreferrer"
-									className="text-vermilion underline"
-								>
-									Ábrelo en otra pestaña
-								</a>
-								.
-							</p>
-						</object>
-					) : null}
-				</div>
-			</article>
+			<PlanTable plan={plan} onBack={onBack} />
 
 			<article className="bitacora-card flex min-h-0 flex-col overflow-hidden p-0">
 				<header className="border-b border-slate-200/70 px-5 py-4">
 					<p className="bitacora-kicker">Audiencia UTP · en vivo</p>
 					<p className="mt-1 text-sm text-slate-600">
-						Revisión de cobertura, ubicación de OA y propuestas de ajuste.
+						El agente edita el plan directamente. La tabla se recarga al final
+						de cada turno.
 					</p>
 				</header>
 
@@ -384,6 +229,89 @@ export function PlanificacionClient() {
 	);
 }
 
+function PlanTable({ plan, onBack }: { plan: Plan; onBack: () => void }) {
+	return (
+		<article className="bitacora-card flex min-h-0 flex-col overflow-hidden p-0">
+			<header className="flex items-start justify-between gap-3 border-b border-slate-200/70 px-5 py-4">
+				<div className="min-w-0">
+					<p className="bitacora-kicker">Plan #{plan.id}</p>
+					<p className="truncate text-sm font-semibold text-slate-900">
+						{plan.name}
+					</p>
+					<div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
+						{plan.asignatura ? <span>{plan.asignatura}</span> : null}
+						{plan.curso ? <span>· {plan.curso}</span> : null}
+						{plan.anio ? <span>· {plan.anio}</span> : null}
+						{plan.docente ? <span>· {plan.docente}</span> : null}
+					</div>
+				</div>
+				<button
+					type="button"
+					onClick={onBack}
+					className="rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+				>
+					Volver
+				</button>
+			</header>
+
+			<div className="min-h-0 flex-1 overflow-auto">
+				<table className="w-full border-collapse text-[13px]">
+					<thead className="sticky top-0 bg-slate-50 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+						<tr>
+							<th className="border-b border-slate-200 px-4 py-2.5">Unidad</th>
+							<th className="border-b border-slate-200 px-4 py-2.5">Mes</th>
+							<th className="border-b border-slate-200 px-4 py-2.5">OA</th>
+							<th className="border-b border-slate-200 px-4 py-2.5">Objetivo</th>
+							<th className="border-b border-slate-200 px-4 py-2.5">Clases</th>
+						</tr>
+					</thead>
+					<tbody>
+						{plan.items.map((item) => (
+							<tr key={item.id} className="align-top hover:bg-slate-50/60">
+								<td className="border-b border-slate-100 px-4 py-2.5 font-medium text-slate-800">
+									{item.unidad ?? "—"}
+								</td>
+								<td className="border-b border-slate-100 px-4 py-2.5 text-slate-700">
+									{item.mes ?? "—"}
+								</td>
+								<td className="border-b border-slate-100 px-4 py-2.5">
+									<div className="flex flex-wrap gap-1">
+										{item.oa_codes.length === 0 ? (
+											<span className="text-slate-400">—</span>
+										) : (
+											item.oa_codes.map((code) => (
+												<span
+													key={code}
+													className="rounded-full border border-vermilion/30 bg-vermilion/5 px-2 py-0.5 text-[11px] font-semibold text-vermilion"
+												>
+													{code}
+												</span>
+											))
+										)}
+									</div>
+								</td>
+								<td className="border-b border-slate-100 px-4 py-2.5 text-slate-700">
+									{item.objetivo}
+								</td>
+								<td className="border-b border-slate-100 px-4 py-2.5 text-right text-slate-700 tabular-nums">
+									{item.cantidad_clases ?? "—"}
+								</td>
+							</tr>
+						))}
+						{plan.items.length === 0 ? (
+							<tr>
+								<td colSpan={5} className="px-4 py-8 text-center text-slate-500">
+									Sin filas. Pide al agente que agregue OA con `crear_item_plan`.
+								</td>
+							</tr>
+						) : null}
+					</tbody>
+				</table>
+			</div>
+		</article>
+	);
+}
+
 function MessageView({
 	role,
 	children,
@@ -406,7 +334,7 @@ function MessageView({
 }
 
 function renderAssistantText(text: string) {
-	const blocks: { kind: "tool" | "md"; text: string }[] = [];
+	const blocks: { kind: "tool" | "md"; text: string; count?: number }[] = [];
 	const buf: string[] = [];
 	const flush = () => {
 		const md = buf.join("\n").trim();
@@ -414,9 +342,19 @@ function renderAssistantText(text: string) {
 		if (md) blocks.push({ kind: "md", text: md });
 	};
 	for (const line of text.split("\n")) {
-		if (line.startsWith("⏳") || line.startsWith("✓")) {
+		if (line.startsWith("✓")) {
 			flush();
-			blocks.push({ kind: "tool", text: line.replace(/^[⏳✓]\s*/, "") });
+			continue;
+		}
+		if (line.startsWith("⏳")) {
+			flush();
+			const toolText = line.replace(/^⏳\s*/, "");
+			const last = blocks[blocks.length - 1];
+			if (last && last.kind === "tool" && last.text === toolText) {
+				last.count = (last.count ?? 1) + 1;
+			} else {
+				blocks.push({ kind: "tool", text: toolText });
+			}
 		} else {
 			buf.push(line);
 		}
@@ -428,7 +366,9 @@ function renderAssistantText(text: string) {
 function AssistantText({ text, role }: { text: string; role: Role }) {
 	const blocks = useMemo(() => renderAssistantText(text), [text]);
 	if (role === "user") {
-		const trimmed = text === REVIEW_PROMPT ? "Planificación enviada para revisión." : text;
+		const trimmed = text.startsWith("Plan ID:")
+			? "Audiencia iniciada."
+			: text;
 		return <p className="whitespace-pre-wrap">{trimmed}</p>;
 	}
 	return (
@@ -437,9 +377,14 @@ function AssistantText({ text, role }: { text: string; role: Role }) {
 				b.kind === "tool" ? (
 					<p
 						key={i}
-						className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-medium text-slate-500"
+						className="inline-flex w-fit items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-[12px] font-medium text-slate-500"
 					>
-						{b.text}
+						<span>{b.text}</span>
+						{b.count && b.count > 1 ? (
+							<span className="rounded-full bg-slate-200 px-1.5 text-[10px] tabular-nums text-slate-600">
+								×{b.count}
+							</span>
+						) : null}
 					</p>
 				) : (
 					<Markdown key={i} text={b.text} />

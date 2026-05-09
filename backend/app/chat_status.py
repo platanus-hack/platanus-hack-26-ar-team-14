@@ -83,16 +83,80 @@ def _end_buscar_actividades(payload: Any) -> str:
     return f"Encontré {n} fragmentos del Programa."
 
 
+def _start_listar_plan(_args: dict) -> str:
+    return "Leyendo el plan anual…"
+
+
+def _end_listar_plan(payload: Any) -> str:
+    data = _safe_load(payload)
+    if isinstance(data, dict) and isinstance(data.get("items"), list):
+        return f"Plan con {len(data['items'])} filas."
+    return "Listo."
+
+
+def _start_crear_item_plan(args: dict) -> str:
+    oa = args.get("oa_codes") or []
+    if oa:
+        return f"Agregando fila al plan ({', '.join(oa)})…"
+    return "Agregando fila al plan…"
+
+
+def _end_crear_item_plan(_payload: Any) -> str:
+    return "Fila agregada."
+
+
+def _start_actualizar_item_plan(args: dict) -> str:
+    item_id = args.get("item_id")
+    return f"Editando fila {item_id} del plan…" if item_id else "Editando fila del plan…"
+
+
+def _end_actualizar_item_plan(_payload: Any) -> str:
+    return "Fila actualizada."
+
+
+def _start_eliminar_item_plan(args: dict) -> str:
+    item_id = args.get("item_id")
+    return f"Eliminando fila {item_id} del plan…" if item_id else "Eliminando fila del plan…"
+
+
+def _end_eliminar_item_plan(_payload: Any) -> str:
+    return "Fila eliminada."
+
+
+def _start_clases_en_mes(args: dict) -> str:
+    mes = args.get("mes")
+    return f"Calculando clases del mes {mes}…" if mes else "Calculando clases del mes…"
+
+
+def _end_clases_en_mes(_payload: Any) -> str:
+    return "Listo."
+
+
+def _start_clases_restantes_mes(_args: dict) -> str:
+    return "Calculando clases restantes del mes…"
+
+
 _START: dict[str, Callable[[dict], str]] = {
     "listar_unidades": _start_listar_unidades,
     "obtener_oa": _start_obtener_oa,
     "buscar_actividades": _start_buscar_actividades,
+    "listar_plan": _start_listar_plan,
+    "crear_item_plan": _start_crear_item_plan,
+    "actualizar_item_plan": _start_actualizar_item_plan,
+    "eliminar_item_plan": _start_eliminar_item_plan,
+    "clases_en_mes": _start_clases_en_mes,
+    "clases_restantes_mes": _start_clases_restantes_mes,
 }
 
 _END: dict[str, Callable[[Any], str]] = {
     "listar_unidades": _end_listar_unidades,
     "obtener_oa": _end_obtener_oa,
     "buscar_actividades": _end_buscar_actividades,
+    "listar_plan": _end_listar_plan,
+    "crear_item_plan": _end_crear_item_plan,
+    "actualizar_item_plan": _end_actualizar_item_plan,
+    "eliminar_item_plan": _end_eliminar_item_plan,
+    "clases_en_mes": _end_clases_en_mes,
 }
 
 
