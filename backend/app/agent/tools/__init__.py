@@ -11,7 +11,8 @@ agent's tool registry stays the single source of truth.
 """
 
 from app.curriculum import CURRICULUM_TOOLS
+from app.planificacion import PLANIFICACION_TOOLS
 
-TOOLS = list(CURRICULUM_TOOLS)
+TOOLS = [*CURRICULUM_TOOLS, *PLANIFICACION_TOOLS]
 
 __all__ = ["TOOLS"]

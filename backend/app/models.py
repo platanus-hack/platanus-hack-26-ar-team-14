@@ -3,10 +3,11 @@
 Add new tables here so Alembic autogenerate can pick them up.
 """
 
-from datetime import datetime
+from datetime import date, datetime
 
 from sqlalchemy import (
     JSON,
+    Date,
     DateTime,
     ForeignKey,
     LargeBinary,
@@ -140,3 +141,53 @@ class GuiaItem(Base):
 
     guia: Mapped["Guia"] = relationship(back_populates="items")
     question: Mapped["Question"] = relationship()
+
+
+class Material(Base):
+    """Material vinculado a un PlanAnualItem (guía, prueba, recurso, etc.)."""
+
+    __tablename__ = "materials"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(255))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class PlanAnual(Base):
+    """Planificación anual: cabecera con nombre y fecha."""
+
+    __tablename__ = "plan_anuales"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(255))
+    fecha: Mapped[date] = mapped_column(Date)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    items: Mapped[list["PlanAnualItem"]] = relationship(
+        back_populates="plan",
+        cascade="all, delete-orphan",
+    )
+
+
+class PlanAnualItem(Base):
+    """Fila de la planificación anual: mes + OA + cantidad de clases + material."""
+
+    __tablename__ = "plan_anual_items"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    plan_anual_id: Mapped[int] = mapped_column(
+        ForeignKey("plan_anuales.id", ondelete="CASCADE"), index=True
+    )
+    mes: Mapped[str] = mapped_column(String(32))
+    oa: Mapped[str] = mapped_column(String(16), index=True)
+    cantidad_clases: Mapped[int] = mapped_column()
+    material_id: Mapped[int | None] = mapped_column(
+        ForeignKey("materials.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+
+    plan: Mapped["PlanAnual"] = relationship(back_populates="items")
+    material: Mapped["Material | None"] = relationship()
