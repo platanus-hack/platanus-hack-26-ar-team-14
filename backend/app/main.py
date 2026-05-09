@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from app.graph import compiled_graph
+from app.agent import agent
 
 app = FastAPI(title="Backend API")
 
@@ -15,21 +15,18 @@ app.add_middleware(
 )
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
 @app.get("/health")
 async def health():
     return {"status": "ok"}
 
 
-class GraphRequest(BaseModel):
-    text: str = ""
+class ChatRequest(BaseModel):
+    message: str
 
 
-@app.post("/graph/invoke")
-async def graph_invoke(req: GraphRequest):
-    result = await compiled_graph.ainvoke({"text": req.text})
-    return result
+@app.post("/chat")
+async def chat(req: ChatRequest):
+    result = await agent.ainvoke(
+        {"messages": [{"role": "user", "content": req.message}]}
+    )
+    return {"reply": result["messages"][-1].content}
