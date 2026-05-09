@@ -2,7 +2,7 @@
 
 import { useChat } from "@ai-sdk/react";
 import { TextStreamChatTransport } from "ai";
-import { useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -126,6 +126,23 @@ export function Chat() {
 
   const busy = status === "submitted" || status === "streaming";
 
+  const scrollRef = useRef<HTMLElement | null>(null);
+  const lastTextLength = messages.reduce(
+    (acc, m) =>
+      acc +
+      m.parts.reduce(
+        (a, p) => a + (p.type === "text" ? p.text.length : 0),
+        0,
+      ),
+    0,
+  );
+
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }, [messages.length, lastTextLength, busy]);
+
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     const text = input.trim();
@@ -136,7 +153,10 @@ export function Chat() {
 
   return (
     <div className="paper-card mr-2 mb-2 flex min-h-0 flex-1 flex-col gap-5 px-6 py-6 sm:px-7">
-      <section className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto pr-1">
+      <section
+        ref={scrollRef}
+        className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto pr-1"
+      >
         {messages.length === 0 ? (
           <EmptyState>¿Qué OA estás trabajando hoy?</EmptyState>
         ) : null}

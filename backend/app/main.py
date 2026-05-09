@@ -1,12 +1,16 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+from sqlalchemy.orm import Session
 
 from app.agent import agent
+from app.auth import create_access_token, get_current_teacher, verify_password
 from app.chat_status import describe_tool_end, describe_tool_start
 from app.config import settings
 from app.curriculum import buscar_actividades, listar_unidades, obtener_oa
+from app.db import get_db
+from app.models import Teacher
 
 app = FastAPI(title="Backend API")
 
@@ -24,6 +28,42 @@ async def health():
     return {"status": "ok"}
 
 
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class TeacherOut(BaseModel):
+    id: int
+    name: str
+    email: EmailStr
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    teacher: TeacherOut
+
+
+@app.post("/auth/login", response_model=LoginResponse)
+def login(req: LoginRequest, db: Session = Depends(get_db)):
+    teacher = db.query(Teacher).filter(Teacher.email == req.email).one_or_none()
+    if teacher is None or not verify_password(req.password, teacher.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="invalid credentials",
+        )
+    return LoginResponse(
+        access_token=create_access_token(teacher_id=teacher.id),
+        teacher=TeacherOut(id=teacher.id, name=teacher.name, email=teacher.email),
+    )
+
+
+@app.get("/auth/me", response_model=TeacherOut)
+def me(teacher: Teacher = Depends(get_current_teacher)):
+    return TeacherOut(id=teacher.id, name=teacher.name, email=teacher.email)
+
+
 class ChatMessage(BaseModel):
     role: str
     content: str
@@ -34,7 +74,10 @@ class ChatRequest(BaseModel):
 
 
 @app.post("/chat/stream")
-async def chat_stream(req: ChatRequest):
+async def chat_stream(
+    req: ChatRequest,
+    teacher: Teacher = Depends(get_current_teacher),
+):
     """Stream the agent's tool activity and final tokens as plain UTF-8 text.
 
     Tool calls are surfaced as short Spanish status lines (prefixed with

@@ -1,10 +1,23 @@
-import { PageShell, Topbar, PageTitle } from "./components/notebook";
+import { redirect } from "next/navigation";
 import { Chat } from "./components/chat";
+import { LogoutButton } from "./components/logout-button";
+import { PageShell, PageTitle, Topbar } from "./components/notebook";
+import { getCurrentTeacher } from "./lib/auth";
 
-export default function Home() {
+export default async function Home() {
+  const teacher = await getCurrentTeacher();
+  if (!teacher) redirect("/login");
+
   return (
     <PageShell>
-      <Topbar />
+      <Topbar
+        right={
+          <>
+            <span className="meta-mono text-ink-soft">{teacher.name}</span>
+            <LogoutButton />
+          </>
+        }
+      />
 
       <PageTitle
         pre="Tu planificación,"

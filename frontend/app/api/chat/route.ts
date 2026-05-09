@@ -1,4 +1,5 @@
 import type { UIMessage } from "ai";
+import { getToken } from "../../lib/auth";
 
 const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:8000";
 
@@ -12,11 +13,17 @@ function extractText(message: UIMessage): string {
 }
 
 export async function POST(req: Request) {
+  const token = await getToken();
+  if (!token) return new Response("unauthorized", { status: 401 });
+
   const { messages } = (await req.json()) as ChatBody;
 
   const upstream = await fetch(`${BACKEND_URL}/chat/stream`, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify({
       messages: messages.map((m) => ({
         role: m.role,

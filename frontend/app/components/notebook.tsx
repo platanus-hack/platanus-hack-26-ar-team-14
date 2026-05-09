@@ -13,11 +13,20 @@ export function PageShell({ children }: { children: ReactNode }) {
   );
 }
 
-export function Topbar({ title = "Cuaderno" }: { title?: string }) {
+export function Topbar({
+  title = "Cuaderno",
+  right,
+}: {
+  title?: string;
+  right?: ReactNode;
+}) {
   return (
-    <header className="flex items-baseline justify-between">
+    <header className="flex items-baseline justify-between gap-4">
       <span className="font-display text-2xl italic leading-none">{title}</span>
-      <span className="meta-mono">5° básico · Matemática</span>
+      <div className="flex items-baseline gap-3">
+        <span className="meta-mono">5° básico · Matemática</span>
+        {right}
+      </div>
     </header>
   );
 }

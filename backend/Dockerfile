@@ -7,6 +7,8 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 COPY app ./app
 COPY docs ./docs
 COPY .chroma ./.chroma
+COPY alembic ./alembic
+COPY alembic.ini ./alembic.ini
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev
 
@@ -15,4 +17,4 @@ WORKDIR /app
 COPY --from=builder /app /app
 ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1
 EXPOSE 8000
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
