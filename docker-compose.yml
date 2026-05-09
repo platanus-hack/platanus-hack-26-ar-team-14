@@ -28,6 +28,8 @@ services:
       DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/app
     expose:
       - "8000"
+    ports:
+      - "8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
