@@ -63,25 +63,4 @@ jobs:
             printf 'LANGSMITH_API_KEY=%s\n' "$LANGSMITH_API_KEY"
             printf 'LANGSMITH_PROJECT=%s\n' "$LANGSMITH_PROJECT"
           } | ssh "$DEPLOY_HOST" "cat > $DEPLOY_DIR/backend/.env"
-          ssh "$DEPLOY_HOST" "bash -s" <<'REMOTE'
-            set -euo pipefail
-            cd /home/deploy/app
-            PROJECT=$(basename "$PWD")
-
-            # Demo environment: drop and recreate the database on every deploy.
-            docker compose stop postgres backend || true
-            docker compose rm -f postgres backend || true
-            docker volume rm "${PROJECT}_postgres_data" 2>/dev/null || true
-
-            docker compose up -d --build --remove-orphans
-            docker image prune -f
-
-            # Wait for postgres, then give backend a moment to run migrations.
-            for i in $(seq 1 60); do
-              docker compose exec -T postgres pg_isready -U postgres -d app >/dev/null 2>&1 && break
-              sleep 1
-            done
-            sleep 5
-
-            docker compose exec -T backend python -m scripts.seed_demo
-          REMOTE
+          ssh -n "$DEPLOY_HOST" "cd $DEPLOY_DIR && bash deploy/post_deploy.sh"
