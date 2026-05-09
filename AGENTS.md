@@ -65,6 +65,14 @@ Core principles for writing code and prompts in this repo. Read this before cont
 - `pydantic-settings` only loads fields it knows about. An undeclared var won't be in `os.environ` when the app boots via `fastapi dev` (no implicit `dotenv.load_dotenv()` happens), so any `os.environ["FOO"]` access silently 500s — and if it sits inside a tool, the agent's error middleware turns it into a "tool unavailable" message and the model fabricates a plausible-looking answer. Past incident: `OPENROUTER_API_KEY` was read directly from `os.environ` in `curriculum/store.py`; the embedding call failed at request time and the agent invented page numbers for the Programa de Estudio.
 - When you add a new env var: add the field to `Settings` (with `SecretStr` for credentials), reference it in `.env.example`, and use `settings.<field>` in code.
 
+### 15. Prefer a BFF boundary for frontend work
+- Default to this flow for user-facing product features: `Frontend -> Frontend Backend / BFF -> Main Backend / Internal Services`.
+- The frontend should not call the main backend or internal services directly unless there is a very explicit, reviewed reason to do so.
+- The BFF exists to hide internal service URLs and implementation details from the frontend.
+- The BFF is where we protect secrets, API keys, and service-specific credentials, and where we handle auth or session logic when that belongs close to the frontend experience.
+- The BFF may adapt backend responses into frontend-shaped payloads, aggregate multiple backend calls into one endpoint, and enforce frontend-specific validation or access rules.
+- When building new frontend features, prefer adding or updating BFF endpoints over introducing direct frontend-to-main-backend calls.
+
 ---
 
 ## Part 2 — Prompting Principles (for working with LLMs in this repo)
