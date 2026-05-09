@@ -60,6 +60,11 @@ Core principles for writing code and prompts in this repo. Read this before cont
 - Always use `uv` to manage Python deps: `uv add <pkg>`, `uv remove <pkg>`, `uv lock`, `uv sync`. Let the resolver pick real versions from the registry.
 - Same principle for other ecosystems: use the package manager (`pnpm add`, `cargo add`, etc.), don't type version numbers from memory.
 
+### 14. Config and env vars (backend)
+- All env vars must be declared as typed fields on `Settings` in `backend/app/config.py`, and consumed via `from app.config import settings`. **Never read `os.environ` directly** in app code.
+- `pydantic-settings` only loads fields it knows about. An undeclared var won't be in `os.environ` when the app boots via `fastapi dev` (no implicit `dotenv.load_dotenv()` happens), so any `os.environ["FOO"]` access silently 500s — and if it sits inside a tool, the agent's error middleware turns it into a "tool unavailable" message and the model fabricates a plausible-looking answer. Past incident: `OPENROUTER_API_KEY` was read directly from `os.environ` in `curriculum/store.py`; the embedding call failed at request time and the agent invented page numbers for the Programa de Estudio.
+- When you add a new env var: add the field to `Settings` (with `SecretStr` for credentials), reference it in `.env.example`, and use `settings.<field>` in code.
+
 ---
 
 ## Part 2 — Prompting Principles (for working with LLMs in this repo)
