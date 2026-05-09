@@ -5,6 +5,8 @@ COPY pyproject.toml uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-install-project --no-dev
 COPY app ./app
+COPY docs ./docs
+COPY .chroma ./.chroma
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev
 
