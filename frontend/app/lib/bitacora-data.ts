@@ -64,23 +64,23 @@ export function getUrgencyTone(urgency: UrgencyLevel) {
 		case "Alta":
 			return {
 				badge: "urgency-high",
-				border: "border-[#b94b45]/45",
-				surface: "bg-[#fff4f1]",
+				border: "border-[#b94b45]/52",
+				surface: "bg-[#fce7e2]",
 				accent: "text-[#8b1e18]",
 			};
 		case "Media":
 			return {
 				badge: "urgency-medium",
-				border: "border-[#d0891a]/45",
-				surface: "bg-[#fff8ea]",
+				border: "border-[#d0891a]/52",
+				surface: "bg-[#fdf1d8]",
 				accent: "text-[#9a5a00]",
 			};
 		case "Baja":
 			return {
 				badge: "urgency-low",
-				border: "border-[#2d7f8b]/35",
-				surface: "bg-[#f3fbfc]",
-				accent: "text-[#185a63]",
+				border: "border-[#2f8f6b]/48",
+				surface: "bg-[#e4f4ec]",
+				accent: "text-[#1c6a4e]",
 			};
 	}
 }

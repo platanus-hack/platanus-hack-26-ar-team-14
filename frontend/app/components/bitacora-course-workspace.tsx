@@ -65,6 +65,11 @@ function cloneWeeks(weeks: WeekPlan[]) {
 }
 
 export function BitacoraCourseWorkspace({ course }: { course: CourseRecord }) {
+	const neutralTone = {
+		border: "border-slate-200/90",
+		surface: "bg-slate-50",
+		accent: "text-slate-500",
+	};
 	const [weeks, setWeeks] = useState(() => cloneWeeks(course.weeks));
 	const [messages, setMessages] = useState<ChatMessage[]>([
 		{ id: "initial-agent", role: "assistant", text: course.initialChatMessage },
@@ -73,7 +78,8 @@ export function BitacoraCourseWorkspace({ course }: { course: CourseRecord }) {
 	const [statusText, setStatusText] = useState("Analizando planificación");
 	const [modalAction, setModalAction] = useState<string | null>(null);
 
-	const tone = getUrgencyTone(course.urgency);
+	const tone =
+		course.curricularGap > 0 ? getUrgencyTone(course.urgency) : neutralTone;
 	const interactiveCounts = useMemo(() => {
 		const taught = weeks
 			.flatMap((week) => week.objectives)

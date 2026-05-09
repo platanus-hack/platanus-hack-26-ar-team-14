@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition, type FormEvent } from "react";
@@ -393,9 +394,11 @@ function WorksheetItem({
 					{q.prompt}
 				</p>
 				{q.has_image && q.image_url ? (
-					<img
+					<Image
 						src={`/api${q.image_url}`}
 						alt={`Pregunta ${q.id}`}
+						width={q.image_width ?? 1200}
+						height={q.image_height ?? 900}
 						className="mt-3 max-h-64 rounded-xl border border-slate-200 object-contain"
 					/>
 				) : null}

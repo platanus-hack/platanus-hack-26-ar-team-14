@@ -129,9 +129,9 @@ body {
 	}
 
 	.bitacora-dashboard-shell {
-		max-width: 1380px;
+		max-width: 1120px;
 		margin: 0 auto;
-		padding: 40px 24px 72px;
+		padding: 24px 18px 48px;
 	}
 
 	.bitacora-shell {
@@ -162,7 +162,41 @@ body {
 			inset 0 1px 0 rgba(255, 255, 255, 0.9);
 	}
 
+	.bitacora-alert-banner {
+		position: relative;
+		overflow: hidden;
+		border: 1px solid rgba(185, 75, 69, 0.26);
+		border-radius: 28px;
+		padding: 0 22px;
+		max-height: 0;
+		width: fit-content;
+		max-width: min(100%, 920px);
+		margin-left: auto;
+		margin-right: auto;
+		background:
+			linear-gradient(145deg, rgba(255, 243, 241, 0.96), rgba(255, 232, 228, 0.88)),
+			radial-gradient(circle at top right, rgba(185, 75, 69, 0.18), transparent 36%);
+		box-shadow:
+			0 32px 90px rgba(185, 75, 69, 0.12),
+			inset 0 1px 0 rgba(255, 255, 255, 0.72);
+		opacity: 0;
+		transform: translateY(-10px) scale(0.985);
+		margin-bottom: 0;
+		animation: bitacora-alert-in 900ms linear 950ms
+			forwards;
+	}
+
+	.bitacora-alert-title {
+		font-family: var(--font-display), Georgia, serif;
+		font-size: clamp(1rem, 2vw, 1.6rem);
+		line-height: 1.02;
+		letter-spacing: -0.03em;
+		text-align: center;
+		color: #5f1814;
+	}
+
 	.bitacora-card,
+	.bitacora-course-card,
 	.bitacora-surface,
 	.bitacora-calendar-day,
 	.bitacora-chat-panel {
@@ -177,6 +211,32 @@ body {
 
 	.bitacora-card {
 		padding: 28px;
+	}
+
+	.bitacora-course-card {
+		display: block;
+		padding: 18px 18px 12px;
+		border: 1px solid rgba(255, 255, 255, 0.82);
+		border-radius: 28px;
+		background: var(--paper);
+		box-shadow:
+			0 24px 80px rgba(15, 23, 42, 0.08),
+			inset 0 1px 0 rgba(255, 255, 255, 0.88);
+		opacity: 0;
+		transform: translateY(22px);
+		animation: bitacora-card-in 560ms ease forwards;
+		transition:
+			transform 180ms ease,
+			box-shadow 180ms ease,
+			border-color 180ms ease;
+	}
+
+	.bitacora-course-card:hover {
+		transform: translateY(-3px);
+		border-color: rgba(148, 163, 184, 0.6);
+		box-shadow:
+			0 28px 90px rgba(15, 23, 42, 0.12),
+			inset 0 1px 0 rgba(255, 255, 255, 0.92);
 	}
 
 	.bitacora-chat-panel {
@@ -199,10 +259,37 @@ body {
 
 	.bitacora-kicker {
 		font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
-		font-size: 11px;
-		letter-spacing: 0.22em;
+		font-size: 10px;
+		letter-spacing: 0.2em;
 		text-transform: uppercase;
 		color: var(--muted);
+	}
+
+	.bitacora-course-issue {
+		display: flex;
+		align-items: flex-start;
+		gap: 10px;
+		border-radius: 0;
+		padding: 14px 0;
+		transition:
+			background 160ms ease,
+			color 160ms ease;
+	}
+
+	.bitacora-course-issue-divider {
+		border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+	}
+
+	.bitacora-course-issue-text {
+		flex: 1;
+		text-decoration: underline;
+		text-decoration-color: transparent;
+		text-underline-offset: 0.18em;
+		transition: text-decoration-color 160ms ease;
+	}
+
+	.bitacora-course-card:hover .bitacora-course-issue-text {
+		text-decoration-color: currentColor;
 	}
 
 	.bitacora-stat-card,
@@ -301,9 +388,122 @@ body {
 		overflow: hidden;
 	}
 
-	.bitacora-calendar-block {
-		display: block;
-		padding: 16px;
+	.bitacora-calendar-board {
+		overflow: hidden;
+		border: 1px solid rgba(255, 255, 255, 0.82);
+		border-radius: 28px;
+		background: rgba(255, 255, 255, 0.86);
+		box-shadow:
+			0 24px 80px rgba(15, 23, 42, 0.08),
+			inset 0 1px 0 rgba(255, 255, 255, 0.88);
+		backdrop-filter: blur(14px);
+	}
+
+	@media (max-width: 1023px) {
+		.bitacora-calendar-board {
+			overflow-x: auto;
+		}
+	}
+
+	.bitacora-calendar-grid {
+		display: grid;
+		grid-template-columns: 78px repeat(5, minmax(0, 1fr));
+	}
+
+	.bitacora-calendar-corner,
+	.bitacora-calendar-header,
+	.bitacora-calendar-time,
+	.bitacora-calendar-slot {
+		border-right: 1px solid rgba(226, 232, 240, 0.9);
+		border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+	}
+
+	.bitacora-calendar-header {
+		padding: 12px 12px;
+		font-size: 0.88rem;
+		font-weight: 600;
+		color: #0f172a;
+		text-align: left;
+	}
+
+	.bitacora-calendar-corner {
+		background: rgba(248, 250, 252, 0.76);
+	}
+
+	.bitacora-calendar-time {
+		display: flex;
+		align-items: flex-start;
+		justify-content: center;
+		padding: 12px 8px;
+		font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+		font-size: 10px;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: #64748b;
+		background: rgba(248, 250, 252, 0.76);
+	}
+
+	.bitacora-calendar-slot {
+		min-height: 96px;
+	}
+
+	.bitacora-calendar-slot-empty {
+		background: rgba(255, 255, 255, 0.28);
+	}
+
+	.bitacora-calendar-event {
+		display: flex;
+		height: 100%;
+		width: 100%;
+		flex-direction: column;
+		padding: 10px 11px;
+		transition: filter 160ms ease, transform 160ms ease;
+	}
+
+	.bitacora-calendar-title {
+		font-family: var(--font-display), Georgia, serif;
+		font-size: clamp(1.5rem, 2.2vw, 2.2rem);
+		line-height: 0.98;
+		letter-spacing: -0.04em;
+		color: #0f172a;
+	}
+
+	.bitacora-section-subtitle {
+		margin-top: 6px;
+		font-size: 1rem;
+		line-height: 1.6;
+		color: #64748b;
+	}
+
+	.bitacora-priority-rail {
+		max-height: 620px;
+		overflow-y: auto;
+		padding-right: 6px;
+		scrollbar-width: thin;
+		scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+	}
+
+	.bitacora-priority-rail-inner {
+		display: grid;
+		gap: 18px;
+	}
+
+	.bitacora-priority-rail::-webkit-scrollbar {
+		width: 10px;
+	}
+
+	.bitacora-priority-rail::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.bitacora-priority-rail::-webkit-scrollbar-thumb {
+		border-radius: 999px;
+		background: rgba(148, 163, 184, 0.42);
+	}
+
+	.bitacora-calendar-event:hover {
+		filter: saturate(1.04);
+		transform: scale(0.992);
 	}
 
 	.bitacora-week {
@@ -469,6 +669,47 @@ body {
 	}
 }
 
+@keyframes bitacora-card-in {
+	from {
+		opacity: 0;
+		transform: translateY(22px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes bitacora-alert-in {
+	from {
+		opacity: 0;
+		max-height: 0;
+		padding-top: 0;
+		padding-bottom: 0;
+		margin-bottom: 0;
+		transform: translateY(-6px);
+	}
+
+	70% {
+		opacity: 1;
+		max-height: 110px;
+		padding-top: 14px;
+		padding-bottom: 14px;
+		margin-bottom: 24px;
+		transform: translateY(0);
+	}
+
+	to {
+		opacity: 1;
+		max-height: 110px;
+		padding-top: 14px;
+		padding-bottom: 14px;
+		margin-bottom: 24px;
+		transform: translateY(0);
+	}
+}
+
 @media (min-width: 1024px) {
 	.bitacora-course-layout {
 		grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
@@ -481,11 +722,21 @@ body {
 		padding: 18px 14px 48px;
 	}
 
+	.bitacora-calendar-grid {
+		grid-template-columns: 72px repeat(5, minmax(160px, 1fr));
+	}
+
 	.bitacora-card,
+	.bitacora-course-card,
 	.bitacora-hero,
+	.bitacora-alert-banner,
 	.bitacora-surface,
 	.bitacora-chat-panel {
 		border-radius: 24px;
+	}
+
+	.bitacora-priority-rail {
+		max-height: 520px;
 	}
 }
 

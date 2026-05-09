@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 
 type Alternative = { label: string; text: string };
@@ -36,7 +37,22 @@ export function BancoClient() {
 	}
 
 	useEffect(() => {
-		void refresh();
+		let cancelled = false;
+
+		void fetch("/api/questions", { cache: "no-store" })
+			.then(async (res) => {
+				if (!res.ok || cancelled) return;
+				setQuestions((await res.json()) as Question[]);
+			})
+			.catch(() => {
+				if (!cancelled) {
+					setError("No pude cargar el banco de preguntas.");
+				}
+			});
+
+		return () => {
+			cancelled = true;
+		};
 	}, []);
 
 	const oaCodes = useMemo(() => {
@@ -184,9 +200,11 @@ function QuestionCard({ q }: { q: Question }) {
 				{q.prompt}
 			</p>
 			{q.has_image && q.image_url ? (
-				<img
+				<Image
 					src={`/api${q.image_url}`}
 					alt={`Pregunta ${q.id}`}
+					width={q.image_width ?? 1200}
+					height={q.image_height ?? 900}
 					className="max-h-64 w-full self-start rounded-2xl border border-slate-200 object-contain"
 				/>
 			) : null}
