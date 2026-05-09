@@ -5,6 +5,7 @@ Revises: 485927322673
 Create Date: 2026-05-09 20:04:49.274392
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -106,7 +107,9 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_index(op.f("ix_worksheet_images_worksheet_id"), table_name="worksheet_images")
+    op.drop_index(
+        op.f("ix_worksheet_images_worksheet_id"), table_name="worksheet_images"
+    )
     op.drop_table("worksheet_images")
     op.drop_index(
         op.f("ix_worksheet_questions_activity_id"), table_name="worksheet_questions"

@@ -80,18 +80,20 @@ class Question(Base):
     # For multiple_choice: list of {"label": "a", "text": "..."}.
     alternatives: Mapped[list | None] = mapped_column(JSON, nullable=True)
     # Label of the correct alternative ("a", "b", …) when known.
-    correct_alternative: Mapped[str | None] = mapped_column(
-        String(8), nullable=True
-    )
+    correct_alternative: Mapped[str | None] = mapped_column(String(8), nullable=True)
 
-    asignatura: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    asignatura: Mapped[str | None] = mapped_column(
+        String(64), nullable=True, index=True
+    )
     nivel: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     oa_code: Mapped[str | None] = mapped_column(String(16), nullable=True, index=True)
     habilidad: Mapped[str | None] = mapped_column(String(255), nullable=True)
     contenido: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     source_file: Mapped[str | None] = mapped_column(String(512), nullable=True)
-    source_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    source_hash: Mapped[str | None] = mapped_column(
+        String(64), nullable=True, index=True
+    )
 
     image_data: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
     image_mime: Mapped[str | None] = mapped_column(String(64), nullable=True)

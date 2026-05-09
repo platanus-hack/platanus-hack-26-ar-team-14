@@ -521,17 +521,18 @@ export function BitacoraCourseWorkspace({ course }: { course: CourseRecord }) {
 			</div>
 
 			{modalAction ? (
-				<div
-					className="bitacora-modal-backdrop"
-					role="presentation"
-					onClick={() => setModalAction(null)}
-				>
+				<div className="bitacora-modal-backdrop">
+					<button
+						type="button"
+						className="bitacora-modal-dismiss"
+						aria-label="Cerrar modal"
+						onClick={() => setModalAction(null)}
+					/>
 					<div
 						className="bitacora-modal"
 						role="dialog"
 						aria-modal="true"
 						aria-label={modalAction}
-						onClick={(event) => event.stopPropagation()}
 					>
 						<p className="bitacora-kicker">Acción rápida</p>
 						<h3 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-slate-950">

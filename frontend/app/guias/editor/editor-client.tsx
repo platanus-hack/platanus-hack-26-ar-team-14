@@ -3,12 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition, type FormEvent } from "react";
+import { type FormEvent, useMemo, useState, useTransition } from "react";
 import {
 	createGuiaAction,
-	updateGuiaAction,
 	type GuiaDetail,
 	type Question,
+	updateGuiaAction,
 } from "../../actions/guias";
 
 type Props = {
@@ -147,7 +147,9 @@ export function EditorClient({ bank, initialGuia }: Props) {
 					</span>
 				) : null}
 				{error ? (
-					<span className="font-mono text-[11px] text-vermilion">⚠ {error}</span>
+					<span className="font-mono text-[11px] text-vermilion">
+						⚠ {error}
+					</span>
 				) : null}
 				<button
 					type="button"

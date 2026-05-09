@@ -45,7 +45,9 @@ class ParsedWorksheet:
 
     @property
     def full_text(self) -> str:
-        return "\n\n".join(f"=== Página {p.page_number} ===\n{p.text}" for p in self.pages)
+        return "\n\n".join(
+            f"=== Página {p.page_number} ===\n{p.text}" for p in self.pages
+        )
 
 
 def parse_pdf(path: str | Path) -> ParsedWorksheet:
@@ -83,8 +85,13 @@ def _extract_page_images(
             continue
         ordinal += 1
         png = _render_bbox(
-            fpage, x0=x0, top=top, x1=x1, bottom=bottom,
-            page_width=page_w, page_height=page_h,
+            fpage,
+            x0=x0,
+            top=top,
+            x1=x1,
+            bottom=bottom,
+            page_width=page_w,
+            page_height=page_h,
         )
         w, h = _png_size(png)
         out.append(

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
+import { listBankQuestionsAction } from "../../actions/guias";
 import { Navbar } from "../../components/navbar";
 import { getCurrentTeacher } from "../../lib/auth";
-import { listBankQuestionsAction } from "../../actions/guias";
 import { EditorClient } from "./editor-client";
 
 export default async function GuiaEditorPage() {

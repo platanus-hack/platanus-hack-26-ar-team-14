@@ -297,9 +297,7 @@ def create_guia(
     if not body.question_ids:
         raise HTTPException(status_code=400, detail="Selecciona al menos una pregunta")
 
-    found = (
-        db.query(Question.id).filter(Question.id.in_(body.question_ids)).all()
-    )
+    found = db.query(Question.id).filter(Question.id.in_(body.question_ids)).all()
     found_ids = {row.id for row in found}
     missing = [qid for qid in body.question_ids if qid not in found_ids]
     if missing:
@@ -328,8 +326,7 @@ def list_guias(
         .all()
     )
     return [
-        GuiaSummary(id=r.id, name=r.name, question_count=len(r.items))
-        for r in rows
+        GuiaSummary(id=r.id, name=r.name, question_count=len(r.items)) for r in rows
     ]
 
 

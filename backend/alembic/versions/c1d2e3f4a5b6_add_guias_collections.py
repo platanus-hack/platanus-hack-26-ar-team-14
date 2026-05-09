@@ -5,6 +5,7 @@ Revises: b4d5e6f7a8b9
 Create Date: 2026-05-09 23:00:00.000000
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -41,17 +42,11 @@ def upgrade() -> None:
         sa.Column("question_id", sa.Integer(), nullable=False),
         sa.Column("ordinal", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(["guia_id"], ["guias.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(
-            ["question_id"], ["questions.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["question_id"], ["questions.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(
-        op.f("ix_guia_items_guia_id"), "guia_items", ["guia_id"]
-    )
-    op.create_index(
-        op.f("ix_guia_items_question_id"), "guia_items", ["question_id"]
-    )
+    op.create_index(op.f("ix_guia_items_guia_id"), "guia_items", ["guia_id"])
+    op.create_index(op.f("ix_guia_items_question_id"), "guia_items", ["question_id"])
 
 
 def downgrade() -> None:

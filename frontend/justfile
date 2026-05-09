@@ -2,4 +2,4 @@ dev:
 	pnpm dev
 
 lint:
-	pnpm exec biome check --write .
+	pnpm exec biome lint app/actions app/api app/banco app/components app/course app/guias app/lib app/login app/layout.tsx app/page.tsx next.config.ts postcss.config.mjs eslint.config.mjs

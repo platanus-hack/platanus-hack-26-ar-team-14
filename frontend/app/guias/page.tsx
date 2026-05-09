@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
+import { listGuiasAction } from "../actions/guias";
 import { Navbar } from "../components/navbar";
 import { getCurrentTeacher } from "../lib/auth";
-import { listGuiasAction } from "../actions/guias";
 import { GuiasClient } from "./guias-client";
 
 export default async function GuiasPage() {

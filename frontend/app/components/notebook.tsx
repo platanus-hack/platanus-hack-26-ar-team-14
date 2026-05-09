@@ -57,20 +57,20 @@ export function PageTitle({
 }
 
 export function MessageBlock({
-	role,
+	speaker,
 	children,
 }: {
-	role: "teacher" | "assistant";
+	speaker: "teacher" | "assistant";
 	children: ReactNode;
 }) {
-	const label = role === "teacher" ? "Profe" : "Cuaderno";
+	const label = speaker === "teacher" ? "Profe" : "Cuaderno";
 	return (
 		<article className="flex gap-4">
 			<div className="meta-mono w-14 shrink-0 pt-[5px]">{label}</div>
 			<div
 				className={[
 					"min-w-0 flex-1 font-serif text-[16px] leading-[1.55]",
-					role === "teacher" ? "italic text-ink-soft" : "text-ink",
+					speaker === "teacher" ? "italic text-ink-soft" : "text-ink",
 				].join(" ")}
 			>
 				{children}

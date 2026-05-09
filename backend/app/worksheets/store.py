@@ -22,9 +22,7 @@ def ingest_pdf(
     re-uploading the same PDF returns the previously-stored rows untouched.
     """
     source_hash = hashlib.sha256(file_bytes).hexdigest()
-    existing = (
-        db.query(Question).filter(Question.source_hash == source_hash).all()
-    )
+    existing = db.query(Question).filter(Question.source_hash == source_hash).all()
     if existing:
         return existing
 
@@ -36,9 +34,7 @@ def ingest_pdf(
         tmp_path.unlink(missing_ok=True)
 
     image_by_marker = {im.marker: im for im in parsed.images}
-    bank = extract_bank(
-        parsed.full_text, valid_markers=set(image_by_marker.keys())
-    )
+    bank = extract_bank(parsed.full_text, valid_markers=set(image_by_marker.keys()))
 
     rows: list[Question] = []
     for q in bank.questions:

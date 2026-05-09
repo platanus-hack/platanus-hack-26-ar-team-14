@@ -127,18 +127,12 @@ export function Chat() {
 	const busy = status === "submitted" || status === "streaming";
 
 	const scrollRef = useRef<HTMLElement | null>(null);
-	const lastTextLength = messages.reduce(
-		(acc, m) =>
-			acc +
-			m.parts.reduce((a, p) => a + (p.type === "text" ? p.text.length : 0), 0),
-		0,
-	);
 
 	useLayoutEffect(() => {
 		const el = scrollRef.current;
 		if (!el) return;
 		el.scrollTop = el.scrollHeight;
-	}, [messages.length, lastTextLength, busy]);
+	});
 
 	function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
@@ -161,18 +155,18 @@ export function Chat() {
 				{messages.map((m) => (
 					<MessageBlock
 						key={m.id}
-						role={m.role === "user" ? "teacher" : "assistant"}
+						speaker={m.role === "user" ? "teacher" : "assistant"}
 					>
-						{m.parts.map((p, i) =>
+						{m.parts.map((p) =>
 							p.type === "text" ? (
-								<AssistantText key={i} text={p.text} />
+								<AssistantText key={`${m.id}-${p.text}`} text={p.text} />
 							) : null,
 						)}
 					</MessageBlock>
 				))}
 
 				{busy ? (
-					<MessageBlock role="assistant">
+					<MessageBlock speaker="assistant">
 						<ThinkingDots />
 					</MessageBlock>
 				) : null}

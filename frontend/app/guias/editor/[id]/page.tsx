@@ -1,10 +1,7 @@
 import { notFound, redirect } from "next/navigation";
+import { getGuiaAction, listBankQuestionsAction } from "../../../actions/guias";
 import { Navbar } from "../../../components/navbar";
 import { getCurrentTeacher } from "../../../lib/auth";
-import {
-	getGuiaAction,
-	listBankQuestionsAction,
-} from "../../../actions/guias";
 import { EditorClient } from "../editor-client";
 
 type Params = { id: string };

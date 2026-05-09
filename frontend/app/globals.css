@@ -174,16 +174,23 @@ body {
 		margin-left: auto;
 		margin-right: auto;
 		background:
-			linear-gradient(145deg, rgba(255, 243, 241, 0.96), rgba(255, 232, 228, 0.88)),
-			radial-gradient(circle at top right, rgba(185, 75, 69, 0.18), transparent 36%);
+			linear-gradient(
+				145deg,
+				rgba(255, 243, 241, 0.96),
+				rgba(255, 232, 228, 0.88)
+			),
+			radial-gradient(
+				circle at top right,
+				rgba(185, 75, 69, 0.18),
+				transparent 36%
+			);
 		box-shadow:
 			0 32px 90px rgba(185, 75, 69, 0.12),
 			inset 0 1px 0 rgba(255, 255, 255, 0.72);
 		opacity: 0;
 		transform: translateY(-10px) scale(0.985);
 		margin-bottom: 0;
-		animation: bitacora-alert-in 900ms linear 950ms
-			forwards;
+		animation: bitacora-alert-in 900ms linear 950ms forwards;
 	}
 
 	.bitacora-alert-title {
@@ -219,6 +226,7 @@ body {
 		border: 1px solid rgba(255, 255, 255, 0.82);
 		border-radius: 28px;
 		background: var(--paper);
+		backdrop-filter: none;
 		box-shadow:
 			0 24px 80px rgba(15, 23, 42, 0.08),
 			inset 0 1px 0 rgba(255, 255, 255, 0.88);
@@ -457,7 +465,9 @@ body {
 		width: 100%;
 		flex-direction: column;
 		padding: 10px 11px;
-		transition: filter 160ms ease, transform 160ms ease;
+		transition:
+			filter 160ms ease,
+			transform 160ms ease;
 	}
 
 	.bitacora-calendar-title {
@@ -476,27 +486,31 @@ body {
 	}
 
 	.bitacora-priority-rail {
-		max-height: 620px;
-		overflow-y: auto;
-		padding-right: 6px;
-		scrollbar-width: thin;
-		scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+		position: relative;
+		background: transparent;
 	}
 
 	.bitacora-priority-rail-inner {
 		display: grid;
 		gap: 18px;
+		max-height: 620px;
+		overflow-y: auto;
+		padding-right: 6px;
+		isolation: isolate;
+		contain: paint;
+		scrollbar-width: thin;
+		scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
 	}
 
-	.bitacora-priority-rail::-webkit-scrollbar {
+	.bitacora-priority-rail-inner::-webkit-scrollbar {
 		width: 10px;
 	}
 
-	.bitacora-priority-rail::-webkit-scrollbar-track {
+	.bitacora-priority-rail-inner::-webkit-scrollbar-track {
 		background: transparent;
 	}
 
-	.bitacora-priority-rail::-webkit-scrollbar-thumb {
+	.bitacora-priority-rail-inner::-webkit-scrollbar-thumb {
 		border-radius: 999px;
 		background: rgba(148, 163, 184, 0.42);
 	}
@@ -650,7 +664,17 @@ body {
 		padding: 24px;
 	}
 
+	.bitacora-modal-dismiss {
+		position: absolute;
+		inset: 0;
+		border: 0;
+		background: transparent;
+		padding: 0;
+	}
+
 	.bitacora-modal {
+		position: relative;
+		z-index: 1;
 		width: min(100%, 560px);
 		padding: 28px;
 		box-shadow: 0 28px 90px rgba(15, 23, 42, 0.22);
@@ -735,7 +759,7 @@ body {
 		border-radius: 24px;
 	}
 
-	.bitacora-priority-rail {
+	.bitacora-priority-rail-inner {
 		max-height: 520px;
 	}
 }

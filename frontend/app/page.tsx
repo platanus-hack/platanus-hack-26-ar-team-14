@@ -4,14 +4,14 @@ import { getCurrentTeacher } from "./lib/auth";
 import { getPriorityCourses, weeklySchedule } from "./lib/bitacora-data";
 
 export default async function Home() {
-  const teacher = await getCurrentTeacher();
-  if (!teacher) redirect("/login");
+	const teacher = await getCurrentTeacher();
+	if (!teacher) redirect("/login");
 
-  return (
-    <BitacoraDashboard
-      teacherName={teacher.name}
-      priorityCourses={getPriorityCourses()}
-      weeklySchedule={weeklySchedule}
-    />
-  );
+	return (
+		<BitacoraDashboard
+			teacherName={teacher.name}
+			priorityCourses={getPriorityCourses()}
+			weeklySchedule={weeklySchedule}
+		/>
+	);
 }

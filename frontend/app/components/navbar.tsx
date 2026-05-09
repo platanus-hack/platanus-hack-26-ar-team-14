@@ -11,8 +11,10 @@ const activeLinkClass =
 const inactiveLinkClass =
 	"text-slate-500 transition-colors hover:text-slate-900";
 
-const linkClass = (target: NavbarProps["active"], current: NavbarProps["active"]) =>
-	target === current ? activeLinkClass : inactiveLinkClass;
+const linkClass = (
+	target: NavbarProps["active"],
+	current: NavbarProps["active"],
+) => (target === current ? activeLinkClass : inactiveLinkClass);
 
 export function Navbar({ teacherName, active }: NavbarProps) {
 	return (
