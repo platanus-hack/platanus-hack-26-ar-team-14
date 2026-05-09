@@ -1,52 +1,62 @@
 @import "tailwindcss";
 
 :root {
-  --paper:      #ebe2c8;
-  --paper-deep: #fbf5df;
-  --ink:        #1a1610;
-  --ink-soft:   #4a4232;
-  --rule:       #2a2418;
-  --muted:      #7a705a;
-  --vermilion:  #c2412a;
-  --teal:       #2d5d52;
-  --grid:       rgba(42, 36, 24, 0.09);
+  --paper: #f4f1e8;
+  --paper-deep: #fffdfa;
+  --ink: #0f172a;
+  --ink-soft: #475569;
+  --rule: #cbd5e1;
+  --muted: #64748b;
+  --vermilion: #b94b45;
+  --teal: #1c6b74;
+  --grid: rgba(148, 163, 184, 0.12);
 }
 
 @theme inline {
-  --color-paper:      var(--paper);
+  --color-paper: var(--paper);
   --color-paper-deep: var(--paper-deep);
-  --color-ink:        var(--ink);
-  --color-ink-soft:   var(--ink-soft);
-  --color-rule:       var(--rule);
-  --color-muted:      var(--muted);
-  --color-vermilion:  var(--vermilion);
-  --color-teal:       var(--teal);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-rule: var(--rule);
+  --color-muted: var(--muted);
+  --color-vermilion: var(--vermilion);
+  --color-teal: var(--teal);
 
-  --font-display:  var(--font-instrument-serif), Georgia, serif;
-  --font-serif:    var(--font-newsreader), Georgia, serif;
-  --font-mono:     var(--font-jetbrains-mono), ui-monospace, monospace;
+  --font-display: var(--font-instrument-serif), Georgia, serif;
+  --font-serif: var(--font-newsreader), Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
-html, body { background: var(--paper); color: var(--ink); }
+html,
+body {
+  background: var(--paper);
+  color: var(--ink);
+}
 
 body {
   font-family: var(--font-newsreader), Georgia, serif;
   -webkit-font-smoothing: antialiased;
   background-image:
+    radial-gradient(circle at top, rgba(125, 211, 252, 0.22), transparent 32%),
+    linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.4)),
     linear-gradient(var(--grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 32px 32px;
+  background-size:
+    auto,
+    auto,
+    32px 32px,
+    32px 32px;
   background-attachment: fixed;
 }
 
 @layer components {
   .paper-card {
     background: var(--paper-deep);
-    border: 1px solid var(--ink);
-    border-radius: 2px;
+    border: 1px solid rgba(203, 213, 225, 0.8);
+    border-radius: 24px;
     box-shadow:
-      10px 10px 0 0 rgba(26, 22, 16, 0.18),
-      0 1px 0 rgba(255, 255, 255, 0.4) inset;
+      0 24px 80px rgba(15, 23, 42, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
 
   .meta-mono {
@@ -80,11 +90,15 @@ body {
     outline: none;
     transition: border-color 180ms ease;
   }
+
   .notebook-input::placeholder {
     color: var(--muted);
     font-style: italic;
   }
-  .notebook-input:focus { border-color: var(--vermilion); }
+
+  .notebook-input:focus {
+    border-color: var(--vermilion);
+  }
 
   .btn {
     display: inline-flex;
@@ -101,8 +115,368 @@ body {
     cursor: pointer;
     transition: background 180ms ease, color 180ms ease;
   }
-  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
-  .btn:not(:disabled):hover { background: var(--vermilion); border-color: var(--vermilion); }
+
+  .btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .btn:not(:disabled):hover {
+    background: var(--vermilion);
+    border-color: var(--vermilion);
+  }
+
+  .bitacora-dashboard-shell {
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 40px 24px 72px;
+  }
+
+  .bitacora-shell {
+    width: 100%;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .bitacora-hero {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.82);
+    border-radius: 36px;
+    padding: 32px;
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(249, 250, 251, 0.8)),
+      radial-gradient(circle at top right, rgba(14, 165, 233, 0.15), transparent 32%);
+    box-shadow:
+      0 24px 80px rgba(15, 23, 42, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  .bitacora-card,
+  .bitacora-surface,
+  .bitacora-calendar-day,
+  .bitacora-chat-panel {
+    border: 1px solid rgba(255, 255, 255, 0.82);
+    border-radius: 32px;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow:
+      0 24px 80px rgba(15, 23, 42, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(14px);
+  }
+
+  .bitacora-card {
+    padding: 28px;
+  }
+
+  .bitacora-chat-panel {
+    background:
+      linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.98)),
+      radial-gradient(circle at top, rgba(56, 189, 248, 0.24), transparent 30%);
+    display: flex;
+    min-height: 72vh;
+    flex-direction: column;
+    overflow: hidden;
+    position: sticky;
+    top: 24px;
+  }
+
+  .bitacora-course-layout {
+    display: grid;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .bitacora-kicker {
+    font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .bitacora-stat-card,
+  .bitacora-metric-card,
+  .bitacora-objective,
+  .bitacora-calendar-block,
+  .bitacora-week,
+  .bitacora-suggestion,
+  .bitacora-modal {
+    border: 1px solid rgba(203, 213, 225, 0.8);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .bitacora-metric-card {
+    padding: 20px;
+  }
+
+  .bitacora-stat-card {
+    padding: 18px;
+    min-height: 120px;
+  }
+
+  .bitacora-stat-label {
+    display: block;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #64748b;
+  }
+
+  .bitacora-stat-value {
+    display: block;
+    margin-top: 18px;
+    font-size: 2rem;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    color: #0f172a;
+  }
+
+  .bitacora-primary-button,
+  .bitacora-secondary-button,
+  .bitacora-send-button,
+  .bitacora-attach-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition:
+      transform 160ms ease,
+      background 160ms ease,
+      border-color 160ms ease,
+      color 160ms ease;
+  }
+
+  .bitacora-primary-button {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border: 1px solid #0f172a;
+    color: white;
+    padding: 14px 20px;
+  }
+
+  .bitacora-primary-button:hover,
+  .bitacora-secondary-button:hover,
+  .bitacora-send-button:hover,
+  .bitacora-attach-button:hover {
+    transform: translateY(-1px);
+  }
+
+  .bitacora-secondary-button {
+    padding: 14px 20px;
+    border: 1px solid rgba(148, 163, 184, 0.45);
+    color: #334155;
+    background: rgba(255, 255, 255, 0.86);
+  }
+
+  .bitacora-send-button {
+    padding: 0 18px;
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    background: linear-gradient(135deg, #38bdf8, #0284c7);
+    color: white;
+  }
+
+  .bitacora-attach-button {
+    width: 44px;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+  }
+
+  .bitacora-calendar-day {
+    overflow: hidden;
+  }
+
+  .bitacora-calendar-block {
+    display: block;
+    padding: 16px;
+  }
+
+  .bitacora-week {
+    padding: 24px;
+  }
+
+  .bitacora-week + .bitacora-week {
+    margin-top: 16px;
+  }
+
+  .bitacora-week-past {
+    background: rgba(248, 250, 252, 0.84);
+  }
+
+  .bitacora-weeks {
+    padding: 20px;
+    content-visibility: auto;
+  }
+
+  .bitacora-week-state {
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .bitacora-week-state-completada {
+    background: rgba(15, 118, 110, 0.1);
+    color: #0f766e;
+  }
+
+  .bitacora-week-state-en-riesgo {
+    background: rgba(217, 119, 6, 0.12);
+    color: #b45309;
+  }
+
+  .bitacora-week-state-replanificar {
+    background: rgba(185, 75, 69, 0.12);
+    color: #9f1239;
+  }
+
+  .bitacora-week-state-proxima {
+    background: rgba(14, 116, 144, 0.12);
+    color: #0f766e;
+  }
+
+  .bitacora-objective {
+    padding: 18px;
+  }
+
+  .bitacora-field {
+    display: grid;
+    gap: 8px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #64748b;
+  }
+
+  .bitacora-field input[type="range"],
+  .bitacora-field select {
+    width: 100%;
+  }
+
+  .bitacora-field select,
+  .bitacora-chat-input {
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.96);
+    padding: 12px 14px;
+    color: #0f172a;
+    outline: none;
+  }
+
+  .bitacora-field input[type="checkbox"] {
+    height: 18px;
+    width: 18px;
+    accent-color: #0f766e;
+  }
+
+  .bitacora-suggestion {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    border-color: rgba(14, 165, 233, 0.28);
+    background:
+      linear-gradient(135deg, rgba(239, 246, 255, 0.95), rgba(248, 250, 252, 0.98));
+  }
+
+  .bitacora-chip {
+    border: 1px solid rgba(125, 211, 252, 0.28);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #e2e8f0;
+  }
+
+  .bitacora-message-agent,
+  .bitacora-message-teacher {
+    border-radius: 22px;
+    padding: 16px;
+  }
+
+  .bitacora-message-agent {
+    background: rgba(15, 23, 42, 0.28);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+  }
+
+  .bitacora-message-teacher {
+    background: rgba(56, 189, 248, 0.14);
+    border: 1px solid rgba(125, 211, 252, 0.18);
+  }
+
+  .bitacora-chat-input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.96);
+  }
+
+  .bitacora-backlink {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #64748b;
+  }
+
+  .bitacora-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(15, 23, 42, 0.35);
+    padding: 24px;
+  }
+
+  .bitacora-modal {
+    width: min(100%, 560px);
+    padding: 28px;
+    box-shadow: 0 28px 90px rgba(15, 23, 42, 0.22);
+  }
+
+  .urgency-high {
+    background: #b94b45;
+  }
+
+  .urgency-medium {
+    background: #d0891a;
+  }
+
+  .urgency-low {
+    background: #2d7f8b;
+  }
 }
 
-::selection { background: var(--vermilion); color: var(--paper); }
+@media (min-width: 1024px) {
+  .bitacora-course-layout {
+    grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+  }
+}
+
+@media (max-width: 1023px) {
+  .bitacora-dashboard-shell,
+  .bitacora-shell {
+    padding: 18px 14px 48px;
+  }
+
+  .bitacora-card,
+  .bitacora-hero,
+  .bitacora-surface,
+  .bitacora-chat-panel {
+    border-radius: 24px;
+  }
+}
+
+::selection {
+  background: var(--vermilion);
+  color: var(--paper);
+}

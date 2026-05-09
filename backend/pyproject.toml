@@ -18,3 +18,8 @@ dependencies = [
     "pyjwt>=2.12.1",
     "sqlalchemy>=2.0.49",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.12",
+]

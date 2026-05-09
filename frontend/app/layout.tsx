@@ -21,9 +21,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cuaderno · Asistente curricular para 5° básico",
+  title: "Bitácora · Copiloto pedagógico",
   description:
-    "Un cuaderno vivo: planifica clase a clase y ajusta sobre la marcha, con el Programa de Estudio del Mineduc citado al margen.",
+    "Bitácora ayuda a priorizar cursos por brecha curricular y corregir la planificación anual con apoyo de un copiloto pedagógico.",
 };
 
 export default function RootLayout({
