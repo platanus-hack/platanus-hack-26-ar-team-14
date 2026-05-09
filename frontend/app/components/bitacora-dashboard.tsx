@@ -28,6 +28,7 @@ export function BitacoraDashboard({
 	weeklySchedule,
 }: DashboardProps) {
 	const neutralTone = {
+		badge: "bg-slate-300",
 		border: "border-slate-200/90",
 		surface: "bg-slate-50",
 		accent: "text-slate-500",
