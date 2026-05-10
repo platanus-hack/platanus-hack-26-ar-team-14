@@ -5,9 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { LearningRecord } from "../../actions/libro-de-clases";
+import { AGENT_NAME } from "../../components/agent-avatar";
 import {
 	BitacoraChatPanel,
 	type BitacoraChatMessage,
+	type BitacoraPendingAttachment,
 } from "../../components/bitacora-chat-panel";
 import { Navbar } from "../../components/navbar";
 import { ClassRecordsTable } from "./class-records-table";
@@ -69,70 +71,96 @@ function buildClassRecordPrompt(record: LearningRecord): string {
 }
 
 type Msg = BitacoraChatMessage;
+type PendingAttachment = BitacoraPendingAttachment;
 
-export function RegistroClient({
-	teacherName,
-	record,
-	courseRecords,
-}: Props) {
+export function RegistroClient({ teacherName, record, courseRecords }: Props) {
 	const router = useRouter();
 	const [messages, setMessages] = useState<Msg[]>([]);
 	const [busy, setBusy] = useState(false);
 	const [input, setInput] = useState("");
+	const [pendingFiles, setPendingFiles] = useState<PendingAttachment[]>([]);
 	const [error, setError] = useState<string | null>(null);
-	const startedRef = useRef(false);
+	const initializedRecordIdRef = useRef<number | null>(null);
 	const abortRef = useRef<AbortController | null>(null);
 
-	const streamReply = useCallback(async (history: Msg[]) => {
-		setBusy(true);
-		const ctrl = new AbortController();
-		abortRef.current = ctrl;
-		const body = {
-			messages: history.map((m) => ({
-				role: m.role === "teacher" ? "user" : "assistant",
-				content: m.transportText ?? m.text,
-			})),
-		};
-		const assistantId = crypto.randomUUID();
-		setMessages((prev) => [
-			...prev,
-			{ id: assistantId, role: "assistant", text: "" },
-		]);
-		try {
-			const res = await fetch("/api/chat", {
-				method: "POST",
-				headers: { "content-type": "application/json" },
-				body: JSON.stringify(body),
-				signal: ctrl.signal,
-			});
-			if (!res.ok || !res.body) {
-				throw new Error(`${res.status}: ${await res.text()}`);
-			}
-			const reader = res.body.getReader();
-			const decoder = new TextDecoder();
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) break;
-				const chunk = decoder.decode(value, { stream: true });
-				setMessages((prev) =>
-					prev.map((m) =>
-						m.id === assistantId ? { ...m, text: m.text + chunk } : m,
+	function addFiles(files: File[]) {
+		const next = files.map((file) => ({
+			id: `${file.name}-${file.size}-${crypto.randomUUID()}`,
+			file,
+		}));
+		setPendingFiles((current) => [...current, ...next]);
+	}
+
+	function removePendingFile(fileId: string) {
+		setPendingFiles((current) => current.filter((file) => file.id !== fileId));
+	}
+
+	const streamReply = useCallback(
+		async (history: Msg[], filesToSend: File[]) => {
+			setBusy(true);
+			const ctrl = new AbortController();
+			abortRef.current = ctrl;
+			const assistantId = crypto.randomUUID();
+			setMessages((prev) => [
+				...prev,
+				{ id: assistantId, role: "assistant", text: "" },
+			]);
+			try {
+				const formData = new FormData();
+				formData.append(
+					"messages",
+					JSON.stringify(
+						history.map((m) => ({
+							role: m.role === "teacher" ? "user" : "assistant",
+							content: m.transportText ?? m.text,
+						})),
 					),
 				);
+				for (const file of filesToSend) {
+					formData.append("files", file);
+				}
+				const res = await fetch("/api/chat", {
+					method: "POST",
+					body: formData,
+					signal: ctrl.signal,
+				});
+				if (!res.ok || !res.body) {
+					throw new Error(`${res.status}: ${await res.text()}`);
+				}
+				const reader = res.body.getReader();
+				const decoder = new TextDecoder();
+				while (true) {
+					const { done, value } = await reader.read();
+					if (done) break;
+					const chunk = decoder.decode(value, { stream: true });
+					setMessages((prev) =>
+						prev.map((m) =>
+							m.id === assistantId ? { ...m, text: m.text + chunk } : m,
+						),
+					);
+				}
+				router.refresh();
+			} catch (err) {
+				if ((err as Error).name === "AbortError") return;
+				setError(err instanceof Error ? err.message : String(err));
+				setMessages((prev) =>
+					prev.filter((message) => message.id !== assistantId || message.text),
+				);
+			} finally {
+				setBusy(false);
+				abortRef.current = null;
 			}
-			router.refresh();
-		} catch (err) {
-			if ((err as Error).name === "AbortError") return;
-			setError(err instanceof Error ? err.message : String(err));
-		} finally {
-			setBusy(false);
-			abortRef.current = null;
-		}
-	}, [router]);
+		},
+		[router],
+	);
 
 	useEffect(() => {
-		if (startedRef.current) return;
-		startedRef.current = true;
+		if (initializedRecordIdRef.current === record.id) return;
+		initializedRecordIdRef.current = record.id;
+		abortRef.current?.abort();
+		setError(null);
+		setInput("");
+		setPendingFiles([]);
 		const first: Msg = {
 			id: crypto.randomUUID(),
 			role: "teacher",
@@ -140,18 +168,24 @@ export function RegistroClient({
 			hidden: true,
 		};
 		setMessages([first]);
-		void streamReply([first]);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [record.id]);
+		void streamReply([first], []);
+	}, [record, streamReply]);
 
-	function submitInput() {
+	function onSendFollowup() {
 		const text = input.trim();
-		if (!text || busy) return;
-		const next: Msg = { id: crypto.randomUUID(), role: "teacher", text };
+		const filesToSend = pendingFiles.map((file) => file.file);
+		if ((!text && filesToSend.length === 0) || busy) return;
+		const next: Msg = {
+			id: crypto.randomUUID(),
+			role: "teacher",
+			text: text || "Revisa estos archivos adjuntos.",
+			attachments: filesToSend.map((file) => ({ name: file.name })),
+		};
 		const history = [...messages, next];
 		setMessages(history);
 		setInput("");
-		void streamReply(history);
+		setPendingFiles([]);
+		void streamReply(history, filesToSend);
 	}
 
 	return (
@@ -194,14 +228,16 @@ export function RegistroClient({
 				/>
 
 				<BitacoraChatPanel
-					title="Registro en vivo"
-					subtitle="Cuéntale al agente qué hicieron en esta clase y se encarga del libro."
+					title={AGENT_NAME}
 					messages={messages}
 					busy={busy}
 					error={error}
 					input={input}
 					onInputChange={setInput}
-					onSubmit={submitInput}
+					onSubmit={onSendFollowup}
+					pendingFiles={pendingFiles}
+					onAddFiles={addFiles}
+					onRemovePendingFile={removePendingFile}
 					placeholder="Mensaje a Bita…"
 					teacherName={teacherName}
 					assistantName="Bita"

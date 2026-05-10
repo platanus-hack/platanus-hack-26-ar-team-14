@@ -435,6 +435,13 @@ body {
 			inset 0 1px 0 rgba(255, 255, 255, 0.88);
 	}
 
+	.bitacora-chat-panel-record {
+		position: relative;
+		top: 0;
+		height: 100%;
+		max-height: none;
+	}
+
 	.bitacora-chat-title {
 		font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
 		font-size: 12px;
@@ -913,7 +920,7 @@ body {
 		min-height: 44px;
 		resize: none;
 		border-radius: 32px;
-		padding: 10px 74px 10px 68px;
+		padding: 10px 58px 10px 45px;
 		font-size: 16px;
 		line-height: 1.5;
 		position: absolute;
@@ -941,6 +948,13 @@ body {
 	.bitacora-chat-composer-drag {
 		box-shadow: 0 0 0 2px rgba(185, 75, 69, 0.28);
 		border-radius: 32px;
+	}
+
+	.bitacora-chat-panel-drag {
+		box-shadow:
+			0 0 0 2px rgba(88, 183, 243, 0.32),
+			0 24px 80px rgba(15, 23, 42, 0.08),
+			inset 0 1px 0 rgba(255, 255, 255, 0.88);
 	}
 
 	.bitacora-file-pill {

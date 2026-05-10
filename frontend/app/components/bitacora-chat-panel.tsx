@@ -3,6 +3,7 @@
 import { Loader2, Mic, SendHorizontal, Square } from "lucide-react";
 import {
 	type CSSProperties,
+	type DragEvent,
 	type ReactNode,
 	useEffect,
 	useMemo,
@@ -145,6 +146,10 @@ function pickAudioMimeType(): string | undefined {
 	return undefined;
 }
 
+function isFileDrag(event: DragEvent<HTMLElement>) {
+	return Array.from(event.dataTransfer?.types ?? []).includes("Files");
+}
+
 export type BitacoraChatPanelProps = {
 	title: string;
 	subtitle?: ReactNode;
@@ -204,13 +209,13 @@ export function BitacoraChatPanel({
 	const recorderRef = useRef<MediaRecorder | null>(null);
 	const streamRef = useRef<MediaStream | null>(null);
 	const chunksRef = useRef<Blob[]>([]);
+	const dragDepthRef = useRef(0);
 
-	const messageCount = visibleMessages.length;
 	useEffect(() => {
 		const el = scrollRef.current;
 		if (!el) return;
 		el.scrollTop = el.scrollHeight;
-	}, [busy, messageCount]);
+	});
 
 	useEffect(() => {
 		const el = textareaRef.current;
@@ -299,16 +304,60 @@ export function BitacoraChatPanel({
 		onAddFiles(Array.from(fileList));
 	}
 
+	function handleDragEnter(event: DragEvent<HTMLElement>) {
+		if (!supportsFiles || !isFileDrag(event)) return;
+		event.preventDefault();
+		event.stopPropagation();
+		dragDepthRef.current += 1;
+		setIsDraggingFiles(true);
+	}
+
+	function handleDragOver(event: DragEvent<HTMLElement>) {
+		if (!supportsFiles || !isFileDrag(event)) return;
+		event.preventDefault();
+		event.stopPropagation();
+		event.dataTransfer.dropEffect = "copy";
+		setIsDraggingFiles(true);
+	}
+
+	function handleDragLeave(event: DragEvent<HTMLElement>) {
+		if (!supportsFiles || !isFileDrag(event)) return;
+		event.preventDefault();
+		event.stopPropagation();
+		dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+		if (dragDepthRef.current === 0) {
+			setIsDraggingFiles(false);
+		}
+	}
+
+	function handleDrop(event: DragEvent<HTMLElement>) {
+		if (!supportsFiles || !isFileDrag(event)) return;
+		event.preventDefault();
+		event.stopPropagation();
+		dragDepthRef.current = 0;
+		setIsDraggingFiles(false);
+		if (event.dataTransfer.files.length > 0) {
+			handleFiles(event.dataTransfer.files);
+		}
+	}
+
 	const showSendButton =
 		input.length > 0 || (pendingFiles && pendingFiles.length > 0);
 	const canSendNow = !busy && !transcribing;
-	const composerStyle: CSSProperties & { ["--bitacora-composer-height"]?: string } =
-		{
-			["--bitacora-composer-height"]: `${composerHeight}px`,
-		};
+	const composerStyle: CSSProperties & {
+		"--bitacora-composer-height"?: string;
+	} = {
+		"--bitacora-composer-height": `${composerHeight}px`,
+	};
 
 	return (
-		<aside className={`bitacora-chat-panel ${className ?? ""}`}>
+		<aside
+			className={`bitacora-chat-panel ${className ?? ""} ${isDraggingFiles ? "bitacora-chat-panel-drag" : ""}`}
+			onDragEnter={handleDragEnter}
+			onDragOver={handleDragOver}
+			onDragLeave={handleDragLeave}
+			onDrop={handleDrop}
+		>
 			<div className="border-b border-slate-200/80 px-5 py-5">
 				<h2 className="bitacora-chat-title">{title}</h2>
 				{subtitle ? (
@@ -379,41 +428,6 @@ export function BitacoraChatPanel({
 				<fieldset
 					className={`bitacora-chat-composer ${isDraggingFiles ? "bitacora-chat-composer-drag" : ""}`}
 					aria-label="Editor del chat"
-					onDragEnter={
-						supportsFiles
-							? (event) => {
-									event.preventDefault();
-									setIsDraggingFiles(true);
-								}
-							: undefined
-					}
-					onDragOver={
-						supportsFiles ? (event) => event.preventDefault() : undefined
-					}
-					onDragLeave={
-						supportsFiles
-							? (event) => {
-									event.preventDefault();
-									if (
-										event.currentTarget.contains(event.relatedTarget as Node)
-									) {
-										return;
-									}
-									setIsDraggingFiles(false);
-								}
-							: undefined
-					}
-					onDrop={
-						supportsFiles
-							? (event) => {
-									event.preventDefault();
-									setIsDraggingFiles(false);
-									if (event.dataTransfer.files.length > 0) {
-										handleFiles(event.dataTransfer.files);
-									}
-								}
-							: undefined
-					}
 				>
 					{supportsFiles ? (
 						<input

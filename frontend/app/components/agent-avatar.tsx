@@ -25,6 +25,7 @@ export function AgentAvatar({
 	return (
 		<span
 			aria-label={AGENT_NAME}
+			role="img"
 			className={`grid shrink-0 place-items-center rounded-full bg-vermilion text-white shadow-sm ring-1 ring-inset ring-white/30 ${sizeClasses[size]} ${className}`}
 		>
 			<svg
