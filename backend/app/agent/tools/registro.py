@@ -59,32 +59,40 @@ def _oa_sort_key(code: str) -> tuple[int, int, str]:
 
 
 @tool
-def buscar_guia(query: str) -> dict:
-    """Busca guías por coincidencia parcial en el nombre y devuelve sus OAs.
+def buscar_guia(
+    query: str | None = None,
+    oa_code: str | None = None,
+) -> dict:
+    """Busca guías por nombre o por OA cubierto.
 
-    Úsala cuando el docente menciona una guía por nombre o código (ej.
-    "GP04", "PF-02", "guía de fracciones") para verificar qué OAs cubren
-    sus preguntas antes de registrar la clase. La coincidencia es
-    case-insensitive y por substring; normaliza guiones y espacios para
-    tolerar variantes ("PF02" matchea "PF-02" y "PF 02").
+    Tiene dos usos:
+    - Verificación: cuando el docente menciona una guía por nombre o
+      código (ej. "GP04", "PF-02"), pasa `query` para confirmar qué OAs
+      cubren sus preguntas. La coincidencia es por substring
+      alfanumérico, así "PF02" matchea "PF-02" y "PF 02".
+    - Recomendación: cuando necesitas proponer una guía existente para
+      cerrar una brecha (ej. la próxima clase debería trabajar OA8),
+      pasa `oa_code="OA8"` para listar las guías que cubren ese OA.
 
-    Args:
-        query: fragmento del nombre de la guía.
+    Puedes combinar ambos. Sin parámetros devuelve error.
 
     Returns:
         `matches`: lista de guías con `id`, `name`, `oa_codes` (orden por
-        número OA) y `question_count`. Lista vacía si no hay coincidencias.
+        número OA), `question_count` y `editor_url` (`/guias/editor/{id}`,
+        listo para enlazar en la respuesta).
     """
-    needle = "".join(ch for ch in (query or "").lower() if ch.isalnum())
-    if not needle:
-        return {"error": "query vacía."}
+    needle = "".join(ch for ch in (query or "").lower() if ch.isalnum()) if query else ""
+    oa_target = (oa_code or "").strip().upper() or None
+    if not needle and not oa_target:
+        return {"error": "Pasa `query`, `oa_code`, o ambos."}
     with SessionLocal() as db:
         rows = db.execute(select(Guia)).scalars().all()
         matches = []
         for g in rows:
-            haystack = "".join(ch for ch in (g.name or "").lower() if ch.isalnum())
-            if needle not in haystack:
-                continue
+            if needle:
+                haystack = "".join(ch for ch in (g.name or "").lower() if ch.isalnum())
+                if needle not in haystack:
+                    continue
             seen: set[str] = set()
             codes: list[str] = []
             for item in g.items:
@@ -92,12 +100,15 @@ def buscar_guia(query: str) -> dict:
                 if code and code not in seen:
                     seen.add(code)
                     codes.append(code)
+            if oa_target and oa_target not in seen:
+                continue
             matches.append(
                 {
                     "id": g.id,
                     "name": g.name,
                     "oa_codes": sorted(codes, key=_oa_sort_key),
                     "question_count": len(g.items),
+                    "editor_url": f"/guias/editor/{g.id}",
                 }
             )
         return {"matches": matches}

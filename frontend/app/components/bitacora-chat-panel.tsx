@@ -46,6 +46,19 @@ const markdownComponents: Components = {
 		<strong className="font-semibold text-slate-950">{children}</strong>
 	),
 	em: ({ children }) => <em className="italic">{children}</em>,
+	a: ({ href, children }) => {
+		const target = typeof href === "string" ? href : "#";
+		const internal = target.startsWith("/");
+		return (
+			<a
+				href={target}
+				{...(internal ? {} : { target: "_blank", rel: "noreferrer" })}
+				className="inline-flex items-center gap-1 rounded-md bg-[#9a5a00] px-2 py-0.5 font-medium text-white no-underline transition-colors hover:bg-[#7a4600]"
+			>
+				{children}
+			</a>
+		);
+	},
 	code: ({ children }) => (
 		<code className="rounded bg-[#f4efe6] px-1 py-0.5 font-mono text-[0.9em] text-[#6a4936]">
 			{children}
