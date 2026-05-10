@@ -325,6 +325,10 @@ def _build_learning_records(seed: dict, cutoff: date) -> list[ClassLearningRecor
     for class_date in estimate_class_dates_for_year(seed["class_days"], SCHOOL_YEAR):
         if class_date < cutoff:
             oas = _oas_for_class(plan_items, class_date.month, past_idx)
+            if asignatura == "Matemática":
+                oas = [code for code in oas if code != "OA8"]
+                if class_date.month == 5 and class_date.day <= 6:
+                    oas = ["OA6"]
             obs = templates[past_idx % len(templates)]
             past_idx += 1
             if oas:

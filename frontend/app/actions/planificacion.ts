@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { getToken } from "../lib/auth";
 
 const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:8000";
@@ -56,4 +57,32 @@ export async function getPlanificacionAction(id: number): Promise<Plan> {
 export async function listPlanificacionesAction(): Promise<PlanSummary[]> {
 	const res = await authedFetch("/planificacion");
 	return (await res.json()) as PlanSummary[];
+}
+
+export type CourseSummary = {
+	id: number;
+	name: string;
+	class_days: string[];
+	block_number: number;
+	plan_anual_id: number | null;
+};
+
+export async function listCoursesAction(): Promise<CourseSummary[]> {
+	const res = await authedFetch("/courses");
+	return (await res.json()) as CourseSummary[];
+}
+
+export async function setCoursePlanAction(
+	courseId: number,
+	planAnualId: number | null,
+): Promise<CourseSummary> {
+	const res = await authedFetch(`/courses/${courseId}/plan`, {
+		method: "PUT",
+		headers: { "content-type": "application/json" },
+		body: JSON.stringify({ plan_anual_id: planAnualId }),
+	});
+	const course = (await res.json()) as CourseSummary;
+	revalidatePath("/planificacion");
+	if (planAnualId !== null) revalidatePath(`/planificacion/${planAnualId}`);
+	return course;
 }

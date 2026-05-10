@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { LearningRecord } from "../../actions/libro-de-clases";
+import type { Plan } from "../../actions/planificacion";
 import { AGENT_NAME } from "../../components/agent-avatar";
 import {
 	BitacoraChatPanel,
@@ -12,12 +13,14 @@ import {
 	type BitacoraPendingAttachment,
 } from "../../components/bitacora-chat-panel";
 import { Navbar } from "../../components/navbar";
+import { PlanAnualTable } from "../../components/plan-anual-table";
 import { ClassRecordsTable } from "./class-records-table";
 
 type Props = {
 	teacherName: string;
 	record: LearningRecord;
 	courseRecords: LearningRecord[];
+	plan: Plan | null;
 };
 
 const SPANISH_MONTHS = [
@@ -51,13 +54,17 @@ function formatLongDate(iso: string): string {
 	return `${SPANISH_WEEKDAYS[date.getDay()]} ${date.getDate()} de ${SPANISH_MONTHS[date.getMonth()]} de ${date.getFullYear()}`;
 }
 
-function buildClassRecordPrompt(record: LearningRecord): string {
+function buildClassRecordPrompt(record: LearningRecord, planId: number | null): string {
 	const lines = [
 		`Class Record ID: ${record.id}.`,
+		`Course ID: ${record.course_id}.`,
 		`Curso: ${record.course_name}.`,
 		`Fecha: ${formatLongDate(record.class_date)}.`,
 		`Bloque: ${record.block_number}.`,
 	];
+	if (planId != null) {
+		lines.push(`Plan ID: ${planId}.`);
+	}
 	if (record.oa_numbers && record.oa_numbers.length > 0) {
 		lines.push(`OAs ya registrados: ${record.oa_numbers.join(", ")}.`);
 	}
@@ -70,17 +77,45 @@ function buildClassRecordPrompt(record: LearningRecord): string {
 	return lines.join(" ");
 }
 
+function buildPlanOrGradesPrompt(record: LearningRecord, planId: number): string {
+	return [
+		`Plan ID: ${planId}.`,
+		`Class Record ID: ${record.id}.`,
+		`Curso: ${record.course_name}.`,
+		"En este chat el docente puede pedir dos cosas y tú decides cuál según lo que escriba:",
+		"(1) Registrar calificaciones de esta clase: si dicta o pega notas (ej. \"Sofía 6.2, Mateo 5.5\"), repítelas en una tabla compacta nombre · nota para confirmar, valida rango chileno 1.0–7.0, no inventes nombres ni notas, y pregunta antes de seguir si algo no calza con el curso.",
+		`(2) Modificar la planificación anual: si pide ajustes al plan, carga el plan con \`listar_plan(${planId})\`, propone correcciones en texto y espera confirmación antes de tocarlo con \`crear_item_plan\`, \`actualizar_item_plan\` o \`eliminar_item_plan\`. No reescribas el plan en prosa: el frontend lo recarga desde la base de datos.`,
+		"Salúdame breve y dime que puedo dictarte calificaciones de esta clase o pedirte ajustes a la planificación, lo que necesite. No asumas cuál de las dos antes de que el docente lo aclare.",
+	].join(" ");
+}
+
 type Msg = BitacoraChatMessage;
 type PendingAttachment = BitacoraPendingAttachment;
 
-export function RegistroClient({ teacherName, record, courseRecords }: Props) {
+type ChatStream = {
+	messages: Msg[];
+	busy: boolean;
+	error: string | null;
+	input: string;
+	setInput: (v: string) => void;
+	pendingFiles: PendingAttachment[];
+	addFiles: (files: File[]) => void;
+	removePendingFile: (id: string) => void;
+	submit: () => void;
+};
+
+function useChatStream(
+	initialPrompt: string,
+	resetKey: string | number,
+	refreshOnTurn: boolean,
+): ChatStream {
 	const router = useRouter();
 	const [messages, setMessages] = useState<Msg[]>([]);
 	const [busy, setBusy] = useState(false);
 	const [input, setInput] = useState("");
 	const [pendingFiles, setPendingFiles] = useState<PendingAttachment[]>([]);
 	const [error, setError] = useState<string | null>(null);
-	const initializedRecordIdRef = useRef<number | null>(null);
+	const initializedKeyRef = useRef<string | number | null>(null);
 	const abortRef = useRef<AbortController | null>(null);
 
 	function addFiles(files: File[]) {
@@ -139,7 +174,7 @@ export function RegistroClient({ teacherName, record, courseRecords }: Props) {
 						),
 					);
 				}
-				router.refresh();
+				if (refreshOnTurn) router.refresh();
 			} catch (err) {
 				if ((err as Error).name === "AbortError") return;
 				setError(err instanceof Error ? err.message : String(err));
@@ -151,27 +186,31 @@ export function RegistroClient({ teacherName, record, courseRecords }: Props) {
 				abortRef.current = null;
 			}
 		},
-		[router],
+		[router, refreshOnTurn],
 	);
 
 	useEffect(() => {
-		if (initializedRecordIdRef.current === record.id) return;
-		initializedRecordIdRef.current = record.id;
+		if (initializedKeyRef.current === resetKey) return;
+		initializedKeyRef.current = resetKey;
 		abortRef.current?.abort();
 		setError(null);
 		setInput("");
 		setPendingFiles([]);
+		if (!initialPrompt) {
+			setMessages([]);
+			return;
+		}
 		const first: Msg = {
 			id: crypto.randomUUID(),
 			role: "teacher",
-			text: buildClassRecordPrompt(record),
+			text: initialPrompt,
 			hidden: true,
 		};
 		setMessages([first]);
 		void streamReply([first], []);
-	}, [record, streamReply]);
+	}, [resetKey, initialPrompt, streamReply]);
 
-	function onSendFollowup() {
+	function submit() {
 		const text = input.trim();
 		const filesToSend = pendingFiles.map((file) => file.file);
 		if ((!text && filesToSend.length === 0) || busy) return;
@@ -187,6 +226,46 @@ export function RegistroClient({ teacherName, record, courseRecords }: Props) {
 		setPendingFiles([]);
 		void streamReply(history, filesToSend);
 	}
+
+	return {
+		messages,
+		busy,
+		error,
+		input,
+		setInput,
+		pendingFiles,
+		addFiles,
+		removePendingFile,
+		submit,
+	};
+}
+
+type TabId = "libro" | "planificacion";
+
+export function RegistroClient({
+	teacherName,
+	record,
+	courseRecords,
+	plan,
+}: Props) {
+	const router = useRouter();
+	const [tab, setTab] = useState<TabId>("libro");
+
+	const registro = useChatStream(
+		buildClassRecordPrompt(record, plan?.id ?? null),
+		`registro-${record.id}`,
+		true,
+	);
+	const planificacion = useChatStream(
+		plan ? buildPlanOrGradesPrompt(record, plan.id) : "",
+		`plan-${record.id}-${plan?.id ?? "none"}`,
+		true,
+	);
+
+	const tabs: { id: TabId; label: string; available: boolean }[] = [
+		{ id: "libro", label: "Libro de clases", available: true },
+		{ id: "planificacion", label: "Planificación", available: plan !== null },
+	];
 
 	return (
 		<main
@@ -214,35 +293,93 @@ export function RegistroClient({ teacherName, record, courseRecords }: Props) {
 				</h1>
 				<p className="mt-2 text-sm text-slate-600">
 					{record.course_name} ·{" "}
-					<span className="capitalize">
-						{formatLongDate(record.class_date)}
-					</span>
+					<span className="capitalize">{formatLongDate(record.class_date)}</span>
 				</p>
 			</header>
 
-			<div className="grid h-[calc(100vh-260px)] min-h-[640px] gap-5 lg:grid-cols-[minmax(0,2.2fr)_minmax(360px,1fr)]">
+			<nav
+				role="tablist"
+				aria-label="Vistas del registro"
+				className="mb-4 flex flex-wrap gap-1 border-b border-slate-200"
+			>
+				{tabs
+					.filter((t) => t.available)
+					.map((t) => {
+						const active = tab === t.id;
+						return (
+							<button
+								key={t.id}
+								type="button"
+								role="tab"
+								aria-selected={active}
+								onClick={() => setTab(t.id)}
+								className={`relative -mb-px px-4 py-2 text-sm font-medium transition-colors ${
+									active
+										? "text-slate-900"
+										: "text-slate-500 hover:text-slate-800"
+								}`}
+							>
+								{t.label}
+								{active && (
+									<span className="absolute inset-x-2 -bottom-px h-0.5 bg-[#9a5a00]" />
+								)}
+							</button>
+						);
+					})}
+			</nav>
+
+			<div
+				role="tabpanel"
+				hidden={tab !== "libro"}
+				className="grid h-[calc(100vh-320px)] min-h-[600px] gap-5 lg:grid-cols-[minmax(0,2.2fr)_minmax(360px,1fr)]"
+			>
 				<ClassRecordsTable
 					records={courseRecords}
 					currentRecordId={record.id}
 					onAfterSave={() => router.refresh()}
 				/>
-
 				<BitacoraChatPanel
 					title={AGENT_NAME}
-					messages={messages}
-					busy={busy}
-					error={error}
-					input={input}
-					onInputChange={setInput}
-					onSubmit={onSendFollowup}
-					pendingFiles={pendingFiles}
-					onAddFiles={addFiles}
-					onRemovePendingFile={removePendingFile}
+					messages={registro.messages}
+					busy={registro.busy}
+					error={registro.error}
+					input={registro.input}
+					onInputChange={registro.setInput}
+					onSubmit={registro.submit}
+					pendingFiles={registro.pendingFiles}
+					onAddFiles={registro.addFiles}
+					onRemovePendingFile={registro.removePendingFile}
 					placeholder="Mensaje a Bita…"
 					teacherName={teacherName}
 					assistantName="Bita"
 				/>
 			</div>
+
+			{plan && (
+				<div
+					role="tabpanel"
+					hidden={tab !== "planificacion"}
+					className="grid h-[calc(100vh-320px)] min-h-[600px] gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(360px,1fr)]"
+				>
+					<PlanAnualTable plan={plan} />
+					<BitacoraChatPanel
+						title="Calificaciones o plan"
+						subtitle="Dícta notas de esta clase o pide ajustes a la planificación; el agente decide según lo que escribas."
+						messages={planificacion.messages}
+						busy={planificacion.busy}
+						error={planificacion.error}
+						input={planificacion.input}
+						onInputChange={planificacion.setInput}
+						onSubmit={planificacion.submit}
+						pendingFiles={planificacion.pendingFiles}
+						onAddFiles={planificacion.addFiles}
+						onRemovePendingFile={planificacion.removePendingFile}
+						placeholder={"Ej.: Sofía 6.2, Mateo 5.5… o \"mueve OA8 a junio\""}
+						teacherName={teacherName}
+						assistantName="Bita"
+					/>
+				</div>
+			)}
 		</main>
 	);
 }

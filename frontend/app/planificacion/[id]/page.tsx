@@ -1,7 +1,11 @@
 import { notFound, redirect } from "next/navigation";
 import { Navbar } from "../../components/navbar";
 import { getCurrentTeacher } from "../../lib/auth";
-import { getPlanificacionAction } from "../../actions/planificacion";
+import {
+	getPlanificacionAction,
+	listCoursesAction,
+} from "../../actions/planificacion";
+import { CourseLinker } from "./course-linker";
 import { EditorClient } from "./editor-client";
 
 type Params = { id: string };
@@ -21,6 +25,8 @@ export default async function PlanificacionEditorPage({
 	const plan = await getPlanificacionAction(planId).catch(() => null);
 	if (!plan) notFound();
 
+	const courses = await listCoursesAction().catch(() => []);
+
 	return (
 		<main className="bitacora-dashboard-shell" style={{ maxWidth: "none" }}>
 			<Navbar teacherName={teacher.name} active="planificacion" />
@@ -36,6 +42,10 @@ export default async function PlanificacionEditorPage({
 			</section>
 
 			<section className="mt-10">
+				<CourseLinker planId={plan.id} initialCourses={courses} />
+			</section>
+
+			<section className="mt-6">
 				<EditorClient initialPlan={plan} />
 			</section>
 		</main>

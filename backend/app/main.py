@@ -112,6 +112,36 @@ def list_courses(
     ]
 
 
+class CoursePlanIn(BaseModel):
+    plan_anual_id: int | None
+
+
+@app.put("/courses/{course_id}/plan", response_model=CourseOut)
+def set_course_plan(
+    course_id: int,
+    body: CoursePlanIn,
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    course = db.get(Course, course_id)
+    if course is None or course.teacher_id != teacher.id:
+        raise HTTPException(status_code=404, detail="Curso no existe")
+    if body.plan_anual_id is not None:
+        plan = db.get(PlanAnual, body.plan_anual_id)
+        if plan is None or plan.teacher_id != teacher.id:
+            raise HTTPException(status_code=404, detail="Planificación no existe")
+    course.plan_anual_id = body.plan_anual_id
+    db.commit()
+    db.refresh(course)
+    return CourseOut(
+        id=course.id,
+        name=course.name,
+        class_days=list(course.class_days or []),
+        block_number=course.block_number,
+        plan_anual_id=course.plan_anual_id,
+    )
+
+
 class AlertOut(BaseModel):
     id: int
     course_id: int
