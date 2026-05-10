@@ -66,10 +66,9 @@ const SPANISH_MONTHS = [
 ];
 
 // TODO: derivar del Date real cuando saquemos el demo. Hardcoded para que la
-// highlight del día actual y la línea de "ahora" funcionen consistentes en
-// cualquier navegador/zona durante el demo. Asume miércoles 13 a las 9:30 AM.
+// highlight del día actual funcione consistente en cualquier navegador/zona
+// durante el demo. Asume miércoles 13; la hora sí corre en tiempo real.
 const CURRENT_WEEKDAY: (typeof scheduleDays)[number] = "Miércoles";
-const CURRENT_TIME_MIN = 9 * 60 + 30;
 
 const SPANISH_WEEKDAYS = [
 	"domingo",
@@ -130,6 +129,11 @@ function getCoursesByDay(
 	return out;
 }
 
+function getCurrentTimeMin() {
+	const now = new Date();
+	return now.getHours() * 60 + now.getMinutes();
+}
+
 export function BitacoraDashboard({
 	teacherName,
 	coursesStatus,
@@ -176,8 +180,7 @@ export function BitacoraDashboard({
 			const grid = gridRef.current;
 			if (!grid || HOUR_SLOTS.length === 0) return;
 
-			// Hardcoded para el demo (ver CURRENT_TIME_MIN arriba).
-			const nowMin = CURRENT_TIME_MIN;
+			const nowMin = getCurrentTimeMin();
 			const slotMins = HOUR_SLOTS.map(parseTime);
 			const firstMin = slotMins[0];
 			const lastMin = slotMins[slotMins.length - 1];
