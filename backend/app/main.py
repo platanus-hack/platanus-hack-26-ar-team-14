@@ -204,11 +204,10 @@ FOLLOWUP_CONFIRMATION_RE = re.compile(
     re.IGNORECASE,
 )
 
+
 def _extract_chat_context_ids(messages: list[ChatMessage]) -> dict[str, int | None]:
     joined = "\n".join(
-        message.content
-        for message in messages
-        if isinstance(message.content, str)
+        message.content for message in messages if isinstance(message.content, str)
     )
     out: dict[str, int | None] = {
         "plan_id": None,
@@ -253,7 +252,11 @@ def _augment_followup_with_conversation_context(
         FOLLOWUP_CONFIRMATION_RE.match(last_text.strip())
     )
 
-    if assessment_id is None and plan_id is None and not (explicit_followup and previous_proposal):
+    if (
+        assessment_id is None
+        and plan_id is None
+        and not (explicit_followup and previous_proposal)
+    ):
         return last_text
 
     context_lines: list[str] = []
@@ -698,7 +701,9 @@ def _assessment_summary_out(assessment: Assessment) -> AssessmentSummaryOut:
         record_id=assessment.record_id,
         title=assessment.title,
         status=assessment.status,
-        weak_oa_codes=sorted(metric.oa_code for metric in assessment.oa_metrics if metric.weak),
+        weak_oa_codes=sorted(
+            metric.oa_code for metric in assessment.oa_metrics if metric.weak
+        ),
         created_at=assessment.created_at,
     )
 
@@ -728,7 +733,9 @@ def _assessment_detail_out(assessment: Assessment) -> AssessmentDetailOut:
         result_rows=[
             AssessmentResultRowOut(
                 student_name=row.student_name,
-                question_scores={key: float(value) for key, value in row.question_scores.items()},
+                question_scores={
+                    key: float(value) for key, value in row.question_scores.items()
+                },
                 total_score=row.total_score,
             )
             for row in assessment.result_rows
@@ -793,7 +800,9 @@ async def upload_assessment(
     if record_id is not None:
         record = db.get(ClassLearningRecord, record_id)
         if record is None or record.course_id != course_id:
-            raise HTTPException(status_code=404, detail="Registro no existe para este curso")
+            raise HTTPException(
+                status_code=404, detail="Registro no existe para este curso"
+            )
     if not test_pdf.filename or not test_pdf.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Sube la prueba en PDF")
 
@@ -831,7 +840,9 @@ async def upload_assessment(
     return _assessment_summary_out(assessment)
 
 
-@app.get("/evaluaciones/by-course/{course_id}", response_model=list[AssessmentSummaryOut])
+@app.get(
+    "/evaluaciones/by-course/{course_id}", response_model=list[AssessmentSummaryOut]
+)
 def list_assessments_by_course(
     course_id: int,
     teacher: Teacher = Depends(get_current_teacher),
@@ -1049,7 +1060,9 @@ def _guia_detail(g: Guia) -> GuiaDetail:
 def _validate_guia_items(items: list[GuiaItemIn], db: Session) -> set[int]:
     if not items:
         raise HTTPException(status_code=400, detail="Selecciona al menos una pregunta")
-    bank_ids = [item.question_id for item in items if item.type == "bank" and item.question_id]
+    bank_ids = [
+        item.question_id for item in items if item.type == "bank" and item.question_id
+    ]
     if bank_ids:
         found = db.query(Question.id).filter(Question.id.in_(bank_ids)).all()
         found_ids = {row.id for row in found}
@@ -1060,7 +1073,9 @@ def _validate_guia_items(items: list[GuiaItemIn], db: Session) -> set[int]:
             )
     for item in items:
         if item.type == "bank" and item.question_id is None:
-            raise HTTPException(status_code=400, detail="Falta question_id en item banco")
+            raise HTTPException(
+                status_code=400, detail="Falta question_id en item banco"
+            )
         if item.type == "generated":
             if item.generated is None or not item.generated.prompt.strip():
                 raise HTTPException(

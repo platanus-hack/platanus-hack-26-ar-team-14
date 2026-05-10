@@ -55,7 +55,11 @@ def buscar_preguntas_por_oa(
             query = query.filter(Question.contenido.ilike(f"%{contenido.strip()}%"))
         if habilidad:
             query = query.filter(Question.habilidad.ilike(f"%{habilidad.strip()}%"))
-        rows = query.order_by(Question.created_at.desc(), Question.id.desc()).limit(limit).all()
+        rows = (
+            query.order_by(Question.created_at.desc(), Question.id.desc())
+            .limit(limit)
+            .all()
+        )
         return {"matches": [_serialize_question(row) for row in rows]}
 
 
@@ -88,11 +92,15 @@ def clonar_guia(guia_id: int, name: str) -> dict:
         guia = db.get(Guia, guia_id)
         if guia is None:
             return {"error": f"Guía {guia_id} no existe."}
-        cloned = Guia(teacher_id=guia.teacher_id, name=name.strip() or f"{guia.name} copia")
+        cloned = Guia(
+            teacher_id=guia.teacher_id, name=name.strip() or f"{guia.name} copia"
+        )
         db.add(cloned)
         db.flush()
         for item in guia.items:
-            cloned.items.append(GuiaItem(question_id=item.question_id, ordinal=item.ordinal))
+            cloned.items.append(
+                GuiaItem(question_id=item.question_id, ordinal=item.ordinal)
+            )
         for item in guia.generated_questions:
             cloned.generated_questions.append(
                 GeneratedGuiaQuestion(
@@ -110,7 +118,11 @@ def clonar_guia(guia_id: int, name: str) -> dict:
             )
         db.commit()
         db.refresh(cloned)
-        return {"id": cloned.id, "name": cloned.name, "editor_url": f"/guias/editor/{cloned.id}"}
+        return {
+            "id": cloned.id,
+            "name": cloned.name,
+            "editor_url": f"/guias/editor/{cloned.id}",
+        }
 
 
 def _teacher_id_from_plan(db: Session, plan_id: int) -> int | None:
@@ -139,7 +151,11 @@ def crear_guia_desde_banco(name: str, plan_id: int, question_ids: list[int]) -> 
             guia.items.append(GuiaItem(question_id=qid, ordinal=ord_))
         db.commit()
         db.refresh(guia)
-        return {"id": guia.id, "name": guia.name, "editor_url": f"/guias/editor/{guia.id}"}
+        return {
+            "id": guia.id,
+            "name": guia.name,
+            "editor_url": f"/guias/editor/{guia.id}",
+        }
 
 
 @tool
@@ -156,7 +172,9 @@ def crear_guia_mixta(
         if not bank_question_ids and not generated_questions:
             return {"error": "Pasa preguntas de banco o generadas."}
         if bank_question_ids:
-            found = db.query(Question.id).filter(Question.id.in_(bank_question_ids)).all()
+            found = (
+                db.query(Question.id).filter(Question.id.in_(bank_question_ids)).all()
+            )
             found_ids = {row.id for row in found}
             missing = [qid for qid in bank_question_ids if qid not in found_ids]
             if missing:
@@ -189,7 +207,11 @@ def crear_guia_mixta(
             ordinal += 1
         db.commit()
         db.refresh(guia)
-        return {"id": guia.id, "name": guia.name, "editor_url": f"/guias/editor/{guia.id}"}
+        return {
+            "id": guia.id,
+            "name": guia.name,
+            "editor_url": f"/guias/editor/{guia.id}",
+        }
 
 
 @tool

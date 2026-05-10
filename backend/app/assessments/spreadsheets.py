@@ -97,7 +97,9 @@ def _parse_csv(file_bytes: bytes) -> ParsedResults:
 
 
 def _parse_xlsx(file_bytes: bytes) -> ParsedResults:
-    workbook = load_workbook(filename=io.BytesIO(file_bytes), data_only=True, read_only=True)
+    workbook = load_workbook(
+        filename=io.BytesIO(file_bytes), data_only=True, read_only=True
+    )
     try:
         sheet = workbook.worksheets[0]
         rows = [list(row) for row in sheet.iter_rows(values_only=True)]

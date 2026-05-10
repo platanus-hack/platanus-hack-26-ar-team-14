@@ -81,7 +81,9 @@ def buscar_guia(
         número OA), `question_count` y `editor_url` (`/guias/editor/{id}`,
         listo para enlazar en la respuesta).
     """
-    needle = "".join(ch for ch in (query or "").lower() if ch.isalnum()) if query else ""
+    needle = (
+        "".join(ch for ch in (query or "").lower() if ch.isalnum()) if query else ""
+    )
     oa_target = (oa_code or "").strip().upper() or None
     if not needle and not oa_target:
         return {"error": "Pasa `query`, `oa_code`, o ambos."}

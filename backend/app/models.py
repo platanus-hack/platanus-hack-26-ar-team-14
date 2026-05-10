@@ -330,7 +330,9 @@ class AssessmentResultRow(Base):
         ForeignKey("assessments.id", ondelete="CASCADE"), index=True
     )
     student_name: Mapped[str] = mapped_column(String(255))
-    question_scores: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}")
+    question_scores: Mapped[dict] = mapped_column(
+        JSON, default=dict, server_default="{}"
+    )
     total_score: Mapped[float | None] = mapped_column(Float, nullable=True)
 
     assessment: Mapped["Assessment"] = relationship(back_populates="result_rows")

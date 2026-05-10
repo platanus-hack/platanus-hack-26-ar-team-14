@@ -26,9 +26,7 @@ def upgrade() -> None:
         sa.Column("ordinal", sa.Integer(), nullable=False),
         sa.Column("prompt", sa.Text(), nullable=False),
         sa.Column("answer", sa.Text(), nullable=True),
-        sa.Column(
-            "kind", sa.String(length=32), nullable=False, server_default="open"
-        ),
+        sa.Column("kind", sa.String(length=32), nullable=False, server_default="open"),
         sa.Column("alternatives", sa.JSON(), nullable=True),
         sa.Column("correct_alternative", sa.String(length=8), nullable=True),
         sa.Column("oa_code", sa.String(length=16), nullable=True),

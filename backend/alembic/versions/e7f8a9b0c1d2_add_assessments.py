@@ -69,9 +69,7 @@ def upgrade() -> None:
         sa.Column("ordinal", sa.Integer(), nullable=False),
         sa.Column("score_key", sa.String(length=32), nullable=False),
         sa.Column("prompt", sa.Text(), nullable=False),
-        sa.Column(
-            "kind", sa.String(length=32), nullable=False, server_default="open"
-        ),
+        sa.Column("kind", sa.String(length=32), nullable=False, server_default="open"),
         sa.Column("oa_codes", sa.JSON(), nullable=False, server_default="[]"),
         sa.Column("max_points", sa.Float(), nullable=True),
         sa.ForeignKeyConstraint(
@@ -113,15 +111,16 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("assessment_id", sa.Integer(), nullable=False),
         sa.Column("oa_code", sa.String(length=16), nullable=False),
-        sa.Column(
-            "question_ordinals", sa.JSON(), nullable=False, server_default="[]"
-        ),
+        sa.Column("question_ordinals", sa.JSON(), nullable=False, server_default="[]"),
         sa.Column("mastery_pct", sa.Float(), nullable=False),
         sa.Column("average_score", sa.Float(), nullable=False),
         sa.Column("max_score", sa.Float(), nullable=False),
         sa.Column("student_count", sa.Integer(), nullable=False),
         sa.Column(
-            "weak", sa.Boolean(), nullable=False, server_default=sa.sql.expression.false()
+            "weak",
+            sa.Boolean(),
+            nullable=False,
+            server_default=sa.sql.expression.false(),
         ),
         sa.Column("evidence_summary", sa.Text(), nullable=True),
         sa.ForeignKeyConstraint(
@@ -147,8 +146,12 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_index(op.f("ix_assessment_oa_metrics_weak"), table_name="assessment_oa_metrics")
-    op.drop_index(op.f("ix_assessment_oa_metrics_oa_code"), table_name="assessment_oa_metrics")
+    op.drop_index(
+        op.f("ix_assessment_oa_metrics_weak"), table_name="assessment_oa_metrics"
+    )
+    op.drop_index(
+        op.f("ix_assessment_oa_metrics_oa_code"), table_name="assessment_oa_metrics"
+    )
     op.drop_index(
         op.f("ix_assessment_oa_metrics_assessment_id"),
         table_name="assessment_oa_metrics",

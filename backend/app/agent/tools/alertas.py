@@ -52,9 +52,7 @@ def crear_alerta(
     """
     sev = severity.strip().lower()
     if sev not in VALID_SEVERITIES:
-        return {
-            "error": f"severity inválida: {severity!r}. Usa low, medium o high."
-        }
+        return {"error": f"severity inválida: {severity!r}. Usa low, medium o high."}
     obs = [o.strip() for o in (observations or []) if o and o.strip()]
     if not obs:
         return {"error": "Debes incluir al menos una observación."}

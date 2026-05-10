@@ -27,9 +27,12 @@ class GeneratedQuestionDraft(BaseModel):
             valid_alternatives = [
                 alt
                 for alt in self.alternatives
-                if str(alt.get("label", "")).strip() and str(alt.get("text", "")).strip()
+                if str(alt.get("label", "")).strip()
+                and str(alt.get("text", "")).strip()
             ]
-            valid_labels = {str(alt.get("label", "")).strip() for alt in valid_alternatives}
+            valid_labels = {
+                str(alt.get("label", "")).strip() for alt in valid_alternatives
+            }
             if len(valid_alternatives) != 4:
                 raise ValueError(
                     "Las preguntas multiple_choice deben traer 4 alternativas no vacías."

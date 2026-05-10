@@ -196,7 +196,11 @@ def _end_buscar_items_plan_por_oa(payload: Any) -> str:
 
 def _start_buscar_preguntas_por_oa(args: dict) -> str:
     oa_code = args.get("oa_code")
-    return f"Buscando preguntas para {oa_code}…" if oa_code else "Buscando preguntas del banco…"
+    return (
+        f"Buscando preguntas para {oa_code}…"
+        if oa_code
+        else "Buscando preguntas del banco…"
+    )
 
 
 def _end_buscar_preguntas_por_oa(payload: Any) -> str:
