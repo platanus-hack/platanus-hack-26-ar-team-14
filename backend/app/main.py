@@ -1,3 +1,5 @@
+import asyncio
+
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, StreamingResponse
@@ -239,7 +241,7 @@ async def extract_planificacion(
     if not file_bytes:
         raise HTTPException(status_code=400, detail="Archivo vacío")
     try:
-        draft = extract_plan_from_pdf(file_bytes)
+        draft = await asyncio.to_thread(extract_plan_from_pdf, file_bytes)
     except Exception as e:  # noqa: BLE001
         raise HTTPException(status_code=500, detail=f"Falló la extracción: {e}") from e
 
