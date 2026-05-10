@@ -10,8 +10,16 @@ from app.chat_status import describe_tool_end, describe_tool_start
 from app.config import settings
 from app.curriculum import buscar_actividades, listar_unidades, obtener_oa
 from app.db import get_db
-from app.models import Course, Guia, GuiaItem, PlanAnual, PlanAnualItem, Question, Teacher
-from app.planificacion import PlanAnualDraft, extract_plan_from_pdf
+from app.models import (
+    Course,
+    Guia,
+    GuiaItem,
+    PlanAnual,
+    PlanAnualItem,
+    Question,
+    Teacher,
+)
+from app.planificacion import extract_plan_from_pdf
 from app.worksheets.store import ingest_pdf
 
 app = FastAPI(title="Backend API")

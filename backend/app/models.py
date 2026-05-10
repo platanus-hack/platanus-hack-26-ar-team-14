@@ -6,6 +6,7 @@ Add new tables here so Alembic autogenerate can pick them up.
 from datetime import date, datetime
 
 from sqlalchemy import (
+    Boolean,
     JSON,
     Date,
     DateTime,
@@ -13,6 +14,7 @@ from sqlalchemy import (
     LargeBinary,
     String,
     Text,
+    false,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -52,6 +54,9 @@ class Course(Base):
     students: Mapped[list["Student"]] = relationship(
         back_populates="course", cascade="all, delete-orphan"
     )
+    learning_records: Mapped[list["ClassLearningRecord"]] = relationship(
+        back_populates="course", cascade="all, delete-orphan"
+    )
 
 
 class Student(Base):
@@ -64,6 +69,30 @@ class Student(Base):
     )
 
     course: Mapped["Course"] = relationship(back_populates="students")
+
+
+class ClassLearningRecord(Base):
+    """What was taught and observed in a concrete course block on a given date.
+
+    We currently link this to Course because the weekly schedule abstraction in the
+    backend lives on courses via class_days + block_number rather than a separate
+    horario table.
+    """
+
+    __tablename__ = "class_learning_records"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    course_id: Mapped[int] = mapped_column(
+        ForeignKey("courses.id", ondelete="CASCADE"), index=True
+    )
+    class_date: Mapped[date] = mapped_column(Date, index=True)
+    registered: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false()
+    )
+    oa_numbers: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    observations: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    course: Mapped["Course"] = relationship(back_populates="learning_records")
 
 
 class Question(Base):

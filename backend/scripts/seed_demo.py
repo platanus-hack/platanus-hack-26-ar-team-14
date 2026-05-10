@@ -7,9 +7,11 @@ Run from the backend directory:
 Idempotent: re-running with the same teacher email is a no-op.
 """
 
+from datetime import date, timedelta
+
 from app.auth import hash_password
 from app.db import SessionLocal
-from app.models import Course, Student, Teacher
+from app.models import ClassLearningRecord, Course, Student, Teacher
 
 TEACHER_NAME = "Ana Pérez"
 TEACHER_EMAIL = "ana@demo.cl"
@@ -65,10 +67,39 @@ STUDENT_NAMES = [
     "Ignacio Henríquez",
 ]
 
+WEEKDAY_BY_NAME = {
+    "monday": 0,
+    "tuesday": 1,
+    "wednesday": 2,
+    "thursday": 3,
+    "friday": 4,
+    "saturday": 5,
+    "sunday": 6,
+}
+
+
+def estimate_class_dates_for_year(class_days: list[str], year: int) -> list[date]:
+    start = date(year, 3, 1)
+    end = date(year, 12, 15)
+    target_weekdays = {
+        WEEKDAY_BY_NAME[day] for day in class_days if day in WEEKDAY_BY_NAME
+    }
+    if not target_weekdays:
+        return []
+
+    class_dates: list[date] = []
+    current = start
+    while current <= end:
+        if current.weekday() in target_weekdays:
+            class_dates.append(current)
+        current += timedelta(days=1)
+    return class_dates
+
 
 def main() -> None:
     assert len(STUDENT_NAMES) == 30, "expected 30 student names"
     assert len(set(STUDENT_NAMES)) == 30, "student names must be unique"
+    school_year = date.today().year
 
     with SessionLocal() as db:
         teacher = db.query(Teacher).filter_by(email=TEACHER_EMAIL).one_or_none()
@@ -88,6 +119,17 @@ def main() -> None:
                 name=c["name"],
                 class_days=c["class_days"],
                 block_number=c["block_number"],
+                learning_records=[
+                    ClassLearningRecord(
+                        class_date=class_date,
+                        registered=False,
+                        oa_numbers=None,
+                        observations=None,
+                    )
+                    for class_date in estimate_class_dates_for_year(
+                        c["class_days"], school_year
+                    )
+                ],
                 students=[Student(name=n) for n in STUDENT_NAMES] if i == 0 else [],
             )
             for i, c in enumerate(COURSES)
@@ -98,7 +140,9 @@ def main() -> None:
         print(
             f"Seeded teacher {teacher.email} (id={teacher.id}) with "
             f"{len(teacher.courses)} courses: "
-            f"{', '.join(c.name for c in teacher.courses)}."
+            f"{', '.join(c.name for c in teacher.courses)}. "
+            f"Pre-created {sum(len(c.learning_records) for c in teacher.courses)} "
+            f"class learning records for {school_year}."
         )
 
 

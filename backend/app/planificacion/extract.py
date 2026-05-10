@@ -83,9 +83,7 @@ class PlanAnualDraft(BaseModel):
     curso: str | None = Field(
         default=None, description="Curso, ej. '5° básico' o '5 año básico'."
     )
-    anio: int | None = Field(
-        default=None, description="Año del plan, ej. 2025."
-    )
+    anio: int | None = Field(default=None, description="Año del plan, ej. 2025.")
     docente: str | None = Field(
         default=None, description="Nombre completo del docente si aparece."
     )
@@ -117,11 +115,9 @@ ignóralo y extrae solo el plan anual propiamente tal.
 No inventes OAs ni texto. Si un valor no aparece, devuelve null."""
 
 
-_EXTRACT_PROMPT_TEXT = (
-    _EXTRACT_PROMPT_PDF.replace(
-        "Te entrego una\nplanificación anual de Matemática chilena en PDF.",
-        "Te paso el texto extraído de una planificación anual de Matemática chilena.",
-    )
+_EXTRACT_PROMPT_TEXT = _EXTRACT_PROMPT_PDF.replace(
+    "Te entrego una\nplanificación anual de Matemática chilena en PDF.",
+    "Te paso el texto extraído de una planificación anual de Matemática chilena.",
 )
 
 
@@ -154,9 +150,7 @@ def _llm(model: str | None) -> ChatAnthropic:
     )
 
 
-def _extract_via_pdf(
-    pdf_bytes: bytes, *, model: str | None
-) -> PlanAnualDraft:
+def _extract_via_pdf(pdf_bytes: bytes, *, model: str | None) -> PlanAnualDraft:
     pdf_bytes = _truncate_pdf(pdf_bytes, ANTHROPIC_PDF_PAGE_LIMIT)
     b64 = base64.b64encode(pdf_bytes).decode("ascii")
     structured = _llm(model).with_structured_output(PlanAnualDraft)
@@ -176,9 +170,7 @@ def _extract_via_pdf(
     return structured.invoke([message])
 
 
-def _extract_via_text(
-    pdf_bytes: bytes, *, model: str | None
-) -> PlanAnualDraft:
+def _extract_via_text(pdf_bytes: bytes, *, model: str | None) -> PlanAnualDraft:
     text = _pdf_to_text(pdf_bytes)
     if not text:
         raise ValueError("PDF sin texto extraíble (probablemente escaneado).")
@@ -212,9 +204,7 @@ def _render_pdf_pages_to_jpegs(
     return out
 
 
-def _extract_via_images(
-    pdf_bytes: bytes, *, model: str | None
-) -> PlanAnualDraft:
+def _extract_via_images(pdf_bytes: bytes, *, model: str | None) -> PlanAnualDraft:
     pages = _render_pdf_pages_to_jpegs(
         pdf_bytes,
         max_pages=IMAGE_FALLBACK_MAX_PAGES,

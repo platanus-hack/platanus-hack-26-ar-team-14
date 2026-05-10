@@ -94,5 +94,3 @@ def clases_restantes_mes(fecha: str | None = None) -> dict:
         "clases_restantes": len(fechas),
         "fechas": [f.isoformat() for f in fechas],
     }
-
-

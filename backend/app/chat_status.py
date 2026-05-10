@@ -107,7 +107,9 @@ def _end_crear_item_plan(_payload: Any) -> str:
 
 def _start_actualizar_item_plan(args: dict) -> str:
     item_id = args.get("item_id")
-    return f"Editando fila {item_id} del plan…" if item_id else "Editando fila del plan…"
+    return (
+        f"Editando fila {item_id} del plan…" if item_id else "Editando fila del plan…"
+    )
 
 
 def _end_actualizar_item_plan(_payload: Any) -> str:
@@ -116,7 +118,11 @@ def _end_actualizar_item_plan(_payload: Any) -> str:
 
 def _start_eliminar_item_plan(args: dict) -> str:
     item_id = args.get("item_id")
-    return f"Eliminando fila {item_id} del plan…" if item_id else "Eliminando fila del plan…"
+    return (
+        f"Eliminando fila {item_id} del plan…"
+        if item_id
+        else "Eliminando fila del plan…"
+    )
 
 
 def _end_eliminar_item_plan(_payload: Any) -> str:
