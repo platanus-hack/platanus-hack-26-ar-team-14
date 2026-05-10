@@ -18,7 +18,7 @@ const linkClass = (
 
 export function Navbar({ teacherName, active }: NavbarProps) {
 	return (
-		<header className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-full border border-white/70 bg-white/80 px-6 py-3 shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur">
+		<header className="bitacora-navbar">
 			<nav className="flex items-center gap-6">
 				<Link
 					href="/"
@@ -45,12 +45,18 @@ export function Navbar({ teacherName, active }: NavbarProps) {
 					</Link>
 				</div>
 			</nav>
-			<div className="flex items-center gap-4">
-				<div className="hidden text-right sm:block">
-					<p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
-						Profesor
-					</p>
-					<p className="text-sm font-semibold text-slate-900">{teacherName}</p>
+			<div className="flex items-center gap-3">
+				<div className="hidden items-center gap-2 sm:flex">
+					<span className="grid h-8 w-8 place-items-center rounded-full bg-slate-900 text-[11px] font-semibold uppercase tracking-wide text-white">
+						{teacherName
+							.split(" ")
+							.map((p) => p[0])
+							.slice(0, 2)
+							.join("")}
+					</span>
+					<span className="text-sm font-medium text-slate-900">
+						{teacherName}
+					</span>
 				</div>
 				<LogoutButton />
 			</div>
