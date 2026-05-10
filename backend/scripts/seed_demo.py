@@ -199,6 +199,99 @@ WEEKDAY_BY_NAME = {
     "sunday": 6,
 }
 
+SPANISH_MONTHS_TITLE = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+]
+
+# Per-asignatura bank of teacher-voice observations. Past learning records
+# rotate through these deterministically, so the demo libro de clases reads as
+# realistic without any LLM call. Templates are short (≤ 2 lines clamp in UI).
+OBS_TEMPLATES_BY_ASIGNATURA: dict[str, list[str]] = {
+    "Lenguaje y Comunicación": [
+        "Lectura compartida en voz alta del texto seleccionado. Identificamos elementos narrativos en una tabla colaborativa. Buena concentración general. Tarea: ficha de personajes.",
+        "Trabajo de inferencias en parejas a partir de un fragmento corto. Resultados variables; refuerzo grupal al cierre. Catalina hizo aportes destacados.",
+        "Producción escrita individual con planificador previo. Pasé por los puestos dando retroalimentación. Avance disparejo, varios necesitan más andamiaje.",
+        "Análisis de estructura narrativa: inicio, desarrollo y desenlace. Esquema en pizarra y copia en cuadernos. Pendiente: reforzar conflicto narrativo.",
+        "Discusión guiada sobre el cuento leído. Participación amplia. Sofía y Mateo destacaron por sus argumentos. Tarea: redactar opinión personal breve.",
+        "Coevaluación entre pares con rúbrica simple. Funcionó bien la dinámica. Cada estudiante recibió retroalimentación de dos compañeros. Buen ambiente.",
+        "Ejercicio de vocabulario contextual a partir de palabras desconocidas. Hipótesis de significado en grupos. Tarea: completar glosario personal.",
+        "Lectura silenciosa con anotaciones marginales. Sostener silencio fue desafío inicial. Trabajo individual posterior con guía de comprensión.",
+        "Punto de vista narrativo: primera y tercera persona. Diferenciación con fragmentos cortos. Ejercicio de conversión entre puntos de vista; difícil para varios.",
+        "Diálogos en relatos: uso de raya y comillas. Ejercicios graduales en cuaderno. Tres estudiantes confunden puntuación al cambiar hablante. Refuerzo necesario.",
+        "Análisis de simbolismo en narraciones. Concepto difícil; usé ejemplos visuales primero. Algunos lo captaron rápidamente, otros requirieron apoyo individual.",
+        "Lectura coral del texto. Distribución de fragmentos por filas. Buena dinámica. Trabajo posterior con preguntas literales.",
+        "Caracterización de personajes con ficha detallada. Diferenciamos personaje plano y redondo. Joaquín hizo preguntas pertinentes.",
+        "Tema y mensaje en narraciones. Diferenciamos los conceptos con ejemplos contrastantes. Trabajo individual; buena profundidad analítica del grupo.",
+        "Estrategia de predicción a partir del título y portada. La mayoría logró predicciones razonables. Pendiente: predicción durante la lectura.",
+        "Cierre de unidad con coevaluación de borradores. Producto final mejor de lo esperado en general. Tarea: traer cuento ilustrado y limpio.",
+    ],
+    "Ciencias Naturales": [
+        "Introducción al concepto con ejemplos cercanos al curso. Activación de conocimientos previos en lluvia de ideas. Tarea: traer imagen relacionada.",
+        "Experimento corto en aula con material disponible. Registro de observaciones en cuaderno. Curso entusiasmado. Pendiente: análisis de datos.",
+        "Trabajo con láminas y material visual. Clasificación colaborativa en pizarra. Mateo aportó ejemplo concreto del entorno.",
+        "Construcción colaborativa de esquema en la pizarra. Buen razonamiento sistémico de varios estudiantes. Tarea: replicar esquema en cuaderno.",
+        "Lectura del texto guía en página indicada. Trabajo en parejas con preguntas de comprensión. Bastián hizo pregunta relevante al cierre.",
+        "Análisis de datos recopilados en clase anterior. Lectura e interpretación en parejas. Algunos confundieron promedio con suma. Refuerzo focalizado.",
+        "Investigación en pequeños grupos sobre subtema asignado. Cada grupo investigó aspecto distinto. Florencia trajo investigación adicional muy completa.",
+        "Discusión sobre fenómenos cotidianos relacionados con el contenido. Curso muy participativo. Buena conexión con experiencia personal.",
+        "Demostración con material didáctico al inicio de la sesión. Curso fascinado. Ejercicios posteriores en cuaderno.",
+        "Documental corto seguido de discusión guiada. Curso atento durante la proyección. Discusión posterior muy rica. Tarea: resumen breve.",
+        "Trabajo individual con guía de aplicación. Pasé por los puestos resolviendo dudas. Renata necesita apoyo individual.",
+        "Caso de estudio chileno relacionado con el OA. Discusión guiada. Sofía aportó información que enriqueció la sesión.",
+        "Ejercicio de clasificación con fichas. Trabajo en parejas. Buen ejercicio de razonamiento taxonómico. Tarea: completar tabla.",
+        "Visualización de datos con láminas. Dificultades de algunos estudiantes con escalas. Refuerzo necesario la próxima clase.",
+        "Presentaciones de investigaciones grupales. Variedad excelente. Trinidad y Vicente sorprendieron por nivel de detalle.",
+        "Cierre de tema con mapa conceptual colaborativo. Buen ejercicio de síntesis. Próxima clase: evaluación corta del contenido.",
+    ],
+    "Historia": [
+        "Activación de conocimientos previos sobre el período. Línea de tiempo en pizarra. Mateo aportó dato sobre origen mapuche de palabras cotidianas.",
+        "Análisis de fuente primaria con guía de lectura. Vocabulario antiguo dificultó algunos pasajes. Buen ejercicio de inferencia léxica.",
+        "Discusión guiada sobre el contenido. Participación activa. Sofía hizo pregunta importante sobre las desigualdades del sistema.",
+        "Trabajo con material visual: láminas de época. Comparamos con vida actual. Florencia destacó por observaciones detalladas.",
+        "Mapa conceptual colaborativo en pizarra. Buen ejercicio de síntesis. Renata destacó conexiones interesantes entre conceptos.",
+        "Lectura comprensiva con guía estructurada. Trabajo individual posterior. Tres estudiantes confunden conceptos relacionados; refuerzo focalizado.",
+        "Investigación sobre tema específico en grupos. Cada grupo investigó aspecto distinto. Tarea: traer ficha de investigación.",
+        "Comparación entre épocas o regiones en tabla colaborativa. Catalina propuso comparación adicional muy pertinente.",
+        "Análisis de mapa cartográfico del período. Lectura de mapa con preguntas guía. Vicente identificó patrones interesantes en las fundaciones.",
+        "Presentaciones grupales breves de investigaciones. Variedad de casos. Trinidad presentó con detalle notable. Buen nivel general.",
+        "Reflexión sobre conexiones con el presente. Curso muy involucrado. Tomás aportó comparación con sistema actual; enriqueció la discusión.",
+        "Trabajo con conceptos densos de organización social. Requirió varios ejemplos. Tres estudiantes aún confunden términos. Refuerzo necesario.",
+        "Visualización de tradiciones que persisten al presente. Catalina trajo receta antigua. Buena conexión con contexto familiar.",
+        "Análisis comparativo de fuentes distintas. Concepto de evidencia histórica. Discusión sobre confiabilidad de fuentes.",
+        "Cierre de tema con síntesis colaborativa. Mapa de conceptos clave en pizarra. Próxima clase: integramos con tema previo.",
+        "Trabajo en parejas sobre fragmento documental. Buena colaboración. Joaquín hizo pregunta teológica interesante.",
+    ],
+    "Matemática": [
+        "Diagnóstico breve sobre conceptos previos. Buen nivel general. Introduje el contenido nuevo con ejemplos contextuales.",
+        "Resolución guiada en pizarra paso a paso. Práctica posterior en cuaderno. Mayoría logró replicar con números similares.",
+        "Trabajo individual con material concreto. Pasé por los puestos resolviendo dudas. Trinidad sorprendió con cálculo mental.",
+        "Cálculo mental en parejas con tarjetas. Buena dinámica colaborativa. Algunos estudiantes con tablas débiles. Refuerzo necesario.",
+        "Aplicación del concepto a problema cotidiano. Lectura comprensiva del enunciado. Catalina destacó en interpretación del problema.",
+        "Ejercicios graduales en cuaderno. Concentración sostenida. Errores típicos en pasos intermedios. Refuerzo individual con cinco estudiantes.",
+        "Demostración paso a paso con ejemplo claro. Anotaciones en cuaderno. Bastián propuso truco mnemotécnico útil.",
+        "Refuerzo focalizado con grupo que mostró dificultad. Mejora notable respecto a clase anterior. Sofía y Tomás casi 100%.",
+        "Estimación y aproximación como estrategia. Concepto útil pero abstracto. Florencia hizo conexión con compras del supermercado.",
+        "Ejercicio de profundización con números más grandes. Tres estudiantes mostraron dificultad. Refuerzo individual.",
+        "Lectura de cifras en voz alta. Joaquín leyó número de varios dígitos sin titubear. Práctica posterior en cuaderno.",
+        "Comparación y orden con estrategia explícita. Catalina propuso atajo correcto. Tarea: ordenar conjunto similar.",
+        "Operaciones combinadas con paréntesis. Concepto difícil. Vicente identificó error en su propio trabajo; buena reflexión.",
+        "Problema verbal en grupos pequeños. Lectura comprensiva y traducción a expresión matemática. Mateo y Florencia presentaron solución elegante.",
+        "Evaluación corta del contenido. Resultados mixtos: la mayoría logró, algunos requieren refuerzo. Plan focalizado.",
+        "Cierre de tema con síntesis grupal. Mapa de procedimientos clave en pizarra. Buen cierre de unidad.",
+    ],
+}
+
 
 def estimate_class_dates_for_year(class_days: list[str], year: int) -> list[date]:
     start = date(year, 3, 1)
@@ -216,6 +309,60 @@ def estimate_class_dates_for_year(class_days: list[str], year: int) -> list[date
             class_dates.append(current)
         current += timedelta(days=1)
     return class_dates
+
+
+def _oas_for_class(plan_items: list[dict], month: int, idx: int) -> list[str]:
+    """Pick one OA from the plan item that matches the given month (1–12),
+    cycling through its `oa_codes` by `idx` so consecutive classes within a
+    month touch different OAs when the plan offers more than one."""
+    target = SPANISH_MONTHS_TITLE[month - 1]
+    item = next((it for it in plan_items if it.get("mes") == target), None)
+    if not item or not item.get("oa_codes"):
+        return []
+    codes = list(item["oa_codes"])
+    return [codes[idx % len(codes)]]
+
+
+def _build_learning_records(seed: dict, cutoff: date) -> list[ClassLearningRecord]:
+    """Build ClassLearningRecord rows for one course.
+
+    Past dates (strictly before `cutoff`) are seeded as registered, with OA
+    codes drawn from the plan item that matches the class's month and an
+    observation rotated from the asignatura's template bank. Dates ≥ cutoff
+    stay pending so the dashboard's "libro de clases" section has work to show.
+    """
+    plan_items = seed["plan"]["items"]
+    asignatura = seed["plan"]["asignatura"]
+    templates = OBS_TEMPLATES_BY_ASIGNATURA.get(asignatura)
+    if not templates:
+        templates = OBS_TEMPLATES_BY_ASIGNATURA["Lenguaje y Comunicación"]
+
+    records: list[ClassLearningRecord] = []
+    past_idx = 0
+    for class_date in estimate_class_dates_for_year(seed["class_days"], SCHOOL_YEAR):
+        if class_date < cutoff:
+            oas = _oas_for_class(plan_items, class_date.month, past_idx)
+            obs = templates[past_idx % len(templates)]
+            past_idx += 1
+            if oas:
+                records.append(
+                    ClassLearningRecord(
+                        class_date=class_date,
+                        registered=True,
+                        oa_numbers=oas,
+                        observations=obs,
+                    )
+                )
+                continue
+        records.append(
+            ClassLearningRecord(
+                class_date=class_date,
+                registered=False,
+                oa_numbers=None,
+                observations=None,
+            )
+        )
+    return records
 
 
 def _load_guide_artifact(json_path: Path) -> dict:
@@ -336,6 +483,11 @@ def main() -> None:
     assert len(STUDENT_NAMES) == 30, "expected 30 student names"
     assert len(set(STUDENT_NAMES)) == 30, "student names must be unique"
 
+    # Past records get filled in for any class date strictly before this cutoff.
+    # The 2-day buffer keeps the most recent class day pending so the dashboard's
+    # "libro de clases" section has something to show.
+    cutoff = date.today() - timedelta(days=2)
+
     with SessionLocal() as db:
         teacher = db.query(Teacher).filter_by(email=TEACHER_EMAIL).one_or_none()
         if teacher is not None:
@@ -363,17 +515,7 @@ def main() -> None:
                 class_days=list(seed["class_days"]),
                 block_number=seed["block_number"],
                 plan_anual=plan,
-                learning_records=[
-                    ClassLearningRecord(
-                        class_date=class_date,
-                        registered=False,
-                        oa_numbers=None,
-                        observations=None,
-                    )
-                    for class_date in estimate_class_dates_for_year(
-                        seed["class_days"], SCHOOL_YEAR
-                    )
-                ],
+                learning_records=_build_learning_records(seed, cutoff),
                 students=[Student(name=name) for name in STUDENT_NAMES]
                 if index == 0
                 else [],
@@ -383,11 +525,16 @@ def main() -> None:
         teacher.courses = courses
         db.commit()
         db.refresh(teacher)
+        registered_count = sum(
+            1 for c in teacher.courses for r in c.learning_records if r.registered
+        )
+        total_records = sum(len(c.learning_records) for c in teacher.courses)
         print(
             f"Seeded teacher {teacher.email} (id={teacher.id}) with "
             f"{len(teacher.courses)} courses and {len(COURSE_SEEDS)} linked plans. "
-            f"Pre-created {sum(len(c.learning_records) for c in teacher.courses)} "
-            f"class learning records for {SCHOOL_YEAR}."
+            f"Pre-created {total_records} class learning records for "
+            f"{SCHOOL_YEAR} ({registered_count} registered up to {cutoff}, "
+            f"{total_records - registered_count} pending/upcoming)."
         )
         _seed_guides_for_teacher(db, teacher)
 
