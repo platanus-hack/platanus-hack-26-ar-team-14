@@ -29,10 +29,10 @@ export function Navbar({ teacherName, active }: NavbarProps) {
 				<span className="hidden h-5 w-px bg-slate-200 sm:block" />
 				<div className="flex items-center gap-5 text-sm font-medium">
 					<Link href="/" className={linkClass("cuaderno", active)}>
-						Cuaderno
+						Inicio
 					</Link>
 					<Link href="/banco" className={linkClass("banco", active)}>
-						Banco
+						Actividades
 					</Link>
 					<Link href="/guias" className={linkClass("guias", active)}>
 						Guías
@@ -41,7 +41,7 @@ export function Navbar({ teacherName, active }: NavbarProps) {
 						href="/planificacion"
 						className={linkClass("planificacion", active)}
 					>
-						Planificación
+						Plan anual
 					</Link>
 				</div>
 			</nav>
