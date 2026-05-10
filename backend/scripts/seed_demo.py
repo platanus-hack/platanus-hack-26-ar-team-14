@@ -33,15 +33,12 @@ CDE_IMG_DIR = CDE_SEED_DIR / "images"
 TEACHER_NAME = "Ana Pérez"
 TEACHER_EMAIL = "ana@demo.cl"
 TEACHER_PASSWORD = "123"
-# Docente "control" al día: mismos cursos, sin clases pendientes ni gaps.
-TEACHER_AL_DIA_NAME = "Ana Perez"
-TEACHER_AL_DIA_EMAIL = "ana2@demo.cl"
-TEACHER_AL_DIA_PASSWORD = "123"
+# Docente "vacío": un único curso sin plan, sin libro, sin alumnos.
+TEACHER_EMPTY_NAME = "Ana Perez"
+TEACHER_EMPTY_EMAIL = "ana2@demo.cl"
+TEACHER_EMPTY_PASSWORD = "123"
 SCHOOL_YEAR = 2026
 REGISTERED_RECORDS_CUTOFF = date(SCHOOL_YEAR, 5, 13)
-# Cutoff en el futuro lejano: al `_build_learning_records` toma todas las
-# clases del año como ya registradas, así no aparecen pendientes en el dashboard.
-ALL_REGISTERED_CUTOFF = date(SCHOOL_YEAR + 1, 1, 1)
 
 MATH_5_PLAN_ITEMS = [
     {
@@ -738,33 +735,52 @@ def _reset_demo_teacher_data(db: Session, teacher: Teacher) -> None:
     db.flush()
 
 
-def _seed_placeholder_materials(db: Session, teacher: Teacher) -> None:
-    """Adjuntar un Material genérico a cada item de plan.
+def _seed_empty_teacher(
+    db: Session,
+    *,
+    name: str,
+    email: str,
+    password: str,
+) -> None:
+    """Seed (o re-seed) un docente con UN único curso vacío.
 
-    Para el docente "al día": no apuntan a una `Guia` real (`guia_id=None`),
-    sólo existen para cumplir con `material_id IS NOT NULL` y silenciar las
-    filas Acción del dashboard. Se omite cualquier item que ya tenga material.
+    Sin `PlanAnual`, sin `ClassLearningRecord`, sin `Student`, sin `Material`,
+    sin `Alert`, sin guías. Sirve como estado base para flujos que parten desde
+    cero (crear el primer plan, importar libro, etc.).
     """
-    attached = 0
-    for course in teacher.courses:
-        plan = course.plan_anual
-        if plan is None:
-            continue
-        for item in plan.items:
-            if item.material_id is not None:
-                continue
-            material = Material(
-                name=f"Guía pedagógica · {item.mes or 'Sin mes'}",
-                kind="guia",
-                guia_id=None,
-            )
-            db.add(material)
-            db.flush()
-            item.material_id = material.id
-            attached += 1
+    teacher = db.query(Teacher).filter_by(email=email).one_or_none()
+    if teacher is not None:
+        print(
+            f"Teacher {email} already exists (id={teacher.id}); "
+            "refreshing into empty single-course state."
+        )
+        _reset_demo_teacher_data(db, teacher)
+        if teacher.name != name:
+            teacher.name = name
+    else:
+        teacher = Teacher(
+            name=name,
+            email=email,
+            password_hash=hash_password(password),
+        )
+        db.add(teacher)
+        db.flush()
+
+    course = Course(
+        name="Matemática - 5° Básico A",
+        teacher_id=teacher.id,
+        class_days=["monday", "wednesday", "friday"],
+        block_number=1,
+        plan_anual=None,
+        learning_records=[],
+        students=[],
+    )
+    teacher.courses = [course]
     db.commit()
+    db.refresh(teacher)
     print(
-        f"Materiales placeholder vinculados para {teacher.email}: {attached}."
+        f"Seeded empty teacher {teacher.email} (id={teacher.id}) with "
+        f"1 bare course and no plan/records/students/materials."
     )
 
 
@@ -775,13 +791,11 @@ def _seed_demo_teacher(
     email: str,
     password: str,
     cutoff: date,
-    al_dia: bool,
 ) -> None:
     """Seed (o re-seed) un docente con los `COURSE_SEEDS` estándar.
 
     `cutoff` controla qué clases quedan registradas (las anteriores) vs.
-    pendientes (las posteriores). `al_dia=True` salta los seeds que generan
-    señales de Acción/Desalineado y agrega Material a TODOS los items del plan.
+    pendientes (las posteriores).
     """
     teacher = db.query(Teacher).filter_by(email=email).one_or_none()
     if teacher is not None:
@@ -819,8 +833,7 @@ def _seed_demo_teacher(
 
     teacher.courses = courses
     db.flush()
-    if not al_dia:
-        _seed_alerts(db, teacher)
+    _seed_alerts(db, teacher)
     db.commit()
     db.refresh(teacher)
 
@@ -836,11 +849,8 @@ def _seed_demo_teacher(
         f"{total_records - registered_count} pending/upcoming)."
     )
 
-    if al_dia:
-        _seed_placeholder_materials(db, teacher)
-    else:
-        _seed_guides_for_teacher(db, teacher)
-        _seed_plan_materials(db, teacher)
+    _seed_guides_for_teacher(db, teacher)
+    _seed_plan_materials(db, teacher)
 
 
 def main() -> None:
@@ -854,15 +864,12 @@ def main() -> None:
             email=TEACHER_EMAIL,
             password=TEACHER_PASSWORD,
             cutoff=REGISTERED_RECORDS_CUTOFF,
-            al_dia=False,
         )
-        _seed_demo_teacher(
+        _seed_empty_teacher(
             db,
-            name=TEACHER_AL_DIA_NAME,
-            email=TEACHER_AL_DIA_EMAIL,
-            password=TEACHER_AL_DIA_PASSWORD,
-            cutoff=ALL_REGISTERED_CUTOFF,
-            al_dia=True,
+            name=TEACHER_EMPTY_NAME,
+            email=TEACHER_EMPTY_EMAIL,
+            password=TEACHER_EMPTY_PASSWORD,
         )
 
 
