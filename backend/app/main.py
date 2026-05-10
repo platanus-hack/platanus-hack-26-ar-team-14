@@ -1,3 +1,5 @@
+from datetime import date, datetime
+
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, StreamingResponse
@@ -11,6 +13,7 @@ from app.config import settings
 from app.curriculum import buscar_actividades, listar_unidades, obtener_oa
 from app.db import get_db
 from app.models import (
+    ClassLearningRecord,
     Course,
     Guia,
     GuiaItem,
@@ -549,3 +552,102 @@ def delete_guia(
     db.delete(guia)
     db.commit()
     return {"deleted": guia_id}
+
+
+# ──────────────────────────── Libro de clases ────────────────────────────
+
+
+class LearningRecordOut(BaseModel):
+    id: int
+    course_id: int
+    course_name: str
+    class_date: date
+    block_number: int
+    registered: bool
+    oa_numbers: list[str] | None
+    observations: str | None
+
+
+class LearningRecordUpdate(BaseModel):
+    oa_numbers: list[str]
+    observations: str | None = None
+
+
+def _record_out(record: ClassLearningRecord) -> LearningRecordOut:
+    return LearningRecordOut(
+        id=record.id,
+        course_id=record.course_id,
+        course_name=record.course.name,
+        class_date=record.class_date,
+        block_number=record.course.block_number,
+        registered=record.registered,
+        oa_numbers=list(record.oa_numbers) if record.oa_numbers else None,
+        observations=record.observations,
+    )
+
+
+def _block_has_ended(class_date: date, block_number: int, now: datetime) -> bool:
+    """A class block of length 1 hour starting at HOUR_SLOTS[block-1] = (7+N):00.
+
+    The block ends at (8+N):00. Mirrors the frontend HOUR_SLOTS layout.
+    """
+    if class_date < now.date():
+        return True
+    if class_date > now.date():
+        return False
+    end_hour = 8 + block_number
+    return now.hour >= end_hour
+
+
+@app.get("/libro-de-clases/pending", response_model=list[LearningRecordOut])
+def list_pending_records(
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    """Class sessions whose block has already ended but the teacher hasn't logged."""
+    now = datetime.now()
+    rows = (
+        db.query(ClassLearningRecord)
+        .join(Course, ClassLearningRecord.course_id == Course.id)
+        .filter(
+            Course.teacher_id == teacher.id,
+            ClassLearningRecord.registered.is_(False),
+            ClassLearningRecord.class_date <= now.date(),
+        )
+        .order_by(ClassLearningRecord.class_date.asc(), Course.block_number.asc())
+        .all()
+    )
+    pending = [
+        r for r in rows if _block_has_ended(r.class_date, r.course.block_number, now)
+    ]
+    return [_record_out(r) for r in pending]
+
+
+@app.get("/libro-de-clases/{record_id}", response_model=LearningRecordOut)
+def get_record(
+    record_id: int,
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    record = db.get(ClassLearningRecord, record_id)
+    if record is None or record.course.teacher_id != teacher.id:
+        raise HTTPException(status_code=404, detail="Registro no existe")
+    return _record_out(record)
+
+
+@app.put("/libro-de-clases/{record_id}", response_model=LearningRecordOut)
+def update_record(
+    record_id: int,
+    body: LearningRecordUpdate,
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    record = db.get(ClassLearningRecord, record_id)
+    if record is None or record.course.teacher_id != teacher.id:
+        raise HTTPException(status_code=404, detail="Registro no existe")
+    record.oa_numbers = body.oa_numbers
+    record.observations = body.observations
+    record.registered = True
+    db.commit()
+    db.refresh(record)
+    return _record_out(record)

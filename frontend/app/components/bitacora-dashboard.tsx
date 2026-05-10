@@ -1,8 +1,9 @@
 "use client";
 
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight, BookOpenCheck, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Fragment, useEffect, useRef, useState } from "react";
+import type { LearningRecord } from "../actions/libro-de-clases";
 import type { CourseRecord } from "../lib/bitacora-data";
 import { getUrgencyTone, scheduleDays } from "../lib/bitacora-data";
 import type { TeacherCourse } from "../lib/auth";
@@ -14,7 +15,42 @@ type DashboardProps = {
 	teacherName: string;
 	priorityCourses: CourseRecord[];
 	teacherCourses: TeacherCourse[];
+	pendingRecords: LearningRecord[];
 };
+
+const SPANISH_MONTHS = [
+	"enero",
+	"febrero",
+	"marzo",
+	"abril",
+	"mayo",
+	"junio",
+	"julio",
+	"agosto",
+	"septiembre",
+	"octubre",
+	"noviembre",
+	"diciembre",
+];
+
+const SPANISH_WEEKDAYS = [
+	"domingo",
+	"lunes",
+	"martes",
+	"miércoles",
+	"jueves",
+	"viernes",
+	"sábado",
+];
+
+function formatClassDate(iso: string): string {
+	// iso is YYYY-MM-DD; build a local Date so we don't shift across timezones.
+	const [y, m, d] = iso.split("-").map(Number);
+	const date = new Date(y, m - 1, d);
+	const weekday = SPANISH_WEEKDAYS[date.getDay()];
+	const month = SPANISH_MONTHS[date.getMonth()];
+	return `${weekday} ${date.getDate()} de ${month}`;
+}
 
 const DAY_MAP: Record<string, ScheduleDay> = {
 	monday: "Lunes",
@@ -60,6 +96,7 @@ export function BitacoraDashboard({
 	teacherName,
 	priorityCourses,
 	teacherCourses,
+	pendingRecords,
 }: DashboardProps) {
 	const neutralTone = {
 		badge: "bg-slate-300",
@@ -108,6 +145,14 @@ export function BitacoraDashboard({
 			const slotMins = localScheduleTimes.map(parseTime);
 			const firstMin = slotMins[0];
 			const lastMin = slotMins[slotMins.length - 1];
+			// Each slot covers one hour, so the calendar's visible range
+			// extends from firstMin until the end of the last slot.
+			const endMin = lastMin + 60;
+
+			if (nowMin < firstMin || nowMin >= endMin) {
+				setCurrentLineTop(null);
+				return;
+			}
 
 			const nodes = localScheduleTimes.map(
 				(t) =>
@@ -116,11 +161,10 @@ export function BitacoraDashboard({
 			if (nodes.some((n) => !n)) return;
 
 			let top: number;
-			if (nowMin <= firstMin) {
-				top = nodes[0]!.offsetTop;
-			} else if (nowMin >= lastMin) {
+			if (nowMin >= lastMin) {
 				const last = nodes[nodes.length - 1]!;
-				top = last.offsetTop + last.offsetHeight;
+				const ratio = (nowMin - lastMin) / 60;
+				top = last.offsetTop + ratio * last.offsetHeight;
 			} else {
 				let idx = 0;
 				while (idx < slotMins.length - 1 && slotMins[idx + 1] <= nowMin) {
@@ -133,12 +177,6 @@ export function BitacoraDashboard({
 				top =
 					before.offsetTop + ratio * (after.offsetTop - before.offsetTop);
 			}
-
-			const first = nodes[0]!;
-			const last = nodes[nodes.length - 1]!;
-			const minTop = first.offsetTop + 6;
-			const maxTop = last.offsetTop + last.offsetHeight - 6;
-			top = Math.max(minTop, Math.min(maxTop, top));
 
 			setCurrentLineTop(top);
 		}
@@ -156,6 +194,49 @@ export function BitacoraDashboard({
 	return (
 		<main className="bitacora-dashboard-shell">
 			<Navbar teacherName={teacherName} active="cuaderno" />
+
+			{pendingRecords.length > 0 && (
+				<>
+					<section className="bitacora-pending-banner">
+						<h2 className="bitacora-pending-banner-title">
+							{teacherName}, hay {pendingRecords.length}{" "}
+							{pendingRecords.length === 1
+								? "clase sin registrar"
+								: "clases sin registrar"}{" "}
+							en el libro de clases.
+						</h2>
+					</section>
+					<section className="bitacora-pending-section">
+						<ul className="bitacora-pending-list">
+							{pendingRecords.map((record, index) => (
+								<li key={record.id}>
+									<Link
+										href={`/libro-de-clases/${record.id}`}
+										className="bitacora-pending-card"
+										style={{ animationDelay: `${index * 60}ms` }}
+									>
+										<span className="bitacora-pending-icon" aria-hidden>
+											<BookOpenCheck size={18} strokeWidth={2.2} />
+										</span>
+										<div className="bitacora-pending-body">
+											<p className="bitacora-pending-course">
+												{record.course_name}
+											</p>
+											<p className="bitacora-pending-date">
+												{formatClassDate(record.class_date)}
+											</p>
+										</div>
+										<span className="bitacora-pending-cta">
+											Registrar
+											<ArrowRight size={14} strokeWidth={2.5} />
+										</span>
+									</Link>
+								</li>
+							))}
+						</ul>
+					</section>
+				</>
+			)}
 
 			<section
 				ref={alertRef}
