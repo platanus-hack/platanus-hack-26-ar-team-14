@@ -203,8 +203,6 @@ body {
 		max-height: 0;
 		width: fit-content;
 		max-width: min(100%, 920px);
-		margin-left: auto;
-		margin-right: auto;
 		background: #ffeeeb;
 		box-shadow:
 			0 32px 90px rgba(185, 75, 69, 0.12),
@@ -220,19 +218,19 @@ body {
 		font-size: clamp(1rem, 2vw, 1.6rem);
 		line-height: 1.02;
 		letter-spacing: -0.03em;
-		text-align: center;
+		text-align: left;
 		color: #5f1814;
 	}
 
 	.bitacora-pending-section {
-		margin-top: 18px;
-		margin-bottom: 24px;
+		margin-top: 12px;
+		margin-bottom: 0;
 	}
 
 	.bitacora-pending-list {
 		display: grid;
 		grid-template-columns: minmax(0, calc(50% - 5px));
-		justify-content: center;
+		justify-content: start;
 		gap: 6px 10px;
 		max-height: 240px;
 		overflow-y: auto;
@@ -245,9 +243,9 @@ body {
 	.bitacora-pending-card {
 		display: flex;
 		align-items: center;
-		gap: 10px;
-		padding: 7px 14px;
-		border-radius: 12px;
+		gap: 12px;
+		padding: 12px 20px;
+		border-radius: 14px;
 		border: 1px solid rgba(15, 23, 42, 0.06);
 		background: #ffffff;
 		text-decoration: none;
@@ -275,14 +273,14 @@ body {
 	}
 
 	.bitacora-pending-card-course {
-		font-size: 15px;
+		font-size: 16px;
 		font-weight: 600;
 		color: #0f172a;
 		white-space: nowrap;
 	}
 
 	.bitacora-pending-card-date {
-		font-size: 14px;
+		font-size: 15px;
 		color: #6b4a0a;
 		text-transform: capitalize;
 		overflow: hidden;
@@ -322,8 +320,6 @@ body {
 		max-height: 0;
 		width: fit-content;
 		max-width: min(100%, 920px);
-		margin-left: auto;
-		margin-right: auto;
 		background: #ffeeeb;
 		box-shadow:
 			0 32px 90px rgba(185, 75, 69, 0.12),
@@ -339,7 +335,7 @@ body {
 		font-size: clamp(1rem, 2vw, 1.6rem);
 		line-height: 1.02;
 		letter-spacing: -0.03em;
-		text-align: center;
+		text-align: left;
 		color: #5f1814;
 	}
 
@@ -586,33 +582,6 @@ body {
 		overflow: hidden;
 	}
 
-	.bitacora-calendar-legend {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 18px;
-		margin: 0 0 16px;
-		padding: 0;
-		list-style: none;
-	}
-
-	.bitacora-calendar-legend-item {
-		display: inline-flex;
-		align-items: center;
-		gap: 8px;
-		font-size: 12px;
-		color: #475569;
-	}
-
-	.bitacora-calendar-legend-swatch {
-		display: inline-block;
-		width: 14px;
-		height: 14px;
-		border-radius: 4px;
-		border-width: 1px;
-		border-style: solid;
-	}
-
 	.bitacora-calendar-board {
 		overflow: hidden;
 		border: 1px solid rgba(15, 23, 42, 0.1);
@@ -759,19 +728,115 @@ body {
 		opacity: 1;
 	}
 
-	.bitacora-calendar-title {
+	.bitacora-section-title {
 		font-family: var(--font-display), Georgia, serif;
-		font-size: clamp(1.5rem, 2.2vw, 2.2rem);
-		line-height: 0.98;
+		font-size: clamp(2rem, 3.4vw, 3rem);
+		line-height: 1;
 		letter-spacing: -0.04em;
 		color: #0f172a;
+		margin: 0;
 	}
 
 	.bitacora-section-subtitle {
-		margin-top: 6px;
-		font-size: 1rem;
-		line-height: 1.6;
+		margin: 0;
+		font-size: 0.98rem;
+		line-height: 1.5;
 		color: #64748b;
+	}
+
+	.bitacora-section-block {
+		display: flex;
+		flex-direction: column;
+		gap: 14px;
+	}
+
+	.bitacora-section-block + .bitacora-section-block {
+		margin-top: 48px;
+	}
+
+	.bitacora-section-header {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.bitacora-section-empty {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		padding: 16px 20px;
+		border-radius: 18px;
+		border: 1px solid rgba(28, 107, 116, 0.16);
+		background:
+			linear-gradient(
+				135deg,
+				rgba(28, 107, 116, 0.08),
+				rgba(28, 107, 116, 0.02)
+			),
+			#ffffff;
+		box-shadow:
+			0 14px 36px -22px rgba(28, 107, 116, 0.35),
+			inset 0 1px 0 rgba(255, 255, 255, 0.7);
+		opacity: 0;
+		transform: translateY(6px);
+		animation: bitacora-empty-in 520ms cubic-bezier(0.22, 1, 0.36, 1) 120ms forwards;
+	}
+
+	.bitacora-section-empty-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 38px;
+		height: 38px;
+		border-radius: 12px;
+		background: rgba(28, 107, 116, 0.14);
+		color: #1c6b74;
+		flex-shrink: 0;
+	}
+
+	.bitacora-section-empty-text {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		min-width: 0;
+	}
+
+	.bitacora-section-empty-title {
+		margin: 0;
+		font-family: var(--font-display), Georgia, serif;
+		font-size: 1.2rem;
+		line-height: 1.05;
+		letter-spacing: -0.015em;
+		color: #0f172a;
+	}
+
+	.bitacora-section-empty-subtitle {
+		margin: 0;
+		font-size: 0.92rem;
+		line-height: 1.45;
+		color: #64748b;
+	}
+
+	.bitacora-section-eyebrow {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 0.7rem;
+		font-weight: 600;
+		letter-spacing: 0.22em;
+		text-transform: uppercase;
+		color: #64748b;
+	}
+
+	.bitacora-section-eyebrow-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 26px;
+		height: 26px;
+		border-radius: 8px;
+		background: rgba(15, 23, 42, 0.05);
+		color: #334155;
 	}
 
 	.bitacora-calendar-event:hover {
@@ -1082,6 +1147,39 @@ body {
 	}
 }
 
+@keyframes bitacora-empty-in {
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes plan-row-pulse {
+	50% {
+		background-color: rgba(20, 184, 166, 0.22);
+	}
+}
+
+.plan-row-just-changed {
+	animation: plan-row-pulse 1500ms ease-out 1;
+}
+
+@keyframes plan-pill-appear {
+	from {
+		opacity: 0;
+		transform: translateY(-4px) scale(0.85);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+.plan-pill-just-added {
+	animation: plan-pill-appear 380ms cubic-bezier(0.34, 1.56, 0.64, 1) 1;
+	transform-origin: center;
+}
+
 @keyframes bitacora-alert-in {
 	from {
 		opacity: 0;
@@ -1097,7 +1195,7 @@ body {
 		max-height: 110px;
 		padding-top: 14px;
 		padding-bottom: 14px;
-		margin-bottom: 24px;
+		margin-bottom: 0;
 		transform: translateY(0);
 	}
 
@@ -1106,7 +1204,7 @@ body {
 		max-height: 110px;
 		padding-top: 14px;
 		padding-bottom: 14px;
-		margin-bottom: 24px;
+		margin-bottom: 0;
 		transform: translateY(0);
 	}
 }

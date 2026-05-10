@@ -1,7 +1,88 @@
 "use client";
 
-import type { FormEvent } from "react";
+import { Check, Loader2 } from "lucide-react";
+import { type FormEvent, useEffect, useState } from "react";
 import type { TeacherCourse } from "../lib/auth";
+
+const AUDIT_STEPS = [
+	"Leyendo el PDF de tu plan",
+	"Extrayendo OAs, unidades y secuencia",
+	"Cruzando contra el Programa de Estudio del Mineduc",
+	"Verificando cobertura por unidad",
+	"Revisando factibilidad mensual",
+	"Preparando informe",
+];
+const STEP_DURATION_MS = 2800;
+
+function AuditProgress({ active }: { active: boolean }) {
+	const [step, setStep] = useState(0);
+
+	useEffect(() => {
+		if (!active) {
+			setStep(0);
+			return;
+		}
+		const id = window.setInterval(() => {
+			setStep((s) => Math.min(s + 1, AUDIT_STEPS.length - 1));
+		}, STEP_DURATION_MS);
+		return () => window.clearInterval(id);
+	}, [active]);
+
+	if (!active) return null;
+
+	return (
+		<section
+			role="status"
+			aria-live="polite"
+			className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white/80 px-5 py-4 shadow-sm"
+		>
+			<div className="flex items-center justify-between">
+				<p className="font-mono text-[10px] uppercase tracking-[0.22em] text-vermilion">
+					Brunito audita tu plan
+				</p>
+				<span className="text-[11px] tabular-nums text-slate-400">
+					{Math.min(step + 1, AUDIT_STEPS.length)} / {AUDIT_STEPS.length}
+				</span>
+			</div>
+			<ol className="flex flex-col gap-2 text-sm">
+				{AUDIT_STEPS.map((label, idx) => {
+					const done = idx < step;
+					const isActive = idx === step;
+					const tone = done
+						? "text-slate-400"
+						: isActive
+							? "text-slate-900"
+							: "text-slate-300";
+					return (
+						<li
+							key={label}
+							className={`flex items-center gap-2.5 transition-colors duration-300 ${tone}`}
+						>
+							<span className="inline-flex h-5 w-5 shrink-0 items-center justify-center">
+								{done ? (
+									<Check
+										size={16}
+										strokeWidth={2.5}
+										className="text-emerald-600"
+									/>
+								) : isActive ? (
+									<Loader2
+										size={16}
+										strokeWidth={2.5}
+										className="animate-spin text-vermilion"
+									/>
+								) : (
+									<span className="h-1.5 w-1.5 rounded-full bg-slate-300" />
+								)}
+							</span>
+							<span className={isActive ? "font-medium" : ""}>{label}</span>
+						</li>
+					);
+				})}
+			</ol>
+		</section>
+	);
+}
 
 type Props = {
 	courses: TeacherCourse[];
@@ -94,6 +175,8 @@ export function IntakeCard({
 					>
 						{extracting ? "Auditando…" : "Iniciar auditoría"}
 					</button>
+
+					<AuditProgress active={extracting} />
 
 					{error ? (
 						<pre className="max-w-full overflow-x-auto whitespace-pre-wrap break-words rounded-2xl border border-red-200 bg-red-50 px-4 py-3 font-mono text-[12px] text-red-700">

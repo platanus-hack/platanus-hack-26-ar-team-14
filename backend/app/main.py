@@ -580,7 +580,7 @@ async def extract_planificacion(
     db: Session = Depends(get_db),
 ):
     """Lee un PDF de planificación, extrae su estructura y la persiste como
-    `PlanAnual` + `PlanAnualItem`s. El agente UTP edita estos items con sus
+    `PlanAnual` + `PlanAnualItem`s. Brunito edita estos items con sus
     herramientas CRUD."""
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Sube un archivo .pdf")

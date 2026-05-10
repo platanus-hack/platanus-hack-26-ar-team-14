@@ -6,6 +6,7 @@ import {
 	type ReactNode,
 	useCallback,
 	useEffect,
+	useMemo,
 	useRef,
 	useState,
 } from "react";
@@ -84,39 +85,68 @@ function groupItemsByMes(items: PlanItem[]): MonthGroup[] {
 	);
 }
 
-function MaterialPill({ material }: { material: Material }) {
+function MaterialPill({
+	material,
+	className,
+}: {
+	material: Material;
+	className?: string;
+}) {
 	const kindLabel = material.kind === "recurso" ? "Recurso" : "Guía";
 	const kindClass =
 		material.kind === "recurso"
 			? "border-slate-300 bg-slate-50 text-slate-700"
 			: "border-emerald-300 bg-emerald-50 text-emerald-700";
+	const animSuffix = className ? ` ${className}` : "";
 
-	const content = (
-		<span className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 py-1 text-[12px] text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
+	const inner = (
+		<>
 			<span
 				className={`rounded-full border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${kindClass}`}
 			>
 				{kindLabel}
 			</span>
 			<span className="truncate">{material.name}</span>
-		</span>
+		</>
 	);
 
 	if (material.guia_id != null) {
 		return (
 			<Link
 				href={`/guias/editor/${material.guia_id}`}
-				className="inline-flex max-w-full"
+				className={`inline-flex max-w-full items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 py-1 text-[12px] text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50${animSuffix}`}
 			>
-				{content}
+				{inner}
 			</Link>
 		);
 	}
-	return content;
+	return (
+		<span
+			className={`inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 py-1 text-[12px] text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50${animSuffix}`}
+		>
+			{inner}
+		</span>
+	);
+}
+
+function groupKeyOf(group: MonthGroup): string {
+	return group.mes ?? "__sin_mes__";
+}
+
+function computeGroupSig(group: MonthGroup): string {
+	return JSON.stringify({
+		u: [...group.unidades].sort(),
+		o: group.oa_entries
+			.map((e) => `${e.code}|${e.objetivo}`)
+			.sort(),
+		m: group.materials
+			.map((m) => `${m.id}|${m.name}|${m.kind}|${m.guia_id ?? ""}`)
+			.sort(),
+	});
 }
 
 export function PlanAnualTable({ plan, headerExtra, className }: Props) {
-	const groups = groupItemsByMes(plan.items);
+	const groups = useMemo(() => groupItemsByMes(plan.items), [plan.items]);
 	const currentMonthKey = new Date().getMonth() + 1;
 	const currentGroupIndex = groups.findIndex(
 		(g) => mesSortKey(g.mes) === currentMonthKey,
@@ -149,6 +179,92 @@ export function PlanAnualTable({ plan, headerExtra, className }: Props) {
 		observer.observe(target);
 		return () => observer.disconnect();
 	}, [hasCurrent]);
+
+	const seenSigsRef = useRef<Map<string, string>>(new Map());
+	const seenOasRef = useRef<Map<string, Set<string>>>(new Map());
+	const seenMatsRef = useRef<Map<string, Set<number>>>(new Map());
+	const initialDiffRef = useRef(true);
+	const animTimeoutRef = useRef<number | null>(null);
+	const [changedGroups, setChangedGroups] = useState<Set<string>>(
+		() => new Set(),
+	);
+	const [newOasByGroup, setNewOasByGroup] = useState<Map<string, Set<string>>>(
+		() => new Map(),
+	);
+	const [newMatsByGroup, setNewMatsByGroup] = useState<
+		Map<string, Set<number>>
+	>(() => new Map());
+
+	useEffect(() => {
+		return () => {
+			if (animTimeoutRef.current !== null) {
+				window.clearTimeout(animTimeoutRef.current);
+				animTimeoutRef.current = null;
+			}
+		};
+	}, []);
+
+	useEffect(() => {
+		const nextChanged = new Set<string>();
+		const nextOas = new Map<string, Set<string>>();
+		const nextMats = new Map<string, Set<number>>();
+
+		for (const group of groups) {
+			const key = groupKeyOf(group);
+			const sig = computeGroupSig(group);
+			const prevSig = seenSigsRef.current.get(key);
+			const prevOas = seenOasRef.current.get(key) ?? new Set<string>();
+			const prevMats = seenMatsRef.current.get(key) ?? new Set<number>();
+
+			const currOas = new Set(group.oa_entries.map((e) => e.code));
+			const currMats = new Set(group.materials.map((m) => m.id));
+
+			if (!initialDiffRef.current) {
+				if (prevSig !== undefined && prevSig !== sig) {
+					nextChanged.add(key);
+				}
+				const addedOas = [...currOas].filter((c) => !prevOas.has(c));
+				const addedMats = [...currMats].filter((id) => !prevMats.has(id));
+				if (addedOas.length > 0) nextOas.set(key, new Set(addedOas));
+				if (addedMats.length > 0) nextMats.set(key, new Set(addedMats));
+			}
+
+			seenSigsRef.current.set(key, sig);
+			seenOasRef.current.set(key, currOas);
+			seenMatsRef.current.set(key, currMats);
+		}
+
+		// Drop tracking for removed groups so they don't leak.
+		const liveKeys = new Set(groups.map(groupKeyOf));
+		for (const k of seenSigsRef.current.keys()) {
+			if (!liveKeys.has(k)) {
+				seenSigsRef.current.delete(k);
+				seenOasRef.current.delete(k);
+				seenMatsRef.current.delete(k);
+			}
+		}
+
+		initialDiffRef.current = false;
+
+		if (nextChanged.size === 0 && nextOas.size === 0 && nextMats.size === 0) {
+			return;
+		}
+
+		// Replace any in-flight clear: a fresh diff arrived, so the highlight
+		// window restarts from now.
+		if (animTimeoutRef.current !== null) {
+			window.clearTimeout(animTimeoutRef.current);
+		}
+		setChangedGroups(nextChanged);
+		setNewOasByGroup(nextOas);
+		setNewMatsByGroup(nextMats);
+		animTimeoutRef.current = window.setTimeout(() => {
+			animTimeoutRef.current = null;
+			setChangedGroups(new Set());
+			setNewOasByGroup(new Map());
+			setNewMatsByGroup(new Map());
+		}, 1700);
+	}, [groups]);
 
 	return (
 		<article
@@ -208,6 +324,10 @@ export function PlanAnualTable({ plan, headerExtra, className }: Props) {
 								!isCurrent && hasCurrent && monthKey < currentMonthKey;
 							const isFuture =
 								!isCurrent && (!hasCurrent || monthKey > currentMonthKey);
+							const groupKey = groupKeyOf(group);
+							const justChanged = changedGroups.has(groupKey);
+							const newOasInGroup = newOasByGroup.get(groupKey);
+							const newMatsInGroup = newMatsByGroup.get(groupKey);
 
 							let rowClass = "group align-top";
 							if (isCurrent) {
@@ -217,6 +337,9 @@ export function PlanAnualTable({ plan, headerExtra, className }: Props) {
 								rowClass += " bg-slate-50/40 text-slate-400";
 							} else {
 								rowClass += " hover:bg-teal/[0.04]";
+							}
+							if (justChanged) {
+								rowClass += " plan-row-just-changed";
 							}
 
 							const monthCellClass = isPast
@@ -275,6 +398,11 @@ export function PlanAnualTable({ plan, headerExtra, className }: Props) {
 														key={e.code}
 														code={e.code}
 														objetivo={e.objetivo}
+														className={
+															newOasInGroup?.has(e.code)
+																? "plan-pill-just-added"
+																: undefined
+														}
 													/>
 												))
 											)}
@@ -286,7 +414,15 @@ export function PlanAnualTable({ plan, headerExtra, className }: Props) {
 										) : (
 											<div className="flex flex-col items-start gap-1">
 												{group.materials.map((m) => (
-													<MaterialPill key={m.id} material={m} />
+													<MaterialPill
+														key={m.id}
+														material={m}
+														className={
+															newMatsInGroup?.has(m.id)
+																? "plan-pill-just-added"
+																: undefined
+														}
+													/>
 												))}
 											</div>
 										)}

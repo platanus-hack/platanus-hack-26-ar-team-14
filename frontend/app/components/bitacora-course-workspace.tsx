@@ -63,7 +63,7 @@ function buildInitialPrompt(course: CourseRecord, agentContext: AgentContext) {
 		`Brecha curricular actual: ${course.curricularGap} OAs; debería llevar ${course.expectedOAs} y lleva ${course.taughtOAs}.`,
 		`Planificación ${course.planningProgress}% y aprendizaje ${course.learningProgress}%.`,
 		`Carga el plan con listar_plan(${agentContext.planId}), audita cobertura, secuencia y factibilidad de la planificación,`,
-		"y responde como copiloto pedagógico con foco en el curso, no como UTP genérico.",
+		"y responde con foco en este curso específico, no de manera genérica.",
 		"Explica primero los problemas prioritarios y luego sugiere acciones concretas para la semana más urgente.",
 		"No reescribas el plan completo en prosa; usa la información del plan y del contexto del curso para priorizar correcciones.",
 	].join(" ");

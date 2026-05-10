@@ -1,4 +1,4 @@
-"""Herramientas de edición del plan anual para el agente UTP.
+"""Herramientas de edición del plan anual para Brunito.
 
 El agente conoce el `plan_id` porque la URL `/planificacion/{id}` lo
 inyecta en la conversación. Usa estas herramientas para listar las filas

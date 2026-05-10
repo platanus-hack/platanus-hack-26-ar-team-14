@@ -6,9 +6,10 @@ import { createPortal } from "react-dom";
 type Props = {
 	code: string;
 	objetivo: string;
+	className?: string;
 };
 
-export function OaTag({ code, objetivo }: Props) {
+export function OaTag({ code, objetivo, className }: Props) {
 	const tooltipId = useId();
 	const triggerRef = useRef<HTMLSpanElement | null>(null);
 	const [open, setOpen] = useState(false);
@@ -43,7 +44,7 @@ export function OaTag({ code, objetivo }: Props) {
 				onMouseLeave={hide}
 				onFocus={show}
 				onBlur={hide}
-				className="cursor-help rounded-full border border-vermilion/30 bg-vermilion/5 px-2 py-0.5 text-[11px] font-semibold text-vermilion outline-none transition hover:border-vermilion/60 hover:bg-vermilion/10 focus-visible:ring-2 focus-visible:ring-vermilion/40"
+				className={`cursor-help rounded-full border border-vermilion/30 bg-vermilion/5 px-2 py-0.5 text-[11px] font-semibold text-vermilion outline-none transition hover:border-vermilion/60 hover:bg-vermilion/10 focus-visible:ring-2 focus-visible:ring-vermilion/40${className ? ` ${className}` : ""}`}
 			>
 				{code}
 			</span>

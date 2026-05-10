@@ -69,8 +69,14 @@ def _compute_material_gaps(
     reasons: list[str] = []
     for m in sorted(missing_by_month.keys()):
         count = missing_by_month[m]
-        unidad = "ítem" if count == 1 else "ítems"
-        reasons.append(f"{count} {unidad} sin material en {month_title(m)}")
+        if count == 1:
+            reasons.append(
+                f"En {month_title(m)} hay 1 objetivo del plan sin guía ni prueba asignada"
+            )
+        else:
+            reasons.append(
+                f"En {month_title(m)} hay {count} objetivos del plan sin guía ni prueba asignada"
+            )
     return reasons
 
 
@@ -112,7 +118,10 @@ def _compute_oa_gaps(
             shown = ", ".join(gap[:4])
             if len(gap) > 4:
                 shown += f" (+{len(gap) - 4} más)"
-            reasons.append(f"OAs sin registro: {shown} ({month_title(m).lower()})")
+            reasons.append(
+                f"En {month_title(m).lower()} no se registró ninguna clase para "
+                f"{shown}, aunque el plan los tenía agendados ese mes"
+            )
     return reasons
 
 

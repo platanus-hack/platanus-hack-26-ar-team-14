@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight, CheckCircle2, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Fragment, useEffect, useRef, useState } from "react";
 import type { LearningRecord } from "../actions/libro-de-clases";
@@ -22,10 +22,15 @@ function getCourseStatusHref(row: CourseStatus): string {
 	if (row.category === "accion" && row.sub_tags.includes("sin_plan")) {
 		return "/planificacion";
 	}
-	if (row.category === "accion" && row.plan_anual_id != null) {
-		return `/planificacion/${row.plan_anual_id}`;
-	}
-	return `/libro-de-clases/${row.course_id}?source=course&tab=planificacion`;
+	// "Falta material", "Desalineado" y "Al día" todos abren la vista combinada
+	// del curso (libro + plan + chat) en su pestaña de planificación. El
+	// `intent` le dice a Brunito por qué llegó el docente, así arranca el
+	// análisis automáticamente (qué subir / qué revisar) en vez de un saludo
+	// neutro.
+	const base = `/libro-de-clases/${row.course_id}?source=course&tab=planificacion`;
+	if (row.category === "accion") return `${base}&intent=subir_material`;
+	if (row.category === "desalineado") return `${base}&intent=revisar_registro`;
+	return base;
 }
 
 function getCourseStatusCta(row: CourseStatus): string {
@@ -35,6 +40,14 @@ function getCourseStatusCta(row: CourseStatus): string {
 	if (row.category === "accion") return "Subir material";
 	if (row.category === "desalineado") return "Revisar registro";
 	return "Ver curso";
+}
+
+function getCourseStatusLabel(row: CourseStatus): string {
+	if (row.category === "accion" && row.sub_tags.includes("sin_plan")) {
+		return "Falta plan";
+	}
+	if (row.category === "accion") return "Falta material";
+	return getCategoryTone(row.category).label;
 }
 
 const SPANISH_MONTHS = [
@@ -123,12 +136,6 @@ export function BitacoraDashboard({
 	teacherCourses,
 	pendingRecords,
 }: DashboardProps) {
-	const neutralTone = {
-		badge: "bg-slate-300",
-		border: "border-slate-200/90",
-		surface: "bg-slate-50",
-		accent: "text-slate-500",
-	};
 	const [showAlert, setShowAlert] = useState(false);
 	const [currentLineTop, setCurrentLineTop] = useState<number | null>(null);
 	const alertRef = useRef<HTMLElement | null>(null);
@@ -226,74 +233,102 @@ export function BitacoraDashboard({
 		<main className="bitacora-dashboard-shell">
 			<Navbar teacherName={teacherName} active="cuaderno" />
 
-			{pendingRecords.length > 0 && (
-				<>
-					<section className="bitacora-pending-banner">
-						<h2 className="bitacora-pending-banner-title">
-							{teacherName}, todavía tienes que registrar{" "}
-							{pendingRecords.length}{" "}
-							{pendingRecords.length === 1 ? "clase" : "clases"} en el libro de
-							clases.
-						</h2>
-					</section>
-					<section className="bitacora-pending-section">
-						<ul className="bitacora-pending-list">
-							{pendingRecords.map((record, index) => (
-								<li key={record.id}>
-									<Link
-										href={`/libro-de-clases/${record.id}`}
-										className="bitacora-pending-card"
-										style={{
-											animationDelay: `${730 + Math.min(index, 7) * 50}ms`,
-										}}
-									>
-										<div className="bitacora-pending-card-info">
-											<span className="bitacora-pending-card-course">
-												{record.course_name}
-											</span>
-											<span className="bitacora-pending-card-date">
-												{formatClassDate(record.class_date)}
-											</span>
-										</div>
-										<span className="bitacora-pending-card-cta">
-											Registrar
-											<ArrowRight size={12} strokeWidth={2.5} />
-										</span>
-									</Link>
-								</li>
-							))}
-						</ul>
-					</section>
-				</>
-			)}
-
-			{coursesStatus.length > 0 && (
-				<>
-					{actionableCount > 0 && (
-						<section
-							ref={alertRef}
-							className={`bitacora-alert-banner ${showAlert ? "bitacora-alert-banner-visible" : ""}`}
-						>
-							<h1 className="bitacora-alert-title">
-								{teacherName}, {actionableCount}{" "}
-								{actionableCount === 1
-									? "de tus cursos requiere"
-									: "de tus cursos requieren"}{" "}
-								tu atención.
-							</h1>
-						</section>
-					)}
-
-					<section className="mt-8 flex flex-col gap-3">
-						<header className="flex items-baseline justify-between">
-							<h2 className="font-display text-[clamp(1.1rem,1.4vw,1.5rem)] leading-none tracking-[-0.02em] text-slate-950">
-								Estado de tus cursos
+			<section className="bitacora-section-block mt-2">
+				<header className="bitacora-section-header">
+					<h2 className="bitacora-section-title">Libro de clases</h2>
+					<p className="bitacora-section-subtitle">
+						Registra las clases que dictaste y mantén tu cuaderno al día.
+					</p>
+				</header>
+				{pendingRecords.length > 0 ? (
+					<>
+						<section className="bitacora-pending-banner">
+							<h2 className="bitacora-pending-banner-title">
+								{teacherName}, todavía tienes que registrar{" "}
+								{pendingRecords.length}{" "}
+								{pendingRecords.length === 1 ? "clase" : "clases"} en el libro de
+								clases.
 							</h2>
-							<span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-								{coursesStatus.length}{" "}
-								{coursesStatus.length === 1 ? "tarjeta" : "tarjetas"}
-							</span>
-						</header>
+						</section>
+						<section className="bitacora-pending-section">
+							<ul className="bitacora-pending-list">
+								{pendingRecords.map((record, index) => (
+									<li key={record.id}>
+										<Link
+											href={`/libro-de-clases/${record.id}`}
+											className="bitacora-pending-card"
+											style={{
+												animationDelay: `${730 + Math.min(index, 7) * 50}ms`,
+											}}
+										>
+											<div className="bitacora-pending-card-info">
+												<span className="bitacora-pending-card-course">
+													{record.course_name}
+												</span>
+												<span className="bitacora-pending-card-date">
+													{formatClassDate(record.class_date)}
+												</span>
+											</div>
+											<span className="bitacora-pending-card-cta">
+												Registrar
+												<ArrowRight size={12} strokeWidth={2.5} />
+											</span>
+										</Link>
+									</li>
+								))}
+							</ul>
+						</section>
+					</>
+				) : (
+					<div className="bitacora-section-empty">
+						<span className="bitacora-section-empty-icon">
+							<CheckCircle2 size={20} strokeWidth={2.2} />
+						</span>
+						<div className="bitacora-section-empty-text">
+							<p className="bitacora-section-empty-title">Estás al día</p>
+							<p className="bitacora-section-empty-subtitle">
+								No hay clases pendientes por registrar.
+							</p>
+						</div>
+					</div>
+				)}
+			</section>
+
+			<section className="bitacora-section-block">
+				<header className="bitacora-section-header">
+					<h2 className="bitacora-section-title">Planes de estudio</h2>
+					<p className="bitacora-section-subtitle">
+						Revisa el avance de cada curso y actúa donde haga falta.
+					</p>
+				</header>
+				{coursesStatus.length === 0 ? (
+					<div className="bitacora-section-empty">
+						<span className="bitacora-section-empty-icon">
+							<CheckCircle2 size={20} strokeWidth={2.2} />
+						</span>
+						<div className="bitacora-section-empty-text">
+							<p className="bitacora-section-empty-title">Todo en orden</p>
+							<p className="bitacora-section-empty-subtitle">
+								Tus cursos están al día — sin seguimientos pendientes.
+							</p>
+						</div>
+					</div>
+				) : (
+					<>
+						{actionableCount > 0 && (
+							<section
+								ref={alertRef}
+								className={`bitacora-alert-banner ${showAlert ? "bitacora-alert-banner-visible" : ""}`}
+							>
+								<h1 className="bitacora-alert-title">
+									{teacherName}, {actionableCount}{" "}
+									{actionableCount === 1
+										? "de tus cursos requiere"
+										: "de tus cursos requieren"}{" "}
+									tu atención.
+								</h1>
+							</section>
+						)}
 
 						<ul className="flex flex-col gap-3">
 							{coursesStatus.map((row, index) => {
@@ -315,12 +350,7 @@ export function BitacoraDashboard({
 														className={`inline-block h-2 w-2 rounded-full ${tone.dot}`}
 														aria-hidden
 													/>
-													{tone.label}
-													{row.sub_tags.includes("sin_plan") && (
-														<span className="normal-case tracking-normal">
-															· Sin plan
-														</span>
-													)}
+													{getCourseStatusLabel(row)}
 												</span>
 												<span className="bitacora-course-cta">
 													{getCourseStatusCta(row)}
@@ -357,13 +387,13 @@ export function BitacoraDashboard({
 								);
 							})}
 						</ul>
-					</section>
-				</>
-			)}
+					</>
+				)}
+			</section>
 
 			<section className="bitacora-calendar-section mt-8">
 				<div className="mb-3 text-center">
-					<h2 className="bitacora-calendar-title">Tu calendario semanal</h2>
+					<h2 className="bitacora-section-title">Tu calendario semanal</h2>
 				</div>
 
 				<div className="bitacora-calendar-board">
@@ -440,11 +470,6 @@ export function BitacoraDashboard({
 										<p className="text-[0.95rem] font-display leading-[1.05] tracking-[-0.03em] text-slate-950">
 											{slot.course.name}
 										</p>
-										<span
-											className={`mt-auto inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${neutralTone.surface} ${neutralTone.border} ${neutralTone.accent}`}
-										>
-											Bloque de clase
-										</span>
 									</Link>
 								</div>
 							));
@@ -462,28 +487,6 @@ export function BitacoraDashboard({
 						) : null}
 					</div>
 				</div>
-
-				<p className="mt-4 text-center text-xs italic text-slate-500">
-					Urgencia según alineación con tu planificación anual
-				</p>
-				<ul className="bitacora-calendar-legend mt-2">
-					<li className="bitacora-calendar-legend-item">
-						<span className="bitacora-calendar-legend-swatch bg-[#fce7e2] border-[#b94b45]/52" />
-						Urgencia alta
-					</li>
-					<li className="bitacora-calendar-legend-item">
-						<span className="bitacora-calendar-legend-swatch bg-[#fdf1d8] border-[#d0891a]/52" />
-						Urgencia media
-					</li>
-					<li className="bitacora-calendar-legend-item">
-						<span className="bitacora-calendar-legend-swatch bg-[#dbeafe] border-[#3b82f6]/48" />
-						Urgencia baja
-					</li>
-					<li className="bitacora-calendar-legend-item">
-						<span className="bitacora-calendar-legend-swatch bg-slate-50 border-slate-200/90" />
-						Al día
-					</li>
-				</ul>
 			</section>
 		</main>
 	);

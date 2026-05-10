@@ -36,7 +36,7 @@ CDE_IMG_DIR = CDE_SEED_DIR / "images"
 TEACHER_NAME = "Ana Pérez"
 TEACHER_EMAIL = "ana@demo.cl"
 TEACHER_PASSWORD = "123"
-SCHOOL_YEAR = date.today().year
+SCHOOL_YEAR = 2026
 REGISTERED_RECORDS_CUTOFF = date(SCHOOL_YEAR, 5, 13)
 
 MATH_5_PLAN_ITEMS = [
@@ -234,7 +234,7 @@ def _make_math_course_seed(
             "name": f"Plan anual Matemática 5° Básico {section}",
             "asignatura": "Matemática",
             "curso": f"5° Básico {section}",
-            "anio": 2025,
+            "anio": SCHOOL_YEAR,
             "docente": "Héctor González Gaete",
             "items": _clone_plan_items(MATH_5_PLAN_ITEMS),
         },
@@ -425,11 +425,20 @@ def _build_learning_records(seed: dict, cutoff: date) -> list[ClassLearningRecor
 
     Dates strictly before `cutoff` are seeded as already registered with a
     simple hand-authored OA progression from the hardcoded March-May annual
-    plan.
+    plan, plus an `observations` line rotated deterministically from the
+    asignatura's template bank so the demo libro de clases reads like a real
+    teacher's notes (no LLM call needed at seed time).
+
     Dates ≥ cutoff stay pending so the dashboard's "libro de clases" section
     has work to show.
     """
+    asignatura = seed["plan"].get("asignatura") or "Matemática"
+    templates = OBS_TEMPLATES_BY_ASIGNATURA.get(asignatura) or OBS_TEMPLATES_BY_ASIGNATURA[
+        "Matemática"
+    ]
+
     records: list[ClassLearningRecord] = []
+    past_idx = 0
     for class_date in estimate_class_dates_for_year(seed["class_days"], SCHOOL_YEAR):
         if class_date < cutoff:
             records.append(
@@ -437,9 +446,10 @@ def _build_learning_records(seed: dict, cutoff: date) -> list[ClassLearningRecor
                     class_date=class_date,
                     registered=True,
                     oa_numbers=_recorded_oas_for_demo_date(class_date),
-                    observations=None,
+                    observations=templates[past_idx % len(templates)],
                 )
             )
+            past_idx += 1
             continue
         records.append(
             ClassLearningRecord(
@@ -574,28 +584,10 @@ MATERIAL_DOCENTE_SEEDS: list[dict] = [
         "oa_targets": ["OA6"],
     },
     {
-        "guide_name": "MATEMÁTICA-5°C-GP07",
-        "display_name": "Guía Pedagógica 07 · OA7",
-        "kind": "guia",
-        "oa_targets": ["OA7"],
-    },
-    {
         "guide_name": "Matemática-5°C-GP10",
         "display_name": "Guía Pedagógica 10 · OA14",
         "kind": "guia",
         "oa_targets": ["OA14"],
-    },
-    {
-        "guide_name": "Matemática-5ºC-GP11",
-        "display_name": "Guía Pedagógica 11 · OA18",
-        "kind": "guia",
-        "oa_targets": ["OA18"],
-    },
-    {
-        "guide_name": "Matemática-5°C-GP12",
-        "display_name": "Guía Pedagógica 12 · OA19",
-        "kind": "guia",
-        "oa_targets": ["OA19"],
     },
 ]
 

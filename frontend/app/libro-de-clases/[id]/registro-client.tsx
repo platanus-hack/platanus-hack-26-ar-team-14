@@ -16,12 +16,15 @@ import { Navbar } from "../../components/navbar";
 import { PlanAnualTable } from "../../components/plan-anual-table";
 import { ClassRecordsTable } from "./class-records-table";
 
+type PlanIntent = "subir_material" | "revisar_registro" | null;
+
 type Props = {
 	teacherName: string;
 	record: LearningRecord;
 	courseRecords: LearningRecord[];
 	plan: Plan | null;
 	initialTab: TabId;
+	planIntent: PlanIntent;
 };
 
 const SPANISH_MONTHS = [
@@ -78,11 +81,40 @@ function buildClassRecordPrompt(record: LearningRecord, planId: number | null): 
 	return lines.join(" ");
 }
 
-function buildPlanOrGradesPrompt(record: LearningRecord, planId: number): string {
-	return [
+function buildPlanOrGradesPrompt(
+	record: LearningRecord,
+	planId: number,
+	intent: PlanIntent,
+): string {
+	const header = [
 		`Plan ID: ${planId}.`,
 		`Class Record ID: ${record.id}.`,
 		`Curso: ${record.course_name}.`,
+	];
+
+	if (intent === "subir_material") {
+		return [
+			...header,
+			"El docente llegó al chat porque hay objetivos del plan en el mes en curso o el siguiente sin guía ni prueba asignada.",
+			`Carga el plan con \`listar_plan(${planId})\`, identifica concretamente qué filas del plan (mes + OA) están sin material en el mes en curso y el siguiente,`,
+			"y dile al docente esos huecos en una lista breve. Después ofrécele subir un PDF de guía o prueba acá mismo: cuando lo suba, el sistema lo ingresa al banco y tú lo asocias a la fila correspondiente con `crear_material_para_plan`.",
+			"Si ya existe alguna guía pertinente para esos OAs (búscala con `buscar_guia`), proponla como atajo antes de pedir un PDF nuevo.",
+			"Salúdame breve antes de listar.",
+		].join(" ");
+	}
+
+	if (intent === "revisar_registro") {
+		return [
+			...header,
+			"El docente llegó al chat porque hay desalineación entre el plan y el libro de clases: OAs planificados en meses pasados que no aparecen registrados en ninguna clase.",
+			`Carga el plan con \`listar_plan(${planId})\`, cruza con los registros previos y reporta concretamente qué OAs quedaron sin trabajar y en qué mes estaban planificados.`,
+			"Para cada hueco pregúntale al docente si esa clase ocurrió y necesita registrarse (si fue así, ofrécete a registrarla con `registrar_clase`) o si el plan necesita reordenarse para recuperar el OA en otro mes (en cuyo caso propones cambios y esperas confirmación antes de tocar el plan).",
+			"Salúdame breve antes de listar.",
+		].join(" ");
+	}
+
+	return [
+		...header,
 		"En este chat el docente puede pedir tres cosas y tú decides cuál según lo que escriba:",
 		"(1) Registrar calificaciones de esta clase: si dicta o pega notas (ej. \"Sofía 6.2, Mateo 5.5\"), repítelas en una tabla compacta nombre · nota para confirmar, valida rango chileno 1.0–7.0, no inventes nombres ni notas, y pregunta antes de seguir si algo no calza con el curso.",
 		`(2) Modificar la planificación anual: si pide ajustes al plan, carga el plan con \`listar_plan(${planId})\`, propone correcciones en texto y espera confirmación antes de tocarlo con \`crear_item_plan\`, \`actualizar_item_plan\` o \`eliminar_item_plan\`. No reescribas el plan en prosa: el frontend lo recarga desde la base de datos.`,
@@ -198,28 +230,29 @@ function useChatStream(
 	);
 
 	useEffect(() => {
+		// Strict-mode note: this effect intentionally has no cleanup. React 18
+		// fires setup → cleanup → setup on first mount; if we cancelled the
+		// initial prompt in cleanup, the second setup would early-return on
+		// `initializedKeyRef.current === resetKey` and Brunito would never
+		// greet. The guard alone makes this safe to call once per resetKey.
 		if (initializedKeyRef.current === resetKey) return;
 		initializedKeyRef.current = resetKey;
-		const reset = () => {
-			abortRef.current?.abort();
-			setError(null);
-			setInput("");
-			setPendingFiles([]);
-			if (!initialPrompt) {
-				setMessages([]);
-				return;
-			}
-			const first: Msg = {
-				id: crypto.randomUUID(),
-				role: "teacher",
-				text: initialPrompt,
-				hidden: true,
-			};
-			setMessages([first]);
-			void streamReply([first], []);
+		abortRef.current?.abort();
+		setError(null);
+		setInput("");
+		setPendingFiles([]);
+		if (!initialPrompt) {
+			setMessages([]);
+			return;
+		}
+		const first: Msg = {
+			id: crypto.randomUUID(),
+			role: "teacher",
+			text: initialPrompt,
+			hidden: true,
 		};
-		const timeoutId = window.setTimeout(reset, 0);
-		return () => window.clearTimeout(timeoutId);
+		setMessages([first]);
+		void streamReply([first], []);
 	}, [resetKey, initialPrompt, streamReply]);
 
 	function submit() {
@@ -277,6 +310,7 @@ export function RegistroClient({
 	courseRecords,
 	plan,
 	initialTab,
+	planIntent,
 }: Props) {
 	const router = useRouter();
 	const [tab, setTab] = useState<TabId>(initialTab);
@@ -287,8 +321,8 @@ export function RegistroClient({
 		true,
 	);
 	const planificacion = useChatStream(
-		plan ? buildPlanOrGradesPrompt(record, plan.id) : "",
-		`plan-${record.id}-${plan?.id ?? "none"}`,
+		plan ? buildPlanOrGradesPrompt(record, plan.id, planIntent) : "",
+		`plan-${record.id}-${plan?.id ?? "none"}-${planIntent ?? "default"}`,
 		true,
 	);
 

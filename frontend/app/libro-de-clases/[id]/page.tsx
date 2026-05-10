@@ -9,7 +9,7 @@ import { RegistroClient } from "./registro-client";
 
 type PageProps = {
 	params: Promise<{ id: string }>;
-	searchParams: Promise<{ source?: string; tab?: string }>;
+	searchParams: Promise<{ source?: string; tab?: string; intent?: string }>;
 };
 
 export default async function LibroDeClasesPage({
@@ -19,7 +19,10 @@ export default async function LibroDeClasesPage({
 	const teacher = await getCurrentTeacher();
 	if (!teacher) redirect("/login");
 
-	const [{ id }, { source, tab }] = await Promise.all([params, searchParams]);
+	const [{ id }, { source, tab, intent }] = await Promise.all([
+		params,
+		searchParams,
+	]);
 	const resourceId = Number(id);
 	if (!Number.isFinite(resourceId)) notFound();
 
@@ -60,6 +63,12 @@ export default async function LibroDeClasesPage({
 	}
 
 	const initialTab = tab === "planificacion" && plan ? "planificacion" : "libro";
+	const planIntent: "subir_material" | "revisar_registro" | null =
+		intent === "subir_material"
+			? "subir_material"
+			: intent === "revisar_registro"
+				? "revisar_registro"
+				: null;
 
 	return (
 		<RegistroClient
@@ -68,6 +77,7 @@ export default async function LibroDeClasesPage({
 			courseRecords={courseRecords}
 			plan={plan}
 			initialTab={initialTab}
+			planIntent={planIntent}
 		/>
 	);
 }

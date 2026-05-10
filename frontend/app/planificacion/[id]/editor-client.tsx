@@ -6,6 +6,7 @@ import {
 	getPlanificacionAction,
 	type Plan,
 } from "../../actions/planificacion";
+import { AGENT_NAME } from "../../components/agent-avatar";
 import {
 	BitacoraChatPanel,
 	type BitacoraChatMessage,
@@ -21,7 +22,13 @@ function buildReviewPrompt(planId: number): string {
 	].join(" ");
 }
 
-export function EditorClient({ initialPlan }: { initialPlan: Plan }) {
+export function EditorClient({
+	initialPlan,
+	teacherName,
+}: {
+	initialPlan: Plan;
+	teacherName: string;
+}) {
 	const router = useRouter();
 	const [plan, setPlan] = useState<Plan>(initialPlan);
 	const [messages, setMessages] = useState<Msg[]>([]);
@@ -127,15 +134,17 @@ export function EditorClient({ initialPlan }: { initialPlan: Plan }) {
 			/>
 
 			<BitacoraChatPanel
-				title="Audiencia UTP · en vivo"
-				subtitle="El agente edita el plan directamente. La tabla se recarga al final de cada turno."
+				title={AGENT_NAME}
+				subtitle="Brunito edita el plan directamente. La tabla se recarga al final de cada turno."
 				messages={messages}
 				busy={busy}
 				error={error}
 				input={input}
 				onInputChange={setInput}
 				onSubmit={submitInput}
-				placeholder="Pide aclaraciones o un ajuste específico…"
+				placeholder="Mensaje a Brunito…"
+				teacherName={teacherName}
+				assistantName="Brunito"
 			/>
 		</div>
 	);

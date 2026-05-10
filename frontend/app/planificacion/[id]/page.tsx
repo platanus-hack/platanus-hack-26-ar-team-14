@@ -35,7 +35,7 @@ export default async function PlanificacionEditorPage({
 				<div className="max-w-4xl">
 					<p className="bitacora-kicker">Bitácora · planificación anual</p>
 					<h1 className="mt-4 font-display text-[clamp(2.4rem,5vw,4.4rem)] leading-[0.95] tracking-[-0.05em] text-slate-950">
-						Audiencia con <span className="text-vermilion">UTP</span> sobre tu
+						<span className="text-vermilion">Brunito</span> audita tu
 						planificación.
 					</h1>
 				</div>
@@ -46,7 +46,7 @@ export default async function PlanificacionEditorPage({
 			</section>
 
 			<section className="mt-6">
-				<EditorClient initialPlan={plan} />
+				<EditorClient initialPlan={plan} teacherName={teacher.name} />
 			</section>
 		</main>
 	);

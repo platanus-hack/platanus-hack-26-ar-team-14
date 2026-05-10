@@ -383,7 +383,7 @@ class PlanAnual(Base):
 
 
 class PlanAnualItem(Base):
-    """Fila de la planificación anual editable por el agente UTP."""
+    """Fila de la planificación anual editable por Brunito."""
 
     __tablename__ = "plan_anual_items"
 
