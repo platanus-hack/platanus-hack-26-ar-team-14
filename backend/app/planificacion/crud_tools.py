@@ -22,7 +22,6 @@ def _serialize_item(item: PlanAnualItem) -> dict:
         "unidad": item.unidad,
         "oa_codes": list(item.oa_codes or []),
         "objetivo": item.objetivo,
-        "cantidad_clases": item.cantidad_clases,
     }
 
 
@@ -55,7 +54,6 @@ def crear_item_plan(
     oa_codes: list[str] | None = None,
     mes: str | None = None,
     unidad: str | None = None,
-    cantidad_clases: int | None = None,
     ordinal: int | None = None,
 ) -> dict:
     """Agrega una fila nueva al plan anual.
@@ -67,7 +65,6 @@ def crear_item_plan(
             no declara ningún OA.
         mes: mes en español ('Marzo', 'Abril', ...). None si no aplica.
         unidad: etiqueta de unidad ('Unidad 1'). None si no aplica.
-        cantidad_clases: número de clases asignadas, si el plan lo declara.
         ordinal: posición. Si es None, se agrega al final.
     """
     with SessionLocal() as db:
@@ -83,7 +80,6 @@ def crear_item_plan(
             unidad=unidad,
             oa_codes=list(oa_codes or []),
             objetivo=objetivo,
-            cantidad_clases=cantidad_clases,
         )
         db.add(item)
         db.commit()
@@ -98,7 +94,6 @@ def actualizar_item_plan(
     oa_codes: list[str] | None = None,
     mes: str | None = None,
     unidad: str | None = None,
-    cantidad_clases: int | None = None,
     ordinal: int | None = None,
 ) -> dict:
     """Edita una fila existente. Solo se actualizan los campos que pasas.
@@ -106,9 +101,8 @@ def actualizar_item_plan(
     Para limpiar un campo opcional pasa explícitamente `null` (en JSON-tool
     eso llega como None, pero distinguir no-pasado vs limpiar requiere usar
     el campo). Por simplicidad: si pasas un valor distinto de None se
-    asigna; para borrar mes/unidad/cantidad_clases pasa una cadena vacía o
-    cero respectivamente y luego usa esta herramienta de nuevo si necesitas
-    afinar.
+    asigna; para borrar mes/unidad pasa una cadena vacía y luego usa esta
+    herramienta de nuevo si necesitas afinar.
     """
     with SessionLocal() as db:
         item = db.get(PlanAnualItem, item_id)
@@ -122,8 +116,6 @@ def actualizar_item_plan(
             item.mes = mes or None
         if unidad is not None:
             item.unidad = unidad or None
-        if cantidad_clases is not None:
-            item.cantidad_clases = cantidad_clases
         if ordinal is not None:
             item.ordinal = ordinal
         db.commit()

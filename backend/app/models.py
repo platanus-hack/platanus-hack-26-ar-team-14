@@ -231,7 +231,6 @@ class PlanAnualItem(Base):
     unidad: Mapped[str | None] = mapped_column(String(64), nullable=True)
     oa_codes: Mapped[list] = mapped_column(JSON, default=list)
     objetivo: Mapped[str] = mapped_column(Text, default="")
-    cantidad_clases: Mapped[int | None] = mapped_column(nullable=True)
     material_id: Mapped[int | None] = mapped_column(
         ForeignKey("materials.id", ondelete="SET NULL"), nullable=True, index=True
     )

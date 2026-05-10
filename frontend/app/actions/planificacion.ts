@@ -11,7 +11,6 @@ export type PlanItem = {
 	unidad: string | null;
 	oa_codes: string[];
 	objetivo: string;
-	cantidad_clases: number | null;
 };
 
 export type Plan = {
