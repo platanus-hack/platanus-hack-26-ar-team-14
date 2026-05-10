@@ -265,7 +265,7 @@ export function BitacoraDashboard({
 					return (
 						<Link
 							key={course.id}
-							href={`/course/${course.id}`}
+							href={`/libro-de-clases/${course.id}?source=course&tab=planificacion`}
 							className="bitacora-course-card"
 							style={{ animationDelay: `${1900 + index * 120}ms` }}
 						>
@@ -396,7 +396,7 @@ export function BitacoraDashboard({
 									}}
 								>
 									<Link
-										href={`/course/${slot.course.id}`}
+										href={`/libro-de-clases/${slot.course.id}?source=course&tab=planificacion`}
 										className="bitacora-calendar-event bitacora-calendar-event-filled"
 									>
 										<span className="bitacora-calendar-event-cta">
