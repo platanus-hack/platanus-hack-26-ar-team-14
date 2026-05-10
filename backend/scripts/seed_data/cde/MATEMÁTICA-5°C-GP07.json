@@ -1,0 +1,141 @@
+{
+  "source_file": "MATEMÁTICA-5°C-GP07.pdf",
+  "source_hash": "a0084bab3050ab74a543e77ad06d4fe6916e382abc6651b71816b9835613c1d4",
+  "asignatura": "Matemática",
+  "nivel": "5° básico",
+  "oa_code": "OA7",
+  "habilidad": "Representar",
+  "contenido": "Fracciones",
+  "questions": [
+    {
+      "prompt": "Escribe la fracción que está representada en cada uno de estos segmentos. (Segmento 1)",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_1.png",
+      "image_width": 883,
+      "image_height": 239
+    },
+    {
+      "prompt": "Escribe la fracción que está representada en cada uno de estos segmentos. (Segmento 2)",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_2.png",
+      "image_width": 883,
+      "image_height": 399
+    },
+    {
+      "prompt": "Escribe la fracción que está representada en cada uno de estos segmentos. (Segmento 3)",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_3.png",
+      "image_width": 883,
+      "image_height": 198
+    },
+    {
+      "prompt": "Representa en la cuadrícula la fracción indicada. (Fracción 1)",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_4.png",
+      "image_width": 47,
+      "image_height": 88
+    },
+    {
+      "prompt": "Representa en la cuadrícula la fracción indicada. (Fracción 2)",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_5.png",
+      "image_width": 46,
+      "image_height": 88
+    },
+    {
+      "prompt": "Representa en la cuadrícula la fracción indicada. (Fracción 3)",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_6.png",
+      "image_width": 46,
+      "image_height": 88
+    },
+    {
+      "prompt": "El dibujo muestra el recorrido de un tren entre distintos pueblos que se encuentran a igual distancia cada uno del siguiente. ¿Qué fracción representa el tramo de Surina a Caupolicán respecto al camino completo?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p3_1.png",
+      "image_width": 992,
+      "image_height": 398
+    },
+    {
+      "prompt": "El dibujo muestra el recorrido de un tren entre distintos pueblos que se encuentran a igual distancia cada uno del siguiente. ¿Qué fracción representa el tramo de Caupolicán a Turán respecto al camino completo?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "El dibujo muestra el recorrido de un tren entre distintos pueblos que se encuentran a igual distancia cada uno del siguiente. ¿Qué fracción representa el tramo de Caupolicán a San Pedro respecto al camino completo?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Obtén una fracción equivalente simplificando. (Fracción 1)",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p3_2.png",
+      "image_width": 790,
+      "image_height": 192
+    },
+    {
+      "prompt": "Obtén una fracción equivalente simplificando. (Fracción 2)",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Amplifica por cuatro (4) cada una de estas fracciones. (Fracción 1)",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p4_1.png",
+      "image_width": 955,
+      "image_height": 310
+    },
+    {
+      "prompt": "Amplifica por cuatro (4) cada una de estas fracciones. (Fracción 2)",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p4_2.png",
+      "image_width": 753,
+      "image_height": 187
+    }
+  ]
+}

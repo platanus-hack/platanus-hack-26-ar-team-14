@@ -1,0 +1,121 @@
+{
+  "source_file": "MATEMÁTICA-5°C-GP06.pdf",
+  "source_hash": "8796c297c83f6a257d368cb81ff2c726db73375a6605716b6443ae1cdf883cc7",
+  "asignatura": "Matemática",
+  "nivel": "5° básico",
+  "oa_code": "OA4",
+  "habilidad": "Resolver problemas",
+  "contenido": "Multiplicación, División, Ejercicios combinados, Resolución de problemas",
+  "questions": [
+    {
+      "prompt": "Resuelve el ejercicio indicado en la imagen.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p1_2.png",
+      "image_width": 613,
+      "image_height": 205
+    },
+    {
+      "prompt": "Miguel trabaja de lunes a viernes. Toma una micro para ir al trabajo y otra para regresar. Si el precio del pasaje es $720. ¿Cuánto gasta en locomoción en una semana de trabajo?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Resuelve el ejercicio indicado en la imagen.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_1.png",
+      "image_width": 610,
+      "image_height": 184
+    },
+    {
+      "prompt": "Carmen vende zanahorias en paquetes con igual cantidad de zanahorias. Si con 550 zanahorias armó 30 paquetes, ¿cuántas zanahorias puso en cada paquete? ¿Cuántas zanahorias sobran?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Escribe un par de paréntesis en esta operación combinada de tal forma que su resultado sea 709. Desarróllalo para comprobar.\n114 ● 6 + 50 : 2",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "¿Cuál es el resultado de a + b ● c, si a = 2.345, b = 5.008 y c = 25?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Jaime aportó $840 para comprar un helado y Camilo aportó la mitad de lo que aportó Jaime. ¿Cuánto dinero aportaron entre los dos?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "En una fábrica de dulces se envasan 840 unidades en cajas iguales por minuto. Si en cada caja caben 70 unidades, ¿cuántas cajas se envasan en media hora?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "El abuelo de Matías guarda de recuerdo 3.000 monedas antiguas repartidas por igual en tres cajas. Además, en cada caja tiene también 200 monedas de plata y 2 veces más monedas de bronce que de plata. ¿Cuántas monedas tiene en total en cada caja?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Compré tres cajas de cerámica a $5.600 cada una, dos sacos de pegamento a $2.700 cada uno y cinco brochas para pintar a $1.200 cada una. Si pagué con 3 billetes de $10.000, ¿cuánto dinero me dieron de vuelto?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Lucas tiene un juego con fichas de colores. Tiene 8 bolsas con 25 fichas cada una. Para jugar uno de los juegos debe sacar las fichas negras. Si en cada bolsa hay 3 fichas negras. ¿Cuántas fichas le quedan para jugar?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    }
+  ]
+}

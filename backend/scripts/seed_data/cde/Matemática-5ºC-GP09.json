@@ -1,0 +1,131 @@
+{
+  "source_file": "Matemática-5ºC-GP09.pdf",
+  "source_hash": "3b319cba6700d3d55d3816ea2283b65a731fe48271f083ba2f612a2d812db072",
+  "asignatura": "Matemática",
+  "nivel": "5° básico",
+  "oa_code": "OA7",
+  "habilidad": "Representar",
+  "contenido": "Fracciones equivalentes",
+  "questions": [
+    {
+      "prompt": "Divide el primer rectángulo en 3 partes iguales y pinta sólo una parte de color rojo. ¿Qué fracción representa el color rojo?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_1.png",
+      "image_width": 760,
+      "image_height": 113
+    },
+    {
+      "prompt": "Divide el segundo rectángulo en 6 partes iguales y pinta dos partes de color verde (horizontalmente). ¿Qué fracción representa el color verde?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_2.png",
+      "image_width": 760,
+      "image_height": 118
+    },
+    {
+      "prompt": "Divide el tercer rectángulo en 12 partes iguales y pinta cuatro partes de color azul (horizontalmente). ¿Qué fracción representa el color azul?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_3.png",
+      "image_width": 760,
+      "image_height": 111
+    },
+    {
+      "prompt": "¿Cómo son estas tres fracciones (la que representa el color rojo, el verde y el azul)?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Completa con el valor que corresponde para obtener una fracción equivalente (ejercicio a).",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p3_1.png",
+      "image_width": 155,
+      "image_height": 294
+    },
+    {
+      "prompt": "Completa con el valor que corresponde para obtener una fracción equivalente (ejercicio b).",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p3_2.png",
+      "image_width": 138,
+      "image_height": 275
+    },
+    {
+      "prompt": "Completa con el valor que corresponde para obtener una fracción equivalente (ejercicio c).",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p3_3.png",
+      "image_width": 170,
+      "image_height": 333
+    },
+    {
+      "prompt": "Completa con el valor que corresponde para obtener una fracción equivalente (ejercicio d).",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p3_4.png",
+      "image_width": 190,
+      "image_height": 334
+    },
+    {
+      "prompt": "Indica si son o no fracciones equivalentes. Escribe SI o NO: 3/4 y 15/20.",
+      "answer": "SI",
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Indica si son o no fracciones equivalentes. Escribe SI o NO: 4/6 y 2/5.",
+      "answer": "NO",
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Indica si son o no fracciones equivalentes. Escribe SI o NO: 4/8 y 1/2.",
+      "answer": "SI",
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Indica si son o no fracciones equivalentes. Escribe SI o NO: 5/7 y 10/14.",
+      "answer": "SI",
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    }
+  ]
+}

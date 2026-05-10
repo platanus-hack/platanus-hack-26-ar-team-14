@@ -1,0 +1,121 @@
+{
+  "source_file": "Matemática-5°C-GP08.pdf",
+  "source_hash": "1d90eec1d0af9738ddb4aabc3dfd226ea7589f51e2e51f13297945e688e93ff6",
+  "asignatura": "Matemática",
+  "nivel": "5° básico",
+  "oa_code": "OA6",
+  "habilidad": "Resolver problemas",
+  "contenido": "Resolución de problemas",
+  "questions": [
+    {
+      "prompt": "Identifique cuál es la expresión matemática que representa mejor la siguiente situación: Compré una torta en $3 500. Pagué con un billete de $5 000 y me dieron de vuelto $1 500.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_1.png",
+      "image_width": 778,
+      "image_height": 201
+    },
+    {
+      "prompt": "Identifique cuál es la expresión matemática que representa mejor la siguiente situación: Tengo $1 500 y mi amigo tiene el doble que yo. Entonces juntos tenemos $4 500.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Identifique cuál es la expresión matemática que representa mejor la siguiente situación: En un restaurant el plato principal vale $3 500 y si le agregamos la bebida con la ensalada se pagan $1 500 más, entonces en total se pagaría $5 000.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Identifique cuál es la expresión matemática que representa mejor la siguiente situación: Este mes mis 4 hermanos y yo recibimos la misma cantidad de mesada $7 500. Si juntamos todas las mesadas es $37 500.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Identifique cuál es la expresión matemática que representa mejor la siguiente situación: Se gastó $37 500 en comprar un regalo, si 15 personas dieron la misma cantidad de dinero, entonces cada una aportó con $2 500.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_2.png",
+      "image_width": 853,
+      "image_height": 110
+    },
+    {
+      "prompt": "Marcela fue al mall y compró una raqueta de tenis a $59 990 y un juego de pelotas a $15 490. Si pagó con $80 000 ¿cuánto dinero recibió de vuelto?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p3_1.png",
+      "image_width": 883,
+      "image_height": 255
+    },
+    {
+      "prompt": "El valor de la entrada al parque de diversiones, por la mañana, es de $3 500 los niños y $5 000 los adultos. En cambio, por la tarde, es de $1 750 los niños y $4 200 los adultos. Si en la mañana entraron 20 niños y 13 adultos y por la tarde 10 niños con 8 adultos. ¿Cuánto dinero se recaudó ese día?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p3_2.png",
+      "image_width": 883,
+      "image_height": 260
+    },
+    {
+      "prompt": "Un vendedor de la feria ofrece 5 kilogramos de papas por $1 000, pero si se compra de a un kilogramo el valor es de $300. Si una persona compra 18 kilogramos de papas. ¿Cuánto dinero ahorró?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p3_3.png",
+      "image_width": 883,
+      "image_height": 258
+    },
+    {
+      "prompt": "Una automotora tiene un aviso para la venta de su auto rojo. Don Pepe desea comprar el auto y dispone de $3 000 000. ¿Cuánto dinero ahorraría Don Pepe si pagara el auto al contado?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p4_1.png",
+      "image_width": 723,
+      "image_height": 345
+    },
+    {
+      "prompt": "Una automotora tiene un aviso para la venta de su auto rojo. Don Pepe desea comprar el auto y dispone de $3 000 000. Si Don Pepe da un pie de $3 000 000 y el resto en 12 cuotas: ¿Cuál es el valor total que pagará por el auto?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Una automotora tiene un aviso para la venta de su auto rojo. Don Pepe desea comprar el auto y dispone de $3 000 000. Si Don Pepe da un pie de $3 000 000 y el resto en 12 cuotas: ¿Cuánto dinero paga de más por el valor original del auto?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "source_file": "Matemática-5°C-GP-03.pdf",
+  "source_hash": "6db96368d1cff0ebe67b4a35f0aaee03df1b25c2a19479326692c64dae41e87c",
+  "asignatura": "Matemática",
+  "nivel": "5° básico",
+  "oa_code": "OA1",
+  "habilidad": "Representar",
+  "contenido": "Valor posicional, comparación, descomposición, redondeo y estimación de números naturales de hasta más de 6 dígitos",
+  "questions": [
+    {
+      "prompt": "La cifra 1.010.100 se escribe con palabras:",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p1_1.png",
+      "image_width": 117,
+      "image_height": 123
+    },
+    {
+      "prompt": "Seiscientos mil setenta se escribe con cifras:",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Escribe el numeral que corresponde a cada descomposición:\n4UMi + 8 CM + 7 UM + 9 C + 2 D + 7 U =\n7DMi + 9 CM + 2 DM + 5 C =\n5DMi + 6 C + 8 D + 7 U =\n8CM + 4 DM + 7 C + 8 D =\n4UM + 2 D + 1 U =\n5 DMi + 3 CM + 3 D + 4 U =",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Escribe en notación expandida los siguientes números:\n12.345.609 =\n345.200.006 =\n107.020.890 =",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_1.png",
+      "image_width": 443,
+      "image_height": 25
+    },
+    {
+      "prompt": "Determina el número que corresponde a las notaciones expandidas.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_2.png",
+      "image_width": 533,
+      "image_height": 28
+    },
+    {
+      "prompt": "Completa la tabla indicando lugar y valor que representa el dígito 4 en los números dados, como indica el ejemplo:\n\nNumeral | Lugar posicional | Valor posicional\n12.3456l 4 | Centenas = 4C | 400\n134.368 | | \n243.544 | | \n4.587.047 | | \n43.463.621 | |",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_3.png",
+      "image_width": 315,
+      "image_height": 24
+    },
+    {
+      "prompt": "La serie 15.678.099 - 15.876.890 - 15.768.569 - 15.867.890 - 15.786.090 - 15.687.654 ordenada de mayor a menor es:",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Observa la siguiente tabla que indica la superficie de algunos países de Sudamérica:\n\nPaís | Superficie (Km²)\nBolivia | 1.098.581\nColombia | 1.141.748\nPerú | 1.285.216\nVenezuela | 1.016.017\n\n¿Cuál es el país con menor superficie de los indicados en la tabla?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p3_1.png",
+      "image_width": 170,
+      "image_height": 190
+    },
+    {
+      "prompt": "Observa la siguiente tabla que indica la superficie de algunos países de Sudamérica:\n\nPaís | Superficie (Km²)\nBolivia | 1.098.581\nColombia | 1.141.748\nPerú | 1.285.216\nVenezuela | 1.016.017\n\n¿Cuál es el país con mayor superficie de los indicados en la tabla?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Observa la siguiente tabla que indica la superficie de algunos países de Sudamérica:\n\nPaís | Superficie (Km²)\nBolivia | 1.098.581\nColombia | 1.141.748\nPerú | 1.285.216\nVenezuela | 1.016.017\n\n¿Cuál es el antecesor y el sucesor del número que indica la superficie de Perú?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Observa la siguiente tabla que indica la superficie de algunos países de Sudamérica:\n\nPaís | Superficie (Km²)\nBolivia | 1.098.581\nColombia | 1.141.748\nPerú | 1.285.216\nVenezuela | 1.016.017\n\n¿A qué país corresponde la siguiente superficie?\n1 x 1.000.000 + 1 x 10.000 + 6 x 1.000 + 1 x 10 + 7 x 1 = ___________________",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Escribe >, < ó = según corresponda:",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p3_2.png",
+      "image_width": 260,
+      "image_height": 25
+    },
+    {
+      "prompt": "Redondea cada sumando a la unidad de millón y realiza una estimación de la adición, como indica el siguiente ejemplo:\n245.567.237 + 15.276.932 = 246.000.000 + 15.000.000 = 261.000.000\n\n_______ + _______ = _______ + _______ = _______\n_______ + _______ = _______ + _______ = _______\n_______ + _______ = _______ + _______ = _______",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p3_3.png",
+      "image_width": 270,
+      "image_height": 24
+    }
+  ]
+}

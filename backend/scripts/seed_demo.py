@@ -11,18 +11,25 @@ import json
 from datetime import date, timedelta
 from pathlib import Path
 
+from sqlalchemy.orm import Session
+
 from app.auth import hash_password
 from app.db import SessionLocal
 from app.models import (
     ClassLearningRecord,
     Course,
+    Guia,
+    GuiaItem,
     PlanAnual,
     PlanAnualItem,
+    Question,
     Student,
     Teacher,
 )
 
 DEMO_PLAN_ANUAL_PATH = Path(__file__).with_name("demo_plan_anual.json")
+CDE_SEED_DIR = Path(__file__).resolve().parent / "seed_data" / "cde"
+CDE_IMG_DIR = CDE_SEED_DIR / "images"
 
 TEACHER_NAME = "Ana Pérez"
 TEACHER_EMAIL = "ana@demo.cl"
@@ -107,6 +114,108 @@ def estimate_class_dates_for_year(class_days: list[str], year: int) -> list[date
     return class_dates
 
 
+def _load_guide_artifact(json_path: Path) -> dict:
+    return json.loads(json_path.read_text(encoding="utf-8"))
+
+
+def _question_rows_from_artifact(artifact: dict) -> list[Question]:
+    """Build Question ORM rows from a pre-extracted seed artifact.
+
+    Image bytes are loaded from ``scripts/seed_data/cde/images/`` so the row
+    matches what ``ingest_pdf`` would have produced at runtime.
+    """
+    rows: list[Question] = []
+    for q in artifact["questions"]:
+        image_data: bytes | None = None
+        image_mime: str | None = None
+        if q.get("image_file"):
+            image_data = (CDE_IMG_DIR / q["image_file"]).read_bytes()
+            image_mime = "image/png"
+        rows.append(
+            Question(
+                prompt=q["prompt"],
+                answer=q.get("answer"),
+                kind=q["kind"],
+                alternatives=q.get("alternatives"),
+                correct_alternative=q.get("correct_alternative"),
+                asignatura=artifact.get("asignatura"),
+                nivel=artifact.get("nivel"),
+                oa_code=artifact.get("oa_code"),
+                habilidad=artifact.get("habilidad"),
+                contenido=artifact.get("contenido"),
+                source_file=artifact.get("source_file"),
+                source_hash=artifact.get("source_hash"),
+                image_data=image_data,
+                image_mime=image_mime,
+                image_width=q.get("image_width"),
+                image_height=q.get("image_height"),
+            )
+        )
+    return rows
+
+
+def _seed_guides_for_teacher(db: Session, teacher: Teacher) -> None:
+    """Load pre-extracted guides from seed_data/cde and attach one Guia per PDF.
+
+    Idempotent: a Guia with the same (teacher_id, name) is left untouched, and
+    Question rows for an already-ingested ``source_hash`` are reused.
+    """
+    if not CDE_SEED_DIR.exists():
+        print(
+            f"seed_data dir missing at {CDE_SEED_DIR}; "
+            "run `uv run python -m scripts.extract_cde_guides` first."
+        )
+        return
+
+    artifacts = sorted(CDE_SEED_DIR.glob("*.json"))
+    print(f"Found {len(artifacts)} pre-extracted guide artifacts in {CDE_SEED_DIR}.")
+
+    created = 0
+    for json_path in artifacts:
+        artifact = _load_guide_artifact(json_path)
+        guia_name = json_path.stem
+        if (
+            db.query(Guia)
+            .filter_by(teacher_id=teacher.id, name=guia_name)
+            .one_or_none()
+            is not None
+        ):
+            print(f"  • Guia '{guia_name}' already exists; skip.")
+            continue
+
+        source_hash = artifact.get("source_hash")
+        existing_qs = (
+            db.query(Question).filter_by(source_hash=source_hash).all()
+            if source_hash
+            else []
+        )
+        if existing_qs:
+            questions = existing_qs
+            print(f"  • Reusing {len(questions)} existing questions for '{guia_name}'.")
+        else:
+            questions = _question_rows_from_artifact(artifact)
+            for q in questions:
+                db.add(q)
+            db.flush()
+            print(f"  • Inserted {len(questions)} questions for '{guia_name}'.")
+
+        guia = Guia(
+            teacher_id=teacher.id,
+            name=guia_name,
+            items=[
+                GuiaItem(question_id=q.id, ordinal=i)
+                for i, q in enumerate(questions)
+            ],
+        )
+        db.add(guia)
+        db.commit()
+        db.refresh(guia)
+        created += 1
+        print(f"    ✓ Guia '{guia_name}' (id={guia.id}) — {len(questions)} preguntas.")
+
+    print(f"Guides seeded: {created} new, {len(artifacts) - created} pre-existing.")
+
+
 def main() -> None:
     assert len(STUDENT_NAMES) == 30, "expected 30 student names"
     assert len(set(STUDENT_NAMES)) == 30, "student names must be unique"
@@ -116,8 +225,10 @@ def main() -> None:
         teacher = db.query(Teacher).filter_by(email=TEACHER_EMAIL).one_or_none()
         if teacher is not None:
             print(
-                f"Teacher {TEACHER_EMAIL} already exists (id={teacher.id}); skipping."
+                f"Teacher {TEACHER_EMAIL} already exists (id={teacher.id}); "
+                f"reusing for guide seeding."
             )
+            _seed_guides_for_teacher(db, teacher)
             return
 
         teacher = Teacher(
@@ -179,6 +290,7 @@ def main() -> None:
             f"Seeded plan anual '{plan.name}' (id={plan.id}) with "
             f"{len(plan.items)} items."
         )
+        _seed_guides_for_teacher(db, teacher)
 
 
 if __name__ == "__main__":

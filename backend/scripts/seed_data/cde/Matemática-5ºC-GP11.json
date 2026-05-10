@@ -1,0 +1,111 @@
+{
+  "source_file": "Matemática-5ºC-GP11.pdf",
+  "source_hash": "166560684ba0d607e43e6a03b97183be8496eae2bf240441ebac0be9927b3653",
+  "asignatura": "Matemática",
+  "nivel": "5° básico",
+  "oa_code": "OA18",
+  "habilidad": "Representar",
+  "contenido": "Movimientos en el plano (traslación, reflexión y rotación)",
+  "questions": [
+    {
+      "prompt": "Trasladen el polígono 5 unidades a la derecha y 2 unidades hacia arriba.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_1.png",
+      "image_width": 880,
+      "image_height": 479
+    },
+    {
+      "prompt": "Mide con una regla cada lado de las figuras tras la traslación y registra los valores:\nAB = AB´=\nCA = CA´=\nBC = BC´=",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "¿Son estos dos triángulos (antes y después de la traslación) congruentes? ¿Por qué?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Refleja el cuadrilátero en base al eje de simetría (j).",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_2.png",
+      "image_width": 840,
+      "image_height": 550
+    },
+    {
+      "prompt": "Mide con una regla cada lado de las figuras tras la reflexión y registra los valores:\nAB = AB´=\nCA = CA´=\nBC = BC´=",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "¿Son estos dos cuadriláteros (antes y después de la reflexión) congruentes? ¿Por qué?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Rota la siguiente figura en el sentido antihorario en los grados que se indica y considerando el punto señalado.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p3_3.png",
+      "image_width": 472,
+      "image_height": 390
+    },
+    {
+      "prompt": "Observa las figuras y pinta si representan una Traslación.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p4_1.png",
+      "image_width": 883,
+      "image_height": 297
+    },
+    {
+      "prompt": "Observa las figuras y pinta si representan una Reflexión.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p4_2.png",
+      "image_width": 883,
+      "image_height": 293
+    },
+    {
+      "prompt": "Observa las figuras y pinta si representan una Rotación.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p4_3.png",
+      "image_width": 883,
+      "image_height": 289
+    }
+  ]
+}

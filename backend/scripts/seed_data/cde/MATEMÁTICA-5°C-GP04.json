@@ -1,0 +1,121 @@
+{
+  "source_file": "MATEMÁTICA-5°C-GP04.pdf",
+  "source_hash": "92d114408253f7092e803a6c61a0d9e2e92de910016268641d9b4aeae9deae8e",
+  "asignatura": "Matemática",
+  "nivel": "5° básico",
+  "oa_code": "OA4",
+  "habilidad": "Argumentar y comunicar",
+  "contenido": "Multiplicación",
+  "questions": [
+    {
+      "prompt": "Completa estas operaciones por otras equivalentes: ● = + + + =",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p1_1.png",
+      "image_width": 117,
+      "image_height": 123
+    },
+    {
+      "prompt": "Multiplica utilizando estrategias de cálculo por potencias de 10.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p1_2.png",
+      "image_width": 198,
+      "image_height": 25
+    },
+    {
+      "prompt": "Multiplica utilizando estrategias de cálculo por múltiplos de 10.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_1.png",
+      "image_width": 74,
+      "image_height": 25
+    },
+    {
+      "prompt": "Utiliza las propiedades conmutativa y asociativa para calcular. Ejemplo: 25 ∙ 4 ∙ 3 = (25 ∙ 4) ∙ 3",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_2.png",
+      "image_width": 86,
+      "image_height": 25
+    },
+    {
+      "prompt": "Aplica paréntesis para facilitar los cálculos. (Propiedad Asociativa)",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_3.png",
+      "image_width": 98,
+      "image_height": 24
+    },
+    {
+      "prompt": "Desarrolla aplicando la propiedad distributiva (recuerda que debes resolver con dos operaciones). Ejemplo: (30 + 5) ∙ 8 = 30 ∙ 8 + 5 ∙ 8 = __ + __ = __",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_4.png",
+      "image_width": 126,
+      "image_height": 25
+    },
+    {
+      "prompt": "Redondea a la decena y estima el producto de los siguientes ejercicios: ____ = ______ / ____ = ______ / ____ = ______",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_5.png",
+      "image_width": 101,
+      "image_height": 25
+    },
+    {
+      "prompt": "Resuelve las siguientes multiplicaciones de 2 dígitos por 2 dígitos.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p2_6.png",
+      "image_width": 101,
+      "image_height": 25
+    },
+    {
+      "prompt": "David agrupó de a 10 las zanahorias que había en un saco. Obtuvo 320 paquetes. ¿Cuántas zanahorias había en el saco?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Nicole desea embaldosar una superficie que mide 15 m de largo por 12 m de ancho. ¿Qué desea saber con el cálculo de 15 m ● 12 m?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Para confeccionar un pedido de aliados, se sabe que 4 kilogramos de queso valen $21.950 y que 4 kilogramos de cecinas valen $26.320. ¿Cuánto valen 16 pedidos de la misma magnitud?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    }
+  ]
+}

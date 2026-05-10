@@ -1,0 +1,211 @@
+{
+  "source_file": "MATEMÁTICA-5°C-GP05.pdf",
+  "source_hash": "089153684c62c282bc06a4b161a05682b2ce1ec57818080627326d9209936b44",
+  "asignatura": "Matemática",
+  "nivel": "5° básico",
+  "oa_code": "OA4",
+  "habilidad": "Resolver Problemas",
+  "contenido": "División de números naturales",
+  "questions": [
+    {
+      "prompt": "Resuelve las siguientes divisiones e indica qué tipo de división es (exacta o inexacta): 345 : 6",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Resuelve las siguientes divisiones e indica qué tipo de división es (exacta o inexacta): 604 : 4",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Resuelve las siguientes divisiones e indica qué tipo de división es (exacta o inexacta): 872 : 9",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Completa la siguiente tabla indicando Dividendo, Divisor, Cuociente, Resto y Comprobación para la división: 645 : 6",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p1_1.png",
+      "image_width": 117,
+      "image_height": 123
+    },
+    {
+      "prompt": "Completa la siguiente tabla: se sabe que el Dividendo es 145 y el Divisor es 8. Encuentra el Cuociente, Resto y Comprobación.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Completa la siguiente tabla: se sabe que el Divisor es 7, el Cuociente es 34 y el Resto es 2. Encuentra el Dividendo y la Comprobación.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Divide mentalmente y anota los cuocientes: 120 : 30 =",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Divide mentalmente y anota los cuocientes: 600 : 40 =",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Divide mentalmente y anota los cuocientes: 4.000 : 400 =",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Divide mentalmente y anota los cuocientes: 1.500 : 30 =",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Divide mentalmente y anota los cuocientes: 370 : 10 =",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Completa la siguiente tabla de divisiones (Dividendo, Divisor, Cuociente):\n- 3700 ÷ ___ = ___\n- 1.500 ÷ ___ = 150\n- 200 ÷ ___ = 2",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Completa la siguiente tabla de divisiones (Dividendo, Divisor, Cuociente):\n- 7.300 ÷ ___ = 10\n- 100 ÷ ___ = 4\n- 5.000 ÷ 50 = ___",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "En una división exacta, el cociente es 23 y el divisor es 7. ¿Cuál es el dividendo?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "En una división inexacta, el divisor es 6, el cuociente es 12 y el resto es 5. ¿Cuál es el dividendo?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "¿En cuánto debiera aumentar el dividendo de 946 : 3 para que el resto de ella sea cero?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "En un almacén de frutas se agrupan 820 manzanas en cajas de a 20. ¿Cuántas cajas se necesitan?, ¿estarán todas completas?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "La señora Marta tiene 960 cebollines. Quiere hacer paquetes con 3 cebollines cada uno. ¿Cuántos paquetes puede hacer?",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "En una división, el dividendo es 400, el cociente 57 y el resto 1. ¿Cuál es el divisor? Trabaja este problema con calculadora.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Formula un problema a partir de los datos que presentan las tarjetas, resuélvelo y comprueba el resultado. Escribe el enunciado, la pregunta, los cálculos y la respuesta.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p3_1.png",
+      "image_width": 188,
+      "image_height": 177
+    }
+  ]
+}

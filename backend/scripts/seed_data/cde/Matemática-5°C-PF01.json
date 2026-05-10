@@ -1,0 +1,247 @@
+{
+  "source_file": "Matemática-5°C-PF01.pdf",
+  "source_hash": "1fff179008cc1c5d3f7010f5ef84ff658a50707c1fa1e7a09b36277f46a9691c",
+  "asignatura": "Matemática",
+  "nivel": "5° básico",
+  "oa_code": "OA4",
+  "habilidad": "Resolver problemas",
+  "contenido": "División, Resolución de problemas, Fracciones",
+  "questions": [
+    {
+      "prompt": "Luisa compra la bandeja de manzanas que se muestra en la figura. Ella debe guardar las manzanas en 4 canastas de 4 manzanas cada una. ¿Cuántas manzanas extras debe comprar Luisa, si quiere utilizar todas las manzanas de la bandeja?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {
+          "label": "a",
+          "text": "0"
+        },
+        {
+          "label": "b",
+          "text": "1"
+        },
+        {
+          "label": "c",
+          "text": "2"
+        },
+        {
+          "label": "d",
+          "text": "3"
+        }
+      ],
+      "correct_alternative": null,
+      "image_file": "IMG_p1_1.png",
+      "image_width": 116,
+      "image_height": 111
+    },
+    {
+      "prompt": "¿Cuál de los siguientes bloques representa el resto al dividir 221 por 5?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p1_2.png",
+      "image_width": 822,
+      "image_height": 242
+    },
+    {
+      "prompt": "El envase de la figura contiene 25 litros de un líquido. Todo este líquido es traspasado a las botellas vacías que se muestran en la figura. ¿Cuántos litros de capacidad tienen cada botella?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {
+          "label": "a",
+          "text": "6 litros más 0,25 litros."
+        },
+        {
+          "label": "b",
+          "text": "6 litros."
+        },
+        {
+          "label": "c",
+          "text": "6 litros más 0,5 litros."
+        },
+        {
+          "label": "d",
+          "text": "6 litros más 0,2 litros."
+        }
+      ],
+      "correct_alternative": null,
+      "image_file": "IMG_p2_1.png",
+      "image_width": 535,
+      "image_height": 213
+    },
+    {
+      "prompt": "Una persona desea comprar 6 litros de aceite.\n• La botella de 1 litro vale $790. Para comprar 6 litros debe comprar 6 botellas.\n• El bidón de 6 litros vale $4.760. Para comprar 6 litros debe comprar 1 bidón.\n• El bidón de 3 litros vale $2.360. Para comprar 6 litros debe comprar 2 bidones.\nSi para saber cuánto dinero gastará debe multiplicar el precio por la cantidad que comprará. ¿Qué debe comprar para gastar menos dinero?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {
+          "label": "a",
+          "text": "Comprar un bidón de 6 litros"
+        },
+        {
+          "label": "b",
+          "text": "Comprar 6 botellas de 1 litro."
+        },
+        {
+          "label": "c",
+          "text": "Comprar 1 bidón de 3 litros y 3 botellas de litro."
+        },
+        {
+          "label": "d",
+          "text": "Comprar 2 bidones de 3 litros."
+        }
+      ],
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Un comerciante compra la cantidad de arroz, azúcar y sal que se muestra en la siguiente figura. ¿Cuál de las siguientes expresiones muestra el mejor cálculo aproximado del precio total que pagó el comerciante?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {
+          "label": "a",
+          "text": "10 x 800 + 12 x 1 000 + 18 x 800."
+        },
+        {
+          "label": "b",
+          "text": "10 x 700 + 12 x 900 + 18 x 700."
+        },
+        {
+          "label": "c",
+          "text": "10 x 800 + 10 x 900 + 10 x 800."
+        },
+        {
+          "label": "d",
+          "text": "10 x 800 + 20 x 1 000 + 20 x 800."
+        }
+      ],
+      "correct_alternative": null,
+      "image_file": "IMG_p2_2.png",
+      "image_width": 910,
+      "image_height": 343
+    },
+    {
+      "prompt": "En la siguiente figura se muestra lo que se hizo para repartir $6 000 en 5 personas. ¿Qué procedimiento se hizo y cuánto dinero recibirá cada una?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {
+          "label": "a",
+          "text": "Se restó y recibirá cada una $6 000."
+        },
+        {
+          "label": "b",
+          "text": "Se restó y recibirá cada una $1 200."
+        },
+        {
+          "label": "c",
+          "text": "Se dividió y recibirá cada una $1 000."
+        },
+        {
+          "label": "d",
+          "text": "Se dividió y recibirá cada una $1 200."
+        }
+      ],
+      "correct_alternative": null,
+      "image_file": "IMG_p3_1.png",
+      "image_width": 791,
+      "image_height": 255
+    },
+    {
+      "prompt": "¿Cuántas bolitas había en la caja para que se pudieran repartir en 3 canastos con 16 bolitas cada uno?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {
+          "label": "a",
+          "text": "Había 48 bolitas."
+        },
+        {
+          "label": "b",
+          "text": "Había 16 bolitas."
+        },
+        {
+          "label": "c",
+          "text": "Había 3 bolitas."
+        },
+        {
+          "label": "d",
+          "text": "Había 19 bolitas."
+        }
+      ],
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "¿En cuál de las siguientes opciones se representa la fracción equivalente a tres quintos que se observa en la siguiente figura?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "IMG_p3_2.png",
+      "image_width": 961,
+      "image_height": 334
+    },
+    {
+      "prompt": "En las siguientes figuras se representan fracciones equivalentes a un medio. ¿Qué se debe hacer a la figura para obtener la fracción equivalente 6/12?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {
+          "label": "a",
+          "text": "El total se debe dividir la figura en 6 partes iguales y achurar 3."
+        },
+        {
+          "label": "b",
+          "text": "El total se debe dividir la figura en 12 partes iguales y achurar 6."
+        },
+        {
+          "label": "c",
+          "text": "El total se debe dividir la figura en 18 partes iguales y achurar 6."
+        },
+        {
+          "label": "d",
+          "text": "El total se debe dividir la figura en 12 partes iguales y achurar 2."
+        }
+      ],
+      "correct_alternative": null,
+      "image_file": "IMG_p4_1.png",
+      "image_width": 884,
+      "image_height": 256
+    },
+    {
+      "prompt": "Observe la siguiente recta numérica que está dividida en partes iguales. ¿Dónde se deben ubicar las fracciones 2/10 y 1/4?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {
+          "label": "a",
+          "text": "2/10 después A y 1/4 antes de C"
+        },
+        {
+          "label": "b",
+          "text": "2/10 antes de A y 1/4 antes de C"
+        },
+        {
+          "label": "c",
+          "text": "2/10 en A y 1/4 antes de C"
+        },
+        {
+          "label": "d",
+          "text": "2/10 en A y 1/4 en B"
+        }
+      ],
+      "correct_alternative": null,
+      "image_file": "IMG_p4_2.png",
+      "image_width": 883,
+      "image_height": 164
+    }
+  ]
+}

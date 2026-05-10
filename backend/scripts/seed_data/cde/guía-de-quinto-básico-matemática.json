@@ -1,0 +1,141 @@
+{
+  "source_file": "guía-de-quinto-básico-matemática.pdf",
+  "source_hash": "77ce50405cc838db53f1568229ee1fa439cc884e6122fa079d8aa330600fa728",
+  "asignatura": "Matemática",
+  "nivel": "5° básico",
+  "oa_code": "OA4",
+  "habilidad": "Representar",
+  "contenido": "Lectura y escritura de números hasta los millones",
+  "questions": [
+    {
+      "prompt": "Pinta con rojo las cifras de los millones y con verde las cifras de los miles en el número: 7 2 4 0 0 0 0 0 0",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Pinta con rojo las cifras de los millones y con verde las cifras de los miles en el número: 5 1 2 0 0 0 0 0 0",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Pinta con rojo las cifras de los millones y con verde las cifras de los miles en el número: 4 0 4 0 0 0 0 0 0",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Pinta con rojo las cifras de los millones y con verde las cifras de los miles en el número: 4 0 0 0 0 0 0",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Pinta con rojo las cifras de los millones y con verde las cifras de los miles en el número: 8 6 0 0 0 0 0 0",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Pinta con rojo las cifras de los millones y con verde las cifras de los miles en el número: 8 3 4 5 0 0 0",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Pinta con rojo las cifras de los millones y con verde las cifras de los miles en el número: 2 2 9 0 6 0 0 0",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Pinta con rojo las cifras de los millones y con verde las cifras de los miles en el número: 5 1 4 3 1 0 0 0 0",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Pinta con rojo las cifras de los millones y con verde las cifras de los miles en el número: 4 0 3 0 0 0 0 0",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Escribe el número correspondiente a: 18 millones",
+      "answer": "18 000 000",
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Escribe el número correspondiente a: 906 millones",
+      "answer": "906 000 000",
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Escribe el número correspondiente a: 2 millones 400 mil",
+      "answer": "2 400 000",
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Escribe el número correspondiente a: 70 millones 90 mil",
+      "answer": "70 090 000",
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    }
+  ]
+}
