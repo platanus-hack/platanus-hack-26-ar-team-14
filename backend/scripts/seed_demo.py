@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from app.auth import hash_password
 from app.db import SessionLocal
 from app.models import (
+    Alert,
     ClassLearningRecord,
     Course,
     Guia,
@@ -439,6 +440,47 @@ def _seed_guides_for_teacher(db: Session, teacher: Teacher) -> None:
     print(f"Guides seeded: {created} new, {len(artifacts) - created} pre-existing.")
 
 
+ALERT_SEEDS = [
+    {
+        "course_name": "Matemática - 5° Básico A",
+        "severity": "high",
+        "observations": [
+            "Brecha curricular de 5 OAs respecto a lo esperado para la semana 18.",
+            "OA4 enseñado pero con aprendizaje promedio bajo el 40%.",
+            "OA7 planificado tarde: es prerrequisito de la próxima evaluación.",
+        ],
+    },
+]
+
+
+def _seed_alerts(db: Session, teacher: Teacher) -> None:
+    """Insert demo alerts for the teacher's courses if missing."""
+    courses_by_name = {c.name: c for c in teacher.courses}
+    for spec in ALERT_SEEDS:
+        course = courses_by_name.get(spec["course_name"])
+        if course is None:
+            print(f"  - Course '{spec['course_name']}' not found; skip alert seed.")
+            continue
+        existing = (
+            db.query(Alert)
+            .filter_by(course_id=course.id, severity=spec["severity"])
+            .one_or_none()
+        )
+        if existing is not None:
+            print(
+                f"  - Alert {spec['severity']} for '{course.name}' already exists; skip."
+            )
+            continue
+        db.add(
+            Alert(
+                course_id=course.id,
+                severity=spec["severity"],
+                observations=list(spec["observations"]),
+            )
+        )
+        print(f"  - Seeded {spec['severity']} alert for '{course.name}'.")
+
+
 def build_plan(seed: dict, teacher_id: int) -> PlanAnual:
     plan = PlanAnual(
         teacher_id=teacher_id,
@@ -478,6 +520,8 @@ def main() -> None:
                 "reusing for guide seeding."
             )
             _seed_guides_for_teacher(db, teacher)
+            _seed_alerts(db, teacher)
+            db.commit()
             return
 
         teacher = Teacher(
@@ -505,6 +549,8 @@ def main() -> None:
             courses.append(course)
 
         teacher.courses = courses
+        db.flush()
+        _seed_alerts(db, teacher)
         db.commit()
         db.refresh(teacher)
         registered_count = sum(

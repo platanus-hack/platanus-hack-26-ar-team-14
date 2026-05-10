@@ -15,6 +15,7 @@ from app.config import settings
 from app.curriculum import buscar_actividades, listar_unidades, obtener_oa
 from app.db import get_db
 from app.models import (
+    Alert,
     ClassLearningRecord,
     Course,
     Guia,
@@ -108,6 +109,38 @@ def list_courses(
             plan_anual_id=c.plan_anual_id,
         )
         for c in courses
+    ]
+
+
+class AlertOut(BaseModel):
+    id: int
+    course_id: int
+    course_name: str
+    severity: str
+    observations: list[str]
+
+
+@app.get("/alerts", response_model=list[AlertOut])
+def list_alerts(
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    rows = (
+        db.query(Alert)
+        .join(Course, Alert.course_id == Course.id)
+        .filter(Course.teacher_id == teacher.id)
+        .order_by(Alert.created_at.desc(), Alert.id.desc())
+        .all()
+    )
+    return [
+        AlertOut(
+            id=a.id,
+            course_id=a.course_id,
+            course_name=a.course.name,
+            severity=a.severity,
+            observations=list(a.observations or []),
+        )
+        for a in rows
     ]
 
 

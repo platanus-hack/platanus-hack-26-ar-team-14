@@ -1,22 +1,23 @@
 import { redirect } from "next/navigation";
 import { listPendingRecordsAction } from "./actions/libro-de-clases";
 import { BitacoraDashboard } from "./components/bitacora-dashboard";
+import { getDashboardAlertCourses } from "./lib/alerts";
 import { getCurrentTeacher, getTeacherCourses } from "./lib/auth";
-import { getPriorityCourses } from "./lib/bitacora-data";
 
 export default async function Home() {
 	const teacher = await getCurrentTeacher();
 	if (!teacher) redirect("/login");
 
-	const [teacherCourses, pendingRecords] = await Promise.all([
+	const [teacherCourses, pendingRecords, alertCourses] = await Promise.all([
 		getTeacherCourses(),
 		listPendingRecordsAction().catch(() => []),
+		getDashboardAlertCourses(),
 	]);
 
 	return (
 		<BitacoraDashboard
 			teacherName={teacher.name}
-			priorityCourses={getPriorityCourses()}
+			priorityCourses={alertCourses}
 			teacherCourses={teacherCourses}
 			pendingRecords={pendingRecords}
 		/>
