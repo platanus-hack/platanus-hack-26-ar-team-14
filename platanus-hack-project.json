@@ -1,5 +1,6 @@
 {
-  "project-name": "<FILL THIS>",
-  "project-oneliner-spanish": "<FILL THIS>",
-  "project-description-spanish": "<FILL THIS>"
+  "project-name": "brunito",
+  "project-oneliner-spanish": "IA que automatiza la gestión curricular completa: desde planificación hasta evaluación.",
+  "project-description-spanish": "brunito es una plataforma de IA para educación que ejecuta end-to-end la administración curricular. Genera automáticamente planificaciones alineadas al currículo oficial, registra y analiza clases, detecta brechas de cobertura, prioriza cursos en riesgo, produce evaluaciones y crea guías de refuerzo. El sistema opera de forma autónoma, eliminando la carga administrativa del docente y permitiéndole enfocarse únicamente en la enseñanza directa.",
+  "deploy-url": "https://hack26.v4rgas.com"
 }
