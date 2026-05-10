@@ -21,6 +21,7 @@ type Props = {
 	record: LearningRecord;
 	courseRecords: LearningRecord[];
 	plan: Plan | null;
+	initialTab: TabId;
 };
 
 const SPANISH_MONTHS = [
@@ -247,9 +248,14 @@ export function RegistroClient({
 	record,
 	courseRecords,
 	plan,
+	initialTab,
 }: Props) {
 	const router = useRouter();
-	const [tab, setTab] = useState<TabId>("libro");
+	const [tab, setTab] = useState<TabId>(initialTab);
+
+	useEffect(() => {
+		setTab(initialTab);
+	}, [initialTab]);
 
 	const registro = useChatStream(
 		buildClassRecordPrompt(record, plan?.id ?? null),
@@ -374,7 +380,7 @@ export function RegistroClient({
 						pendingFiles={planificacion.pendingFiles}
 						onAddFiles={planificacion.addFiles}
 						onRemovePendingFile={planificacion.removePendingFile}
-						placeholder={"Ej.: Sofía 6.2, Mateo 5.5… o \"mueve OA8 a junio\""}
+						placeholder={"Mensaje..."}
 						teacherName={teacherName}
 						assistantName="Bita"
 					/>

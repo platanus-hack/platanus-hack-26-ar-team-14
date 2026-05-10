@@ -46,11 +46,8 @@ function formatShortDate(iso: string): string {
 }
 
 function todayIso(): string {
-	const now = new Date();
-	const y = now.getFullYear();
-	const m = String(now.getMonth() + 1).padStart(2, "0");
-	const d = String(now.getDate()).padStart(2, "0");
-	return `${y}-${m}-${d}`;
+	// Keep record-status badges aligned with the dashboard/backend demo clock.
+	return "2026-05-13";
 }
 
 type RecordStatus = "registered" | "pending" | "upcoming";

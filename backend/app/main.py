@@ -31,6 +31,9 @@ from app.worksheets.store import ingest_pdf
 
 app = FastAPI(title="Backend API")
 
+# Keep pending-record logic aligned with the frontend dashboard demo clock.
+DEMO_NOW = datetime(2026, 5, 13, 9, 30)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -759,7 +762,7 @@ def list_pending_records(
     db: Session = Depends(get_db),
 ):
     """Class sessions whose block has already ended but the teacher hasn't logged."""
-    now = datetime.now()
+    now = DEMO_NOW
     rows = (
         db.query(ClassLearningRecord)
         .join(Course, ClassLearningRecord.course_id == Course.id)
