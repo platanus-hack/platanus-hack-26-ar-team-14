@@ -41,6 +41,12 @@ class Course(Base):
     teacher_id: Mapped[int] = mapped_column(
         ForeignKey("teachers.id", ondelete="CASCADE"), index=True
     )
+    # Days the class meets: list of lowercase English weekday names
+    # (e.g. ["monday", "wednesday", "thursday"]).
+    class_days: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
+    # Time block number (1-based) within the school day when this course meets.
+    # Matches the frontend HOUR_SLOTS index (block 1 = first slot, etc.).
+    block_number: Mapped[int] = mapped_column(default=1, server_default="1")
 
     teacher: Mapped["Teacher"] = relationship(back_populates="courses")
     students: Mapped[list["Student"]] = relationship(

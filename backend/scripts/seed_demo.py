@@ -67,7 +67,12 @@ def main() -> None:
             email=TEACHER_EMAIL,
             password_hash=hash_password(TEACHER_PASSWORD),
         )
-        course = Course(name=COURSE_NAME, teacher=teacher)
+        course = Course(
+            name=COURSE_NAME,
+            teacher=teacher,
+            class_days=["monday", "wednesday", "thursday"],
+            block_number=2,
+        )
         course.students = [Student(name=n) for n in STUDENT_NAMES]
         db.add(teacher)
         db.commit()

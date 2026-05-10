@@ -26,6 +26,28 @@ export async function getCurrentTeacher(): Promise<Teacher | null> {
 	}
 }
 
+export type TeacherCourse = {
+	id: number;
+	name: string;
+	class_days: string[];
+	block_number: number;
+};
+
+export async function getTeacherCourses(): Promise<TeacherCourse[]> {
+	const token = await getToken();
+	if (!token) return [];
+	try {
+		const res = await fetch(`${BACKEND_URL}/courses`, {
+			headers: { authorization: `Bearer ${token}` },
+			cache: "no-store",
+		});
+		if (!res.ok) return [];
+		return (await res.json()) as TeacherCourse[];
+	} catch {
+		return [];
+	}
+}
+
 export async function loginUpstream(
 	email: string,
 	password: string,

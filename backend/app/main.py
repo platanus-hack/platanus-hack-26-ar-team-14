@@ -10,7 +10,7 @@ from app.chat_status import describe_tool_end, describe_tool_start
 from app.config import settings
 from app.curriculum import buscar_actividades, listar_unidades, obtener_oa
 from app.db import get_db
-from app.models import Guia, GuiaItem, PlanAnual, PlanAnualItem, Question, Teacher
+from app.models import Course, Guia, GuiaItem, PlanAnual, PlanAnualItem, Question, Teacher
 from app.planificacion import PlanAnualDraft, extract_plan_from_pdf
 from app.worksheets.store import ingest_pdf
 
@@ -64,6 +64,35 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
 @app.get("/auth/me", response_model=TeacherOut)
 def me(teacher: Teacher = Depends(get_current_teacher)):
     return TeacherOut(id=teacher.id, name=teacher.name, email=teacher.email)
+
+
+class CourseOut(BaseModel):
+    id: int
+    name: str
+    class_days: list[str]
+    block_number: int
+
+
+@app.get("/courses", response_model=list[CourseOut])
+def list_courses(
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    courses = (
+        db.query(Course)
+        .filter(Course.teacher_id == teacher.id)
+        .order_by(Course.id)
+        .all()
+    )
+    return [
+        CourseOut(
+            id=c.id,
+            name=c.name,
+            class_days=list(c.class_days or []),
+            block_number=c.block_number,
+        )
+        for c in courses
+    ]
 
 
 class ChatMessage(BaseModel):

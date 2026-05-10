@@ -3,43 +3,63 @@
 import { ArrowRight, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Fragment, useEffect, useRef, useState } from "react";
-import type { CourseRecord, WeeklyBlock } from "../lib/bitacora-data";
-import {
-	getCourseById,
-	getUrgencyTone,
-	scheduleDays,
-} from "../lib/bitacora-data";
+import type { CourseRecord } from "../lib/bitacora-data";
+import { getUrgencyTone, scheduleDays } from "../lib/bitacora-data";
+import type { TeacherCourse } from "../lib/auth";
 import { Navbar } from "./navbar";
+
+type ScheduleDay = (typeof scheduleDays)[number];
 
 type DashboardProps = {
 	teacherName: string;
 	priorityCourses: CourseRecord[];
-	weeklySchedule: WeeklyBlock[];
+	teacherCourses: TeacherCourse[];
 };
 
-function timeHourKey(time: string) {
-	const hour = time.split(":")[0];
-	return `${hour}:00`;
-}
-
-function getScheduleMap(blocks: WeeklyBlock[]) {
-	const map = new Map<string, WeeklyBlock>();
-	for (const block of blocks) {
-		const key = `${block.day}-${timeHourKey(block.time)}`;
-		if (!map.has(key)) map.set(key, block);
-	}
-	return map;
-}
+const DAY_MAP: Record<string, ScheduleDay> = {
+	monday: "Lunes",
+	tuesday: "Martes",
+	wednesday: "Miércoles",
+	thursday: "Jueves",
+	friday: "Viernes",
+};
 
 const HOUR_SLOTS = Array.from(
 	{ length: 10 },
 	(_, i) => `${String(i + 8).padStart(2, "0")}:00`,
 );
 
+type DaySlot = {
+	course: TeacherCourse;
+	startRow: number;
+	rowSpan: number;
+};
+
+function getCoursesByDay(
+	courses: TeacherCourse[],
+): Map<ScheduleDay, DaySlot[]> {
+	const out = new Map<ScheduleDay, DaySlot[]>();
+	const totalRows = HOUR_SLOTS.length;
+	for (const course of courses) {
+		const blockIdx = Math.min(
+			Math.max((course.block_number ?? 1) - 1, 0),
+			totalRows - 1,
+		);
+		for (const raw of course.class_days ?? []) {
+			const day = DAY_MAP[raw.toLowerCase()];
+			if (!day) continue;
+			const list = out.get(day) ?? [];
+			list.push({ course, startRow: blockIdx, rowSpan: 1 });
+			out.set(day, list);
+		}
+	}
+	return out;
+}
+
 export function BitacoraDashboard({
 	teacherName,
 	priorityCourses,
-	weeklySchedule,
+	teacherCourses,
 }: DashboardProps) {
 	const neutralTone = {
 		badge: "bg-slate-300",
@@ -52,7 +72,8 @@ export function BitacoraDashboard({
 	const alertRef = useRef<HTMLElement | null>(null);
 	const gridRef = useRef<HTMLDivElement | null>(null);
 	const atTopRef = useRef(true);
-	const scheduleMap = getScheduleMap(weeklySchedule);
+	const slotsByDay = getCoursesByDay(teacherCourses);
+	const visibleDays: ScheduleDay[] = [...scheduleDays];
 	const localScheduleTimes = HOUR_SLOTS;
 
 	useEffect(() => {
@@ -243,9 +264,15 @@ export function BitacoraDashboard({
 				</ul>
 
 				<div className="bitacora-calendar-board">
-					<div className="bitacora-calendar-grid" ref={gridRef}>
+					<div
+						className="bitacora-calendar-grid"
+						ref={gridRef}
+						style={{
+							gridTemplateColumns: `64px repeat(${visibleDays.length}, minmax(0, 1fr))`,
+						}}
+					>
 						<div className="bitacora-calendar-corner" />
-						{scheduleDays.map((day) => (
+						{visibleDays.map((day) => (
 							<div key={day} className="bitacora-calendar-header">
 								{day}
 							</div>
@@ -259,75 +286,63 @@ export function BitacoraDashboard({
 							/>
 						)}
 
-						{localScheduleTimes.map((time) => (
+						{localScheduleTimes.map((time, rowIdx) => (
 							<Fragment key={time}>
-								<div className="bitacora-calendar-time" data-time={time}>
+								<div
+									className="bitacora-calendar-time"
+									data-time={time}
+									style={{ gridColumn: 1, gridRow: rowIdx + 2 }}
+								>
 									{time}
 								</div>
-								{scheduleDays.map((day) => {
-									const block = scheduleMap.get(`${day}-${time}`);
-									if (!block) {
-										return (
-											<div
-												key={`${day}-${time}`}
-												className="bitacora-calendar-slot bitacora-calendar-slot-empty"
-											/>
-										);
-									}
-
-									const course = getCourseById(block.courseId);
-									if (!course) {
-										return (
-											<div
-												key={`${day}-${time}`}
-												className="bitacora-calendar-slot bitacora-calendar-slot-empty"
-											/>
-										);
-									}
-
-									const needsCorrection = course.curricularGap > 0;
-									const tone = needsCorrection
-										? getUrgencyTone(course.urgency)
-										: neutralTone;
-
+								{visibleDays.map((day, dayIdx) => {
+									const slots = slotsByDay.get(day) ?? [];
+									const occupied = slots.some(
+										(s) => rowIdx >= s.startRow && rowIdx < s.startRow + s.rowSpan,
+									);
+									if (occupied) return null;
 									return (
 										<div
 											key={`${day}-${time}`}
-											className="bitacora-calendar-slot"
-										>
-											<Link
-												href={`/course/${course.id}`}
-												className="bitacora-calendar-event bitacora-calendar-event-filled"
-											>
-												<span className="bitacora-calendar-event-cta">
-													Ver curso
-													<ArrowRight size={11} strokeWidth={2.5} />
-												</span>
-												<p className="text-[0.95rem] font-display leading-[1.05] tracking-[-0.03em] text-slate-950">
-													{course.subject}
-												</p>
-												<p className="text-[0.75rem] leading-[1.1] text-slate-500">
-													{course.courseName}
-												</p>
-												<span
-													className={`mt-auto inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
-														needsCorrection
-															? `${tone.surface} ${tone.border} ${tone.accent}`
-															: "bg-slate-50 border-slate-200/90 text-slate-500"
-													}`}
-												>
-													{needsCorrection
-														? `Atraso ${course.curricularGap} OA${
-																course.curricularGap > 1 ? "s" : ""
-															}`
-														: "Al día"}
-												</span>
-											</Link>
-										</div>
+											className="bitacora-calendar-slot bitacora-calendar-slot-empty"
+											style={{ gridColumn: dayIdx + 2, gridRow: rowIdx + 2 }}
+										/>
 									);
 								})}
 							</Fragment>
 						))}
+
+						{visibleDays.map((day, dayIdx) => {
+							const slots = slotsByDay.get(day) ?? [];
+							return slots.map((slot) => (
+								<div
+									key={`${day}-${slot.course.id}`}
+									className="bitacora-calendar-slot"
+									style={{
+										gridColumn: dayIdx + 2,
+										gridRow: `${slot.startRow + 2} / span ${slot.rowSpan}`,
+									}}
+								>
+									<Link
+										href={`/course/${slot.course.id}`}
+										className="bitacora-calendar-event bitacora-calendar-event-filled"
+									>
+										<span className="bitacora-calendar-event-cta">
+											Ver curso
+											<ArrowRight size={11} strokeWidth={2.5} />
+										</span>
+										<p className="text-[0.95rem] font-display leading-[1.05] tracking-[-0.03em] text-slate-950">
+											{slot.course.name}
+										</p>
+										<span
+											className={`mt-auto inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${neutralTone.surface} ${neutralTone.border} ${neutralTone.accent}`}
+										>
+											Bloque de clase
+										</span>
+									</Link>
+								</div>
+							));
+						})}
 					</div>
 				</div>
 			</section>
