@@ -275,14 +275,14 @@ body {
 	}
 
 	.bitacora-pending-card-course {
-		font-size: 13px;
+		font-size: 15px;
 		font-weight: 600;
 		color: #0f172a;
 		white-space: nowrap;
 	}
 
 	.bitacora-pending-card-date {
-		font-size: 12px;
+		font-size: 14px;
 		color: #6b4a0a;
 		text-transform: capitalize;
 		overflow: hidden;
