@@ -192,6 +192,11 @@ class Guia(Base):
         cascade="all, delete-orphan",
         order_by="GuiaItem.ordinal",
     )
+    generated_questions: Mapped[list["GeneratedGuiaQuestion"]] = relationship(
+        back_populates="guia",
+        cascade="all, delete-orphan",
+        order_by="GeneratedGuiaQuestion.ordinal",
+    )
 
 
 class GuiaItem(Base):
@@ -210,6 +215,31 @@ class GuiaItem(Base):
 
     guia: Mapped["Guia"] = relationship(back_populates="items")
     question: Mapped["Question"] = relationship()
+
+
+class GeneratedGuiaQuestion(Base):
+    """Guide-only generated question that should not enter the global bank."""
+
+    __tablename__ = "generated_guia_questions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    guia_id: Mapped[int] = mapped_column(
+        ForeignKey("guias.id", ondelete="CASCADE"), index=True
+    )
+    ordinal: Mapped[int] = mapped_column(index=True)
+
+    prompt: Mapped[str] = mapped_column(Text)
+    answer: Mapped[str | None] = mapped_column(Text, nullable=True)
+    kind: Mapped[str] = mapped_column(String(32), default="open", server_default="open")
+    alternatives: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    correct_alternative: Mapped[str | None] = mapped_column(String(8), nullable=True)
+
+    oa_code: Mapped[str | None] = mapped_column(String(16), nullable=True, index=True)
+    habilidad: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    contenido: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    source_note: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    guia: Mapped["Guia"] = relationship(back_populates="generated_questions")
 
 
 class Assessment(Base):

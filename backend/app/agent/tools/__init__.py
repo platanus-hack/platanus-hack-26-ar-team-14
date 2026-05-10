@@ -15,12 +15,14 @@ from app.planificacion import PLANIFICACION_TOOLS
 
 from .assessments import ASSESSMENT_TOOLS
 from .alertas import ALERTAS_TOOLS
+from .guias import GUIA_GENERATION_TOOLS
 from .registro import REGISTRO_TOOLS
 
 TOOLS = [
     *CURRICULUM_TOOLS,
     *PLANIFICACION_TOOLS,
     *REGISTRO_TOOLS,
+    *GUIA_GENERATION_TOOLS,
     *ALERTAS_TOOLS,
     *ASSESSMENT_TOOLS,
 ]

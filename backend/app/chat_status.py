@@ -194,6 +194,57 @@ def _end_buscar_items_plan_por_oa(payload: Any) -> str:
     return "Listo."
 
 
+def _start_buscar_preguntas_por_oa(args: dict) -> str:
+    oa_code = args.get("oa_code")
+    return f"Buscando preguntas para {oa_code}…" if oa_code else "Buscando preguntas del banco…"
+
+
+def _end_buscar_preguntas_por_oa(payload: Any) -> str:
+    data = _safe_load(payload)
+    if isinstance(data, dict) and isinstance(data.get("matches"), list):
+        return f"Encontré {len(data['matches'])} preguntas."
+    return "Listo."
+
+
+def _start_leer_guia(_args: dict) -> str:
+    return "Leyendo la guía…"
+
+
+def _start_clonar_guia(_args: dict) -> str:
+    return "Duplicando la guía para ajustarla…"
+
+
+def _end_clonar_guia(_payload: Any) -> str:
+    return "Guía duplicada."
+
+
+def _start_crear_guia_desde_banco(_args: dict) -> str:
+    return "Armando una guía desde el banco…"
+
+
+def _end_crear_guia_desde_banco(_payload: Any) -> str:
+    return "Guía creada."
+
+
+def _start_crear_guia_mixta(_args: dict) -> str:
+    return "Armando una guía con preguntas nuevas y del banco…"
+
+
+def _end_crear_guia_mixta(_payload: Any) -> str:
+    return "Guía creada."
+
+
+def _start_generar_borrador_guia(_args: dict) -> str:
+    return "Redactando preguntas de refuerzo…"
+
+
+def _end_generar_borrador_guia(payload: Any) -> str:
+    data = _safe_load(payload)
+    if isinstance(data, dict) and isinstance(data.get("generated_questions"), list):
+        return f"Generé {len(data['generated_questions'])} preguntas."
+    return "Listo."
+
+
 _START: dict[str, Callable[[dict], str]] = {
     "listar_unidades": _start_listar_unidades,
     "obtener_oa": _start_obtener_oa,
@@ -208,6 +259,12 @@ _START: dict[str, Callable[[dict], str]] = {
     "leer_evaluacion": _start_leer_evaluacion,
     "leer_metricas_oa_evaluacion": _start_leer_metricas_oa_evaluacion,
     "buscar_items_plan_por_oa": _start_buscar_items_plan_por_oa,
+    "buscar_preguntas_por_oa": _start_buscar_preguntas_por_oa,
+    "leer_guia": _start_leer_guia,
+    "clonar_guia": _start_clonar_guia,
+    "crear_guia_desde_banco": _start_crear_guia_desde_banco,
+    "crear_guia_mixta": _start_crear_guia_mixta,
+    "generar_borrador_guia": _start_generar_borrador_guia,
 }
 
 _END: dict[str, Callable[[Any], str]] = {
@@ -223,6 +280,11 @@ _END: dict[str, Callable[[Any], str]] = {
     "leer_evaluacion": _end_leer_evaluacion,
     "leer_metricas_oa_evaluacion": _end_leer_metricas_oa_evaluacion,
     "buscar_items_plan_por_oa": _end_buscar_items_plan_por_oa,
+    "buscar_preguntas_por_oa": _end_buscar_preguntas_por_oa,
+    "clonar_guia": _end_clonar_guia,
+    "crear_guia_desde_banco": _end_crear_guia_desde_banco,
+    "crear_guia_mixta": _end_crear_guia_mixta,
+    "generar_borrador_guia": _end_generar_borrador_guia,
 }
 
 
