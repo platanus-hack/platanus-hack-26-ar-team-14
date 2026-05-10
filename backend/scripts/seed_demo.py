@@ -33,8 +33,15 @@ CDE_IMG_DIR = CDE_SEED_DIR / "images"
 TEACHER_NAME = "Ana Pérez"
 TEACHER_EMAIL = "ana@demo.cl"
 TEACHER_PASSWORD = "123"
+# Docente "control" al día: mismos cursos, sin clases pendientes ni gaps.
+TEACHER_AL_DIA_NAME = "Ana Perez"
+TEACHER_AL_DIA_EMAIL = "ana2@demo.cl"
+TEACHER_AL_DIA_PASSWORD = "123"
 SCHOOL_YEAR = 2026
 REGISTERED_RECORDS_CUTOFF = date(SCHOOL_YEAR, 5, 13)
+# Cutoff en el futuro lejano: al `_build_learning_records` toma todas las
+# clases del año como ya registradas, así no aparecen pendientes en el dashboard.
+ALL_REGISTERED_CUTOFF = date(SCHOOL_YEAR + 1, 1, 1)
 
 MATH_5_PLAN_ITEMS = [
     {
@@ -731,64 +738,132 @@ def _reset_demo_teacher_data(db: Session, teacher: Teacher) -> None:
     db.flush()
 
 
+def _seed_placeholder_materials(db: Session, teacher: Teacher) -> None:
+    """Adjuntar un Material genérico a cada item de plan.
+
+    Para el docente "al día": no apuntan a una `Guia` real (`guia_id=None`),
+    sólo existen para cumplir con `material_id IS NOT NULL` y silenciar las
+    filas Acción del dashboard. Se omite cualquier item que ya tenga material.
+    """
+    attached = 0
+    for course in teacher.courses:
+        plan = course.plan_anual
+        if plan is None:
+            continue
+        for item in plan.items:
+            if item.material_id is not None:
+                continue
+            material = Material(
+                name=f"Guía pedagógica · {item.mes or 'Sin mes'}",
+                kind="guia",
+                guia_id=None,
+            )
+            db.add(material)
+            db.flush()
+            item.material_id = material.id
+            attached += 1
+    db.commit()
+    print(
+        f"Materiales placeholder vinculados para {teacher.email}: {attached}."
+    )
+
+
+def _seed_demo_teacher(
+    db: Session,
+    *,
+    name: str,
+    email: str,
+    password: str,
+    cutoff: date,
+    al_dia: bool,
+) -> None:
+    """Seed (o re-seed) un docente con los `COURSE_SEEDS` estándar.
+
+    `cutoff` controla qué clases quedan registradas (las anteriores) vs.
+    pendientes (las posteriores). `al_dia=True` salta los seeds que generan
+    señales de Acción/Desalineado y agrega Material a TODOS los items del plan.
+    """
+    teacher = db.query(Teacher).filter_by(email=email).one_or_none()
+    if teacher is not None:
+        print(
+            f"Teacher {email} already exists (id={teacher.id}); "
+            "refreshing demo courses and plans."
+        )
+        _reset_demo_teacher_data(db, teacher)
+        if teacher.name != name:
+            teacher.name = name
+    else:
+        teacher = Teacher(
+            name=name,
+            email=email,
+            password_hash=hash_password(password),
+        )
+        db.add(teacher)
+        db.flush()
+
+    courses: list[Course] = []
+    for index, seed in enumerate(COURSE_SEEDS):
+        plan = build_plan(seed, teacher.id)
+        course = Course(
+            name=seed["name"],
+            teacher_id=teacher.id,
+            class_days=list(seed["class_days"]),
+            block_number=seed["block_number"],
+            plan_anual=plan,
+            learning_records=_build_learning_records(seed, cutoff),
+            students=[Student(name=student_name) for student_name in STUDENT_NAMES]
+            if index == 0
+            else [],
+        )
+        courses.append(course)
+
+    teacher.courses = courses
+    db.flush()
+    if not al_dia:
+        _seed_alerts(db, teacher)
+    db.commit()
+    db.refresh(teacher)
+
+    registered_count = sum(
+        1 for c in teacher.courses for r in c.learning_records if r.registered
+    )
+    total_records = sum(len(c.learning_records) for c in teacher.courses)
+    print(
+        f"Seeded teacher {teacher.email} (id={teacher.id}) with "
+        f"{len(teacher.courses)} courses and {len(COURSE_SEEDS)} linked plans. "
+        f"Pre-created {total_records} class learning records for "
+        f"{SCHOOL_YEAR} ({registered_count} registered up to {cutoff}, "
+        f"{total_records - registered_count} pending/upcoming)."
+    )
+
+    if al_dia:
+        _seed_placeholder_materials(db, teacher)
+    else:
+        _seed_guides_for_teacher(db, teacher)
+        _seed_plan_materials(db, teacher)
+
+
 def main() -> None:
     assert len(STUDENT_NAMES) == 30, "expected 30 student names"
     assert len(set(STUDENT_NAMES)) == 30, "student names must be unique"
 
-    # Demo libro de clases starts with every class before May 13 already recorded.
-    cutoff = REGISTERED_RECORDS_CUTOFF
-
     with SessionLocal() as db:
-        teacher = db.query(Teacher).filter_by(email=TEACHER_EMAIL).one_or_none()
-        if teacher is not None:
-            print(
-                f"Teacher {TEACHER_EMAIL} already exists (id={teacher.id}); "
-                "refreshing demo courses and plans."
-            )
-            _reset_demo_teacher_data(db, teacher)
-        else:
-            teacher = Teacher(
-                name=TEACHER_NAME,
-                email=TEACHER_EMAIL,
-                password_hash=hash_password(TEACHER_PASSWORD),
-            )
-            db.add(teacher)
-            db.flush()
-
-        courses: list[Course] = []
-        for index, seed in enumerate(COURSE_SEEDS):
-            plan = build_plan(seed, teacher.id)
-            course = Course(
-                name=seed["name"],
-                teacher_id=teacher.id,
-                class_days=list(seed["class_days"]),
-                block_number=seed["block_number"],
-                plan_anual=plan,
-                learning_records=_build_learning_records(seed, cutoff),
-                students=[Student(name=name) for name in STUDENT_NAMES]
-                if index == 0
-                else [],
-            )
-            courses.append(course)
-
-        teacher.courses = courses
-        db.flush()
-        _seed_alerts(db, teacher)
-        db.commit()
-        db.refresh(teacher)
-        registered_count = sum(
-            1 for c in teacher.courses for r in c.learning_records if r.registered
+        _seed_demo_teacher(
+            db,
+            name=TEACHER_NAME,
+            email=TEACHER_EMAIL,
+            password=TEACHER_PASSWORD,
+            cutoff=REGISTERED_RECORDS_CUTOFF,
+            al_dia=False,
         )
-        total_records = sum(len(c.learning_records) for c in teacher.courses)
-        print(
-            f"Seeded teacher {teacher.email} (id={teacher.id}) with "
-            f"{len(teacher.courses)} courses and {len(COURSE_SEEDS)} linked plans. "
-            f"Pre-created {total_records} class learning records for "
-            f"{SCHOOL_YEAR} ({registered_count} registered up to {cutoff}, "
-            f"{total_records - registered_count} pending/upcoming)."
+        _seed_demo_teacher(
+            db,
+            name=TEACHER_AL_DIA_NAME,
+            email=TEACHER_AL_DIA_EMAIL,
+            password=TEACHER_AL_DIA_PASSWORD,
+            cutoff=ALL_REGISTERED_CUTOFF,
+            al_dia=True,
         )
-        _seed_guides_for_teacher(db, teacher)
-        _seed_plan_materials(db, teacher)
 
 
 if __name__ == "__main__":
