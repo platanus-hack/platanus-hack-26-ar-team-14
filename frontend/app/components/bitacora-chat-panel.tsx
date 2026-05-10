@@ -198,7 +198,7 @@ export function BitacoraChatPanel({
 	acceptFiles = FILE_ACCEPT_DEFAULT,
 	className,
 	teacherName,
-	assistantName = "Agente",
+	assistantName = "Brunito",
 }: BitacoraChatPanelProps) {
 	const supportsFiles = Boolean(onAddFiles);
 	const visibleMessages = useMemo(

@@ -5,7 +5,7 @@ from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile, sta
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, StreamingResponse
 from pydantic import BaseModel, EmailStr
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.agent import agent
 from app.auth import create_access_token, get_current_teacher, verify_password
@@ -13,6 +13,7 @@ from app.chat_attachments import build_last_user_message_content
 from app.chat_status import describe_tool_end, describe_tool_start
 from app.config import settings
 from app.curriculum import buscar_actividades, listar_unidades, obtener_oa
+from app.dashboard.status import CourseStatusOut, classify_course, sort_status_rows
 from app.db import get_db
 from app.models import (
     Alert,
@@ -174,6 +175,53 @@ def list_alerts(
     ]
 
 
+@app.get("/dashboard/courses-status", response_model=list[CourseStatusOut])
+def dashboard_courses_status(
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    """Per-course status for the dashboard: acción / desalineado / al día.
+
+    Pre-loads plan items + alerts to avoid N+1 and batch-loads registered
+    learning records of the current year. Classification is delegated to
+    `app.dashboard.status.classify_course`.
+    """
+    today = date.today()
+    courses = (
+        db.query(Course)
+        .options(
+            selectinload(Course.plan_anual)
+            .selectinload(PlanAnual.items)
+            .selectinload(PlanAnualItem.material),
+            selectinload(Course.alerts),
+        )
+        .filter(Course.teacher_id == teacher.id)
+        .order_by(Course.id)
+        .all()
+    )
+    course_ids = [c.id for c in courses]
+    records_by_course: dict[int, list[ClassLearningRecord]] = {
+        cid: [] for cid in course_ids
+    }
+    if course_ids:
+        records = (
+            db.query(ClassLearningRecord)
+            .filter(
+                ClassLearningRecord.course_id.in_(course_ids),
+                ClassLearningRecord.registered.is_(True),
+                ClassLearningRecord.class_date >= date(today.year, 1, 1),
+            )
+            .all()
+        )
+        for r in records:
+            records_by_course[r.course_id].append(r)
+
+    rows: list[CourseStatusOut] = []
+    for c in courses:
+        rows.extend(classify_course(c, records_by_course[c.id], today))
+    return sort_status_rows(rows)
+
+
 class ChatMessage(BaseModel):
     role: str
     content: str | list[dict]
@@ -230,6 +278,7 @@ async def chat_stream_with_files(
     messages: str = Form(...),
     files: list[UploadFile] = File([]),
     teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
 ):
     try:
         raw_messages = json.loads(messages)
@@ -256,6 +305,8 @@ async def chat_stream_with_files(
     message_payloads[-1]["content"] = await build_last_user_message_content(
         last_text,
         files,
+        db=db,
+        teacher_id=teacher.id,
     )
     return _chat_stream_response(message_payloads)
 
@@ -286,6 +337,21 @@ def get_unidades():
 # ──────────────────────────── Planificación anual (extracción) ────────────────────────────
 
 
+class ResultadosPruebaOut(BaseModel):
+    n_alumnos: int
+    promedio: float
+    pct_aprobados: float
+    uploaded_at: datetime
+
+
+class MaterialOut(BaseModel):
+    id: int
+    name: str
+    kind: str  # "guia" | "prueba" | "recurso"
+    guia_id: int | None = None
+    resultados: ResultadosPruebaOut | None = None
+
+
 class PlanItemOut(BaseModel):
     id: int
     ordinal: int
@@ -293,6 +359,7 @@ class PlanItemOut(BaseModel):
     unidad: str | None
     oa_codes: list[str]
     objetivo: str
+    material: MaterialOut | None = None
 
 
 class PlanOut(BaseModel):
@@ -308,6 +375,31 @@ class PlanOut(BaseModel):
 class PlanSummary(BaseModel):
     id: int
     name: str
+
+
+def _material_out(material) -> MaterialOut | None:
+    if material is None:
+        return None
+    resultados: ResultadosPruebaOut | None = None
+    if (
+        material.resultados_uploaded_at is not None
+        and material.n_alumnos is not None
+        and material.promedio is not None
+        and material.pct_aprobados is not None
+    ):
+        resultados = ResultadosPruebaOut(
+            n_alumnos=material.n_alumnos,
+            promedio=material.promedio,
+            pct_aprobados=material.pct_aprobados,
+            uploaded_at=material.resultados_uploaded_at,
+        )
+    return MaterialOut(
+        id=material.id,
+        name=material.name,
+        kind=material.kind or "guia",
+        guia_id=material.guia_id,
+        resultados=resultados,
+    )
 
 
 def _plan_out(plan: PlanAnual) -> PlanOut:
@@ -326,6 +418,7 @@ def _plan_out(plan: PlanAnual) -> PlanOut:
                 unidad=it.unidad,
                 oa_codes=list(it.oa_codes or []),
                 objetivo=it.objetivo,
+                material=_material_out(it.material),
             )
             for it in plan.items
         ],

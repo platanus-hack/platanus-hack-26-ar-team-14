@@ -6,7 +6,7 @@ Run from the backend directory:
 """
 
 import json
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from alembic import command
@@ -22,6 +22,7 @@ from app.models import (
     Course,
     Guia,
     GuiaItem,
+    Material,
     PlanAnual,
     PlanAnualItem,
     Question,
@@ -434,6 +435,197 @@ def _seed_guides_for_teacher(db: Session, teacher: Teacher) -> None:
     print(f"Guides seeded: {created} new, {len(artifacts) - created} pre-existing.")
 
 
+# Material docente que se mostrará en la columna "Material docente" del plan
+# anualizado para Matemática 5° básico. Cada entrada apunta a una guía CDE
+# pre-cargada (por nombre = stem del JSON en seed_data/cde) y se ata a los
+# items del plan cuyo `oa_codes` incluya alguno de los OAs en `oa_targets`.
+MATERIAL_DOCENTE_SEEDS: list[dict] = [
+    {
+        "guide_name": "Matemática-5°C-GP-03",
+        "display_name": "Guía Pedagógica 03 · OA1",
+        "kind": "guia",
+        "oa_targets": ["OA1"],
+    },
+    {
+        "guide_name": "MATEMÁTICA-5°C-GP04",
+        "display_name": "Guía Pedagógica 04 · OA4",
+        "kind": "guia",
+        "oa_targets": ["OA4"],
+    },
+    {
+        "guide_name": "Matemática-5°C-PF01",
+        "display_name": "Prueba Formativa 01 · OA4",
+        "kind": "prueba",
+        "oa_targets": ["OA4"],
+    },
+    {
+        "guide_name": "Matemática-5°C-GP05B",
+        "display_name": "Guía Pedagógica 05B · OA5",
+        "kind": "guia",
+        "oa_targets": ["OA5"],
+    },
+    {
+        "guide_name": "Matemática-5°C-PF05A",
+        "display_name": "Prueba Formativa 05A · OA5",
+        "kind": "prueba",
+        "oa_targets": ["OA5"],
+    },
+    {
+        "guide_name": "Matemática-5°C-GP08",
+        "display_name": "Guía Pedagógica 08 · OA6",
+        "kind": "guia",
+        "oa_targets": ["OA6"],
+    },
+    {
+        "guide_name": "MATEMÁTICA-5°C-GP07",
+        "display_name": "Guía Pedagógica 07 · OA7",
+        "kind": "guia",
+        "oa_targets": ["OA7"],
+    },
+    {
+        "guide_name": "Matemática-5°C-GP10",
+        "display_name": "Guía Pedagógica 10 · OA14",
+        "kind": "guia",
+        "oa_targets": ["OA14"],
+    },
+    {
+        "guide_name": "Matemática-5ºC-GP11",
+        "display_name": "Guía Pedagógica 11 · OA18",
+        "kind": "guia",
+        "oa_targets": ["OA18"],
+    },
+    {
+        "guide_name": "Matemática-5°C-GP12",
+        "display_name": "Guía Pedagógica 12 · OA19",
+        "kind": "guia",
+        "oa_targets": ["OA19"],
+    },
+]
+
+
+def _seed_plan_materials(db: Session, teacher: Teacher) -> None:
+    """Attach demo Material rows to Matemática plan items.
+
+    Para cada guía pre-cargada del docente, crea un `Material` que la apunta y
+    lo asigna al primer `PlanAnualItem` (de un plan de Matemática del docente)
+    que tenga un OA dentro de `oa_targets`. Si el item ya tiene material, no
+    lo sobrescribe — esto deja espacio para variar pruebas vs. guías sobre OAs
+    repetidos sin pelearse.
+    """
+    matematica_plans = [
+        c.plan_anual
+        for c in teacher.courses
+        if c.plan_anual is not None and c.plan_anual.asignatura == "Matemática"
+    ]
+    if not matematica_plans:
+        print("  - No hay plan de Matemática para vincular materiales; skip.")
+        return
+
+    attached = 0
+    for spec in MATERIAL_DOCENTE_SEEDS:
+        guia = (
+            db.query(Guia)
+            .filter_by(teacher_id=teacher.id, name=spec["guide_name"])
+            .one_or_none()
+        )
+        if guia is None:
+            print(f"  - Guía '{spec['guide_name']}' no encontrada; skip material.")
+            continue
+
+        oa_targets = set(spec["oa_targets"])
+        for plan in matematica_plans:
+            # First try: attach to a free item that covers one of the target OAs.
+            target_item = next(
+                (
+                    it
+                    for it in plan.items
+                    if it.material_id is None
+                    and oa_targets.intersection(set(it.oa_codes or []))
+                ),
+                None,
+            )
+            # Fallback (mostly for "prueba"): land in the same month as the OA
+            # the material targets, even if a different item in that month —
+            # pruebas suelen aplicarse al final del mes/unidad.
+            if target_item is None:
+                target_meses = {
+                    it.mes
+                    for it in plan.items
+                    if oa_targets.intersection(set(it.oa_codes or [])) and it.mes
+                }
+                target_item = next(
+                    (
+                        it
+                        for it in plan.items
+                        if it.material_id is None and it.mes in target_meses
+                    ),
+                    None,
+                )
+            if target_item is None:
+                continue
+            material = Material(
+                name=spec["display_name"],
+                kind=spec["kind"],
+                guia_id=guia.id,
+            )
+            db.add(material)
+            db.flush()
+            target_item.material_id = material.id
+            attached += 1
+    db.commit()
+    print(f"Materiales docentes vinculados a items de plan: {attached}.")
+
+
+# Resultados precargados para algunas pruebas, para que la columna de
+# "Resultados" muestre datos en la demo. Solo aplican a materiales kind='prueba'
+# ya seedeados arriba (match por `display_name`).
+# Solo PF01 viene pre-llenada para que la columna "Resultados" muestre
+# datos en frío. PF05A se deja vacía a propósito: el docente la llena en
+# vivo subiendo una planilla en el chat (el agente llama a
+# `registrar_resultados_prueba`). Es la demo del flujo de upload.
+PRUEBA_RESULTADO_SEEDS: list[dict] = [
+    {
+        "display_name": "Prueba Formativa 01 · OA4",
+        "n_alumnos": 28,
+        "promedio": 5.4,
+        "pct_aprobados": 82.1,
+    },
+]
+
+
+def _seed_prueba_resultados(db: Session, teacher: Teacher) -> None:
+    """Rellena los campos de resultados en las pruebas listadas en
+    `PRUEBA_RESULTADO_SEEDS`. Si una prueba aparece en varios planes del
+    docente (5°A y 5°B), todas reciben los mismos datos para la demo.
+    """
+    matematica_plan_ids = [
+        c.plan_anual.id
+        for c in teacher.courses
+        if c.plan_anual is not None and c.plan_anual.asignatura == "Matemática"
+    ]
+    if not matematica_plan_ids:
+        return
+
+    updated = 0
+    for spec in PRUEBA_RESULTADO_SEEDS:
+        materials = (
+            db.query(Material)
+            .filter(
+                Material.name == spec["display_name"],
+                Material.kind == "prueba",
+            )
+            .all()
+        )
+        for material in materials:
+            material.n_alumnos = spec["n_alumnos"]
+            material.promedio = spec["promedio"]
+            material.pct_aprobados = spec["pct_aprobados"]
+            material.resultados_uploaded_at = datetime.now(timezone.utc)
+            updated += 1
+    db.commit()
+    print(f"Resultados de pruebas precargados: {updated}.")
+
+
 ALERT_SEEDS: list[dict] = []
 
 
@@ -559,6 +751,8 @@ def main() -> None:
             f"{total_records - registered_count} pending/upcoming)."
         )
         _seed_guides_for_teacher(db, teacher)
+        _seed_plan_materials(db, teacher)
+        _seed_prueba_resultados(db, teacher)
 
 
 if __name__ == "__main__":

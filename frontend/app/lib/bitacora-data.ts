@@ -86,6 +86,37 @@ export function getUrgencyTone(urgency: UrgencyLevel) {
 	}
 }
 
+export type CourseStatusCategory = "accion" | "desalineado" | "al_dia";
+
+export function getCategoryTone(category: CourseStatusCategory) {
+	switch (category) {
+		case "desalineado":
+			return {
+				border: "border-[#b94b45]/52",
+				surface: "bg-[#fce7e2]",
+				accent: "text-[#8b1e18]",
+				dot: "bg-[#b94b45]",
+				label: "Desalineado",
+			};
+		case "accion":
+			return {
+				border: "border-[#d0891a]/52",
+				surface: "bg-[#fdf1d8]",
+				accent: "text-[#9a5a00]",
+				dot: "bg-[#d0891a]",
+				label: "Acción",
+			};
+		case "al_dia":
+			return {
+				border: "border-[#16a34a]/45",
+				surface: "bg-[#dcfce7]",
+				accent: "text-[#14532d]",
+				dot: "bg-[#16a34a]",
+				label: "Al día",
+			};
+	}
+}
+
 export const bitacoraCourses: CourseRecord[] = [
 	{
 		id: "lenguaje-5a",

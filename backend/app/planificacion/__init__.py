@@ -12,6 +12,14 @@ from app.planificacion.crud_tools import (
     eliminar_item_plan,
     listar_plan,
 )
+from app.planificacion.material_tools import (
+    MATERIAL_TOOLS,
+    crear_material_para_plan,
+)
+from app.planificacion.resultados_tools import (
+    RESULTADOS_TOOLS,
+    registrar_resultados_prueba,
+)
 from app.planificacion.tools import (
     clases_en_mes,
     clases_restantes_mes,
@@ -21,6 +29,8 @@ PLANIFICACION_TOOLS = [
     clases_en_mes,
     clases_restantes_mes,
     *PLAN_CRUD_TOOLS,
+    *RESULTADOS_TOOLS,
+    *MATERIAL_TOOLS,
 ]
 
 __all__ = [
@@ -31,7 +41,9 @@ __all__ = [
     "clases_en_mes",
     "clases_restantes_mes",
     "crear_item_plan",
+    "crear_material_para_plan",
     "eliminar_item_plan",
     "extract_plan_from_pdf",
     "listar_plan",
+    "registrar_resultados_prueba",
 ]

@@ -15,6 +15,16 @@ from app.models import PlanAnual, PlanAnualItem
 
 
 def _serialize_item(item: PlanAnualItem) -> dict:
+    material = item.material
+    material_dict: dict | None = None
+    if material is not None:
+        material_dict = {
+            "id": material.id,
+            "name": material.name,
+            "kind": material.kind,
+            "guia_id": material.guia_id,
+            "tiene_resultados": material.resultados_uploaded_at is not None,
+        }
     return {
         "id": item.id,
         "ordinal": item.ordinal,
@@ -22,6 +32,7 @@ def _serialize_item(item: PlanAnualItem) -> dict:
         "unidad": item.unidad,
         "oa_codes": list(item.oa_codes or []),
         "objetivo": item.objetivo,
+        "material": material_dict,
     }
 
 

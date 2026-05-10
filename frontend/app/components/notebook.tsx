@@ -63,7 +63,7 @@ export function MessageBlock({
 	speaker: "teacher" | "assistant";
 	children: ReactNode;
 }) {
-	const label = speaker === "teacher" ? "Profe" : "Cuaderno";
+	const label = speaker === "teacher" ? "Profe" : "Brunito";
 	return (
 		<article className="flex gap-4">
 			<div className="meta-mono w-14 shrink-0 pt-[5px]">{label}</div>

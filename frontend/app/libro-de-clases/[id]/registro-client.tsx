@@ -280,7 +280,7 @@ export function RegistroClient({
 					className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
 				>
 					<ArrowLeft size={14} strokeWidth={2.5} />
-					Volver al cuaderno
+					Volver a inicio
 				</Link>
 			</div>
 
@@ -306,6 +306,7 @@ export function RegistroClient({
 					.filter((t) => t.available)
 					.map((t) => {
 						const active = tab === t.id;
+						const accent = t.id === "libro" ? "bg-vermilion" : "bg-teal";
 						return (
 							<button
 								key={t.id}
@@ -321,7 +322,7 @@ export function RegistroClient({
 							>
 								{t.label}
 								{active && (
-									<span className="absolute inset-x-2 -bottom-px h-0.5 bg-[#9a5a00]" />
+									<span className={`absolute inset-x-2 -bottom-px h-0.5 ${accent}`} />
 								)}
 							</button>
 						);
@@ -349,9 +350,9 @@ export function RegistroClient({
 					pendingFiles={registro.pendingFiles}
 					onAddFiles={registro.addFiles}
 					onRemovePendingFile={registro.removePendingFile}
-					placeholder="Mensaje a Bita…"
+					placeholder="Mensaje a Brunito…"
 					teacherName={teacherName}
-					assistantName="Bita"
+					assistantName="Brunito"
 				/>
 			</div>
 
@@ -359,12 +360,11 @@ export function RegistroClient({
 				<div
 					role="tabpanel"
 					hidden={tab !== "planificacion"}
-					className="grid h-[calc(100vh-320px)] min-h-[600px] gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(360px,1fr)]"
+					className="grid h-[calc(100vh-320px)] min-h-[600px] gap-5 lg:grid-cols-[minmax(0,2.2fr)_minmax(360px,1fr)]"
 				>
 					<PlanAnualTable plan={plan} />
 					<BitacoraChatPanel
-						title="Calificaciones o plan"
-						subtitle="Dícta notas de esta clase o pide ajustes a la planificación; el agente decide según lo que escribas."
+						title={AGENT_NAME}
 						messages={planificacion.messages}
 						busy={planificacion.busy}
 						error={planificacion.error}
@@ -374,9 +374,9 @@ export function RegistroClient({
 						pendingFiles={planificacion.pendingFiles}
 						onAddFiles={planificacion.addFiles}
 						onRemovePendingFile={planificacion.removePendingFile}
-						placeholder={"Ej.: Sofía 6.2, Mateo 5.5… o \"mueve OA8 a junio\""}
+						placeholder="Mensaje a Brunito…"
 						teacherName={teacherName}
-						assistantName="Bita"
+						assistantName="Brunito"
 					/>
 				</div>
 			)}

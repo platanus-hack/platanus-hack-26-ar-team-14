@@ -102,14 +102,15 @@ export function ClassRecordsTable({
 
 	return (
 		<article className="bitacora-card flex min-h-0 flex-col overflow-hidden p-0">
-			<header className="flex items-start justify-between gap-3 border-b border-slate-200/70 px-5 py-4">
+			<header className="flex items-start justify-between gap-3 border-b border-slate-200/70 border-l-4 border-l-vermilion bg-vermilion/[0.03] px-5 py-4">
 				<div className="min-w-0">
-					<h2 className="font-display text-2xl leading-tight tracking-[-0.02em] text-slate-950">
-						Libro de clases de {records[0]?.course_name ?? "Curso"}
+					<h2 className="font-display text-2xl leading-tight tracking-[-0.02em] text-vermilion">
+						Libro de clases
 					</h2>
-					<p className="mt-1 text-xs italic text-slate-500">
-						{records.length} clases registradas en el año
-					</p>
+					<div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-sm text-slate-600">
+						<span>{records[0]?.course_name ?? "Curso"}</span>
+						<span>· {records.length} clases registradas</span>
+					</div>
 				</div>
 				<button
 					type="button"

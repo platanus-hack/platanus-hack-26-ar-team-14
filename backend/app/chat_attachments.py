@@ -3,10 +3,14 @@ from __future__ import annotations
 import base64
 import csv
 import io
+import logging
 from pathlib import Path
 
 from fastapi import HTTPException, UploadFile
 from openpyxl import load_workbook
+from sqlalchemy.orm import Session
+
+logger = logging.getLogger(__name__)
 
 MAX_TEXT_ATTACHMENT_CHARS = 20_000
 MAX_XLSX_SHEETS = 4
@@ -90,10 +94,78 @@ def _validate_supported_file(file: UploadFile) -> None:
     )
 
 
+def _ingest_pdf_as_guia(
+    db: Session,
+    teacher_id: int,
+    file_name: str,
+    file_bytes: bytes,
+) -> dict | None:
+    """Auto-ingest an attached PDF into a fresh Guía for the teacher.
+
+    Best-effort: errors are logged and swallowed so a bad PDF never takes
+    down the chat turn — the document is still attached to the model
+    context as a base64 blob even if ingestion fails.
+
+    Returns a summary dict (`guia_id`, `name`, `question_count`) on
+    success, or None if nothing usable was extracted.
+    """
+    # Local imports to keep chat_attachments importable in contexts that
+    # don't have the full ORM stack ready.
+    from app.models import Guia, GuiaItem
+    from app.worksheets.store import ingest_pdf
+
+    try:
+        questions = ingest_pdf(db, file_name=file_name, file_bytes=file_bytes)
+    except Exception:  # noqa: BLE001
+        logger.exception("auto-ingest pdf falló: %s", file_name)
+        return None
+    if not questions:
+        return None
+
+    guia_name = Path(file_name).stem or file_name
+    existing = (
+        db.query(Guia)
+        .filter_by(teacher_id=teacher_id, name=guia_name)
+        .one_or_none()
+    )
+    if existing is not None:
+        return {
+            "guia_id": existing.id,
+            "name": existing.name,
+            "question_count": len(existing.items),
+        }
+
+    guia = Guia(
+        teacher_id=teacher_id,
+        name=guia_name,
+        items=[
+            GuiaItem(question_id=q.id, ordinal=i) for i, q in enumerate(questions)
+        ],
+    )
+    db.add(guia)
+    db.commit()
+    db.refresh(guia)
+    return {
+        "guia_id": guia.id,
+        "name": guia.name,
+        "question_count": len(guia.items),
+    }
+
+
 async def build_last_user_message_content(
     text: str,
     files: list[UploadFile],
+    *,
+    db: Session | None = None,
+    teacher_id: int | None = None,
 ) -> list[dict]:
+    """Compose the LLM-facing content for the user's last message.
+
+    When `db` and `teacher_id` are both provided, attached PDFs get
+    auto-ingested into Question rows + a fresh Guía for the teacher.
+    The Guía's id and question count are surfaced in the message text
+    so the agent can attach it to the plan via `crear_material_para_plan`.
+    """
     for file in files:
         _validate_supported_file(file)
 
@@ -106,13 +178,12 @@ async def build_last_user_message_content(
     if summaries:
         intro_parts.append("Archivos adjuntos en este turno:\n" + "\n".join(summaries))
 
-    content: list[dict] = [
-        {
-            "type": "text",
-            "text": "\n\n".join(part for part in intro_parts if part).strip()
-            or "Revisa los archivos adjuntos y ayúdame con esta planificación.",
-        }
-    ]
+    # Collect ingested-guía notes here; they're appended to the intro
+    # block after we walk all files, so the agent sees them right next
+    # to the file list.
+    guia_notes: list[str] = []
+
+    content: list[dict] = []
 
     for file in files:
         file_name = file.filename or "archivo"
@@ -133,6 +204,19 @@ async def build_last_user_message_content(
                     },
                 }
             )
+            if db is not None and teacher_id is not None:
+                summary = _ingest_pdf_as_guia(
+                    db,
+                    teacher_id=teacher_id,
+                    file_name=file_name,
+                    file_bytes=file_bytes,
+                )
+                if summary is not None:
+                    guia_notes.append(
+                        f'- {file_name}: guía creada (id={summary["guia_id"]}, '
+                        f'nombre="{summary["name"]}", '
+                        f'{summary["question_count"]} preguntas)'
+                    )
             continue
 
         if content_type in IMAGE_MEDIA_TYPES:
@@ -163,5 +247,18 @@ async def build_last_user_message_content(
                 "text": f"Archivo adjunto: {file_name}\n\n{extracted or '[sin texto legible]'}",
             }
         )
+
+    if guia_notes:
+        intro_parts.append(
+            "Guías recién subidas (ya quedaron en el banco; pendiente "
+            "asignarlas a una fila del plan si el docente lo pide):\n"
+            + "\n".join(guia_notes)
+        )
+
+    intro_text = (
+        "\n\n".join(part for part in intro_parts if part).strip()
+        or "Revisa los archivos adjuntos y ayúdame con esta planificación."
+    )
+    content.insert(0, {"type": "text", "text": intro_text})
 
     return content

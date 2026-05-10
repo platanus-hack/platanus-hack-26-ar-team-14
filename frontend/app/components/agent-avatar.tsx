@@ -12,7 +12,7 @@ const svgPx: Record<Size, number> = {
 	lg: 24,
 };
 
-export const AGENT_NAME = "Bita";
+export const AGENT_NAME = "Brunito";
 
 export function AgentAvatar({
 	size = "md",

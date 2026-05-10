@@ -4,8 +4,8 @@ import { ArrowRight, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Fragment, useEffect, useRef, useState } from "react";
 import type { LearningRecord } from "../actions/libro-de-clases";
-import type { CourseRecord } from "../lib/bitacora-data";
-import { getUrgencyTone, scheduleDays } from "../lib/bitacora-data";
+import { getCategoryTone, scheduleDays } from "../lib/bitacora-data";
+import type { CourseStatus } from "../lib/courses-status";
 import type { TeacherCourse } from "../lib/auth";
 import { Navbar } from "./navbar";
 
@@ -13,10 +13,29 @@ type ScheduleDay = (typeof scheduleDays)[number];
 
 type DashboardProps = {
 	teacherName: string;
-	priorityCourses: CourseRecord[];
+	coursesStatus: CourseStatus[];
 	teacherCourses: TeacherCourse[];
 	pendingRecords: LearningRecord[];
 };
+
+function getCourseStatusHref(row: CourseStatus): string {
+	if (row.category === "accion" && row.sub_tags.includes("sin_plan")) {
+		return "/planificacion";
+	}
+	if (row.category === "accion" && row.plan_anual_id != null) {
+		return `/planificacion/${row.plan_anual_id}`;
+	}
+	return `/libro-de-clases/${row.course_id}?source=course&tab=planificacion`;
+}
+
+function getCourseStatusCta(row: CourseStatus): string {
+	if (row.category === "accion" && row.sub_tags.includes("sin_plan")) {
+		return "Vincular plan";
+	}
+	if (row.category === "accion") return "Subir material";
+	if (row.category === "desalineado") return "Revisar registro";
+	return "Ver curso";
+}
 
 const SPANISH_MONTHS = [
 	"enero",
@@ -100,7 +119,7 @@ function getCoursesByDay(
 
 export function BitacoraDashboard({
 	teacherName,
-	priorityCourses,
+	coursesStatus,
 	teacherCourses,
 	pendingRecords,
 }: DashboardProps) {
@@ -117,6 +136,10 @@ export function BitacoraDashboard({
 	const atTopRef = useRef(true);
 	const slotsByDay = getCoursesByDay(teacherCourses);
 	const visibleDays: ScheduleDay[] = [...scheduleDays];
+
+	const actionableCount = coursesStatus.filter(
+		(row) => row.category !== "al_dia",
+	).length;
 
 
 	useEffect(() => {
@@ -244,90 +267,99 @@ export function BitacoraDashboard({
 				</>
 			)}
 
-			{priorityCourses.length > 0 && (
-				<section
-					ref={alertRef}
-					className={`bitacora-alert-banner ${showAlert ? "bitacora-alert-banner-visible" : ""}`}
-				>
-					<h1 className="bitacora-alert-title">
-						{teacherName}, tienes que modificar la planificación de{" "}
-						{priorityCourses.length}{" "}
-						{priorityCourses.length === 1 ? "curso" : "cursos"}.
-					</h1>
-				</section>
-			)}
-
-			<section className="mt-8 grid gap-[18px] md:grid-cols-2">
-				{priorityCourses.map((course, index) => {
-					const tone =
-						course.curricularGap > 0
-							? getUrgencyTone(course.urgency)
-							: neutralTone;
-
-					return (
-						<Link
-							key={course.id}
-							href={`/libro-de-clases/${course.id}?source=course&tab=planificacion`}
-							className="bitacora-course-card"
-							style={{ animationDelay: `${1900 + index * 120}ms` }}
+			{coursesStatus.length > 0 && (
+				<>
+					{actionableCount > 0 && (
+						<section
+							ref={alertRef}
+							className={`bitacora-alert-banner ${showAlert ? "bitacora-alert-banner-visible" : ""}`}
 						>
-							<div className="flex flex-wrap items-center justify-between gap-3">
-								<span
-									className={`inline-block rounded-full border px-3 py-1 text-[10px] font-semibold tracking-[0.12em] ${tone.surface} ${tone.border} ${tone.accent}`}
-								>
-									<span className="uppercase">Urgencia {course.urgency.toLowerCase()}</span>
-									{" · "}
-									{course.curricularGap} OA
-									{course.curricularGap > 1 ? "s" : ""}
-									<span className="uppercase"> de atraso</span>
-								</span>
-								<span className="bitacora-course-cta">
-									Solucionar
-									<ArrowRight
-										className="bitacora-course-cta-icon"
-										size={14}
-										strokeWidth={2.5}
-									/>
-								</span>
-							</div>
-							<div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-								<h2 className="font-display text-[clamp(1rem,1.6vw,1.4rem)] leading-[0.95] tracking-[-0.03em] text-slate-950">
-									{course.subject}
-								</h2>
-								<span className="font-display text-[clamp(1rem,1.6vw,1.4rem)] leading-[0.95] tracking-[-0.03em] text-slate-950">
-									— {course.courseName}
-								</span>
-							</div>
+							<h1 className="bitacora-alert-title">
+								{teacherName}, {actionableCount}{" "}
+								{actionableCount === 1
+									? "de tus cursos requiere"
+									: "de tus cursos requieren"}{" "}
+								tu atención.
+							</h1>
+						</section>
+					)}
 
-							<p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-								Qué tienes que hacer
-							</p>
-							<ul className="mt-1 grid gap-0 text-sm leading-5 text-slate-700">
-								{course.issues.slice(0, 4).map((issue, issueIndex) => (
-									<li
-										key={issue}
-										className={`bitacora-course-issue ${
-											issueIndex < course.issues.slice(0, 4).length - 1
-												? "bitacora-course-issue-divider"
-												: ""
-										}`}
-									>
-										<ChevronRight
-											className={`bitacora-course-issue-arrow ${tone.accent}`}
-											size={16}
-											strokeWidth={2.5}
-											aria-hidden
-										/>
-										<span className="bitacora-course-issue-text">
-											{issue}
-										</span>
+					<section className="mt-8 flex flex-col gap-3">
+						<header className="flex items-baseline justify-between">
+							<h2 className="font-display text-[clamp(1.1rem,1.4vw,1.5rem)] leading-none tracking-[-0.02em] text-slate-950">
+								Estado de tus cursos
+							</h2>
+							<span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+								{coursesStatus.length}{" "}
+								{coursesStatus.length === 1 ? "tarjeta" : "tarjetas"}
+							</span>
+						</header>
+
+						<ul className="flex flex-col gap-3">
+							{coursesStatus.map((row, index) => {
+								const tone = getCategoryTone(row.category);
+								return (
+									<li key={row.id}>
+										<Link
+											href={getCourseStatusHref(row)}
+											className="bitacora-course-card flex flex-col gap-2"
+											style={{
+												animationDelay: `${900 + Math.min(index, 8) * 60}ms`,
+											}}
+										>
+											<div className="flex flex-wrap items-center justify-between gap-3">
+												<span
+													className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${tone.surface} ${tone.border} ${tone.accent}`}
+												>
+													<span
+														className={`inline-block h-2 w-2 rounded-full ${tone.dot}`}
+														aria-hidden
+													/>
+													{tone.label}
+													{row.sub_tags.includes("sin_plan") && (
+														<span className="normal-case tracking-normal">
+															· Sin plan
+														</span>
+													)}
+												</span>
+												<span className="bitacora-course-cta">
+													{getCourseStatusCta(row)}
+													<ArrowRight
+														className="bitacora-course-cta-icon"
+														size={14}
+														strokeWidth={2.5}
+													/>
+												</span>
+											</div>
+											<h3 className="font-display text-[clamp(1rem,1.4vw,1.25rem)] leading-tight tracking-[-0.02em] text-slate-950">
+												{row.name}
+											</h3>
+											{row.reasons.length > 0 && (
+												<ul className="flex flex-col gap-1 text-sm leading-snug text-slate-700">
+													{row.reasons.slice(0, 3).map((reason) => (
+														<li
+															key={reason}
+															className="flex items-start gap-2"
+														>
+															<ChevronRight
+																className={`mt-[3px] shrink-0 ${tone.accent}`}
+																size={14}
+																strokeWidth={2.5}
+																aria-hidden
+															/>
+															<span>{reason}</span>
+														</li>
+													))}
+												</ul>
+											)}
+										</Link>
 									</li>
-								))}
-							</ul>
-						</Link>
-					);
-				})}
-			</section>
+								);
+							})}
+						</ul>
+					</section>
+				</>
+			)}
 
 			<section className="bitacora-calendar-section mt-8">
 				<div className="mb-3 text-center">

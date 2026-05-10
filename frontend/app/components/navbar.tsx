@@ -25,13 +25,6 @@ export function Navbar({ teacherName, active }: NavbarProps) {
 	return (
 		<header className="bitacora-navbar">
 			<nav className="flex items-center gap-6">
-				<Link
-					href="/"
-					className="font-display text-xl tracking-tight text-slate-900"
-				>
-					Bitácora
-				</Link>
-				<span className="hidden h-5 w-px bg-slate-200 sm:block" />
 				<div className="flex items-center gap-5 text-sm font-medium">
 					<Link href="/" className={linkClass("cuaderno", active)}>
 						Inicio

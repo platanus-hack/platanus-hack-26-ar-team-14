@@ -5,6 +5,23 @@ import { getToken } from "../lib/auth";
 
 const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:8000";
 
+export type MaterialKind = "guia" | "prueba" | "recurso";
+
+export type ResultadosPrueba = {
+	n_alumnos: number;
+	promedio: number;
+	pct_aprobados: number;
+	uploaded_at: string;
+};
+
+export type Material = {
+	id: number;
+	name: string;
+	kind: MaterialKind;
+	guia_id: number | null;
+	resultados: ResultadosPrueba | null;
+};
+
 export type PlanItem = {
 	id: number;
 	ordinal: number;
@@ -12,6 +29,7 @@ export type PlanItem = {
 	unidad: string | null;
 	oa_codes: string[];
 	objetivo: string;
+	material: Material | null;
 };
 
 export type Plan = {

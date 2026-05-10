@@ -7,6 +7,7 @@ from datetime import date, datetime
 
 from sqlalchemy import (
     Boolean,
+    Float,
     JSON,
     Date,
     DateTime,
@@ -206,15 +207,35 @@ class GuiaItem(Base):
 
 
 class Material(Base):
-    """Material vinculado a un PlanAnualItem (guía, prueba, recurso, etc.)."""
+    """Material vinculado a un PlanAnualItem (guía, prueba, recurso, etc.).
+
+    `kind` discrimina el tipo de material; cuando es "guia", `guia_id` apunta
+    a la guía existente y la UI puede enlazar al editor correspondiente.
+    """
 
     __tablename__ = "materials"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(255))
+    kind: Mapped[str] = mapped_column(
+        String(32), default="guia", server_default="guia"
+    )
+    guia_id: Mapped[int | None] = mapped_column(
+        ForeignKey("guias.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    # Aggregated results once an Excel/CSV with grades is processed for a
+    # `kind == "prueba"` material. None until the docente sube las notas.
+    n_alumnos: Mapped[int | None] = mapped_column(nullable=True)
+    promedio: Mapped[float | None] = mapped_column(Float, nullable=True)
+    pct_aprobados: Mapped[float | None] = mapped_column(Float, nullable=True)
+    resultados_uploaded_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+
+    guia: Mapped["Guia | None"] = relationship()
 
 
 class PlanAnual(Base):
