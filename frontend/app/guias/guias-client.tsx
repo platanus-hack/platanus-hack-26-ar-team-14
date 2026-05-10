@@ -47,7 +47,11 @@ export function GuiasClient({ guias }: Props) {
 	const rows = useMemo(() => {
 		const term = query.trim().toLowerCase();
 		const list = term
-			? guias.filter((g) => g.name.toLowerCase().includes(term))
+			? guias.filter(
+					(g) =>
+						g.name.toLowerCase().includes(term) ||
+						g.oa_codes.some((c) => c.toLowerCase().includes(term)),
+				)
 			: [...guias];
 		list.sort((a, b) => {
 			const dir = sortDir === "asc" ? 1 : -1;
@@ -75,7 +79,7 @@ export function GuiasClient({ guias }: Props) {
 					<input
 						value={query}
 						onChange={(ev) => setQuery(ev.target.value)}
-						placeholder="Buscar guía…"
+						placeholder="Buscar por título u OA…"
 						className="rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-sm text-slate-700 shadow-sm focus:border-slate-400 focus:outline-none"
 					/>
 					<Link href="/guias/editor" className="bitacora-primary-button">
@@ -125,8 +129,9 @@ export function GuiasClient({ guias }: Props) {
 									>
 										Título
 									</Th>
+									<Th width="280px">OAs cubiertos</Th>
 									<Th
-										width="160px"
+										width="140px"
 										sortable
 										active={sortKey === "questions"}
 										dir={sortDir}
@@ -158,6 +163,24 @@ export function GuiasClient({ guias }: Props) {
 												{g.name}
 											</span>
 										</td>
+										<td className="px-5 py-3 align-middle">
+											{g.oa_codes.length === 0 ? (
+												<span className="font-mono text-[11px] text-slate-300">
+													—
+												</span>
+											) : (
+												<div className="flex flex-wrap gap-1">
+													{g.oa_codes.map((code) => (
+														<span
+															key={code}
+															className="rounded-full border border-vermilion/30 bg-vermilion/5 px-2 py-0.5 font-mono text-[11px] font-semibold text-vermilion"
+														>
+															{code}
+														</span>
+													))}
+												</div>
+											)}
+										</td>
 										<td className="px-5 py-3 text-right align-middle">
 											<span className="font-mono text-[12px] text-slate-700">
 												{g.question_count}
@@ -184,7 +207,7 @@ export function GuiasClient({ guias }: Props) {
 								{rows.length === 0 ? (
 									<tr>
 										<td
-											colSpan={4}
+											colSpan={5}
 											className="px-5 py-10 text-center font-mono text-[11px] uppercase tracking-[0.25em] text-slate-400"
 										>
 											Sin resultados para «{query}»

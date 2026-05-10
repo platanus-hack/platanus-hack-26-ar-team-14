@@ -531,6 +531,7 @@ class GuiaSummary(BaseModel):
     id: int
     name: str
     question_count: int
+    oa_codes: list[str]
 
 
 class GuiaDetail(BaseModel):
@@ -588,8 +589,31 @@ def list_guias(
         .all()
     )
     return [
-        GuiaSummary(id=r.id, name=r.name, question_count=len(r.items)) for r in rows
+        GuiaSummary(
+            id=r.id,
+            name=r.name,
+            question_count=len(r.items),
+            oa_codes=_collect_oa_codes(r),
+        )
+        for r in rows
     ]
+
+
+def _collect_oa_codes(g: Guia) -> list[str]:
+    """Unique OA codes covered by a guía's questions, sorted by trailing number."""
+    seen: set[str] = set()
+    codes: list[str] = []
+    for item in g.items:
+        code = item.question.oa_code
+        if code and code not in seen:
+            seen.add(code)
+            codes.append(code)
+
+    def _key(c: str) -> tuple[int, int, str]:
+        digits = "".join(ch for ch in c if ch.isdigit())
+        return (0, int(digits), c) if digits else (1, 0, c)
+
+    return sorted(codes, key=_key)
 
 
 @app.get("/guias/{guia_id}", response_model=GuiaDetail)

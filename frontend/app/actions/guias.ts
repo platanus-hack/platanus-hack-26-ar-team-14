@@ -29,6 +29,7 @@ export type GuiaSummary = {
 	id: number;
 	name: string;
 	question_count: number;
+	oa_codes: string[];
 };
 
 export type Alternative = { label: string; text: string };
