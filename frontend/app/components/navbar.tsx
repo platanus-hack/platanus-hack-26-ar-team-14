@@ -32,16 +32,16 @@ export function Navbar({ teacherName, active }: NavbarProps) {
 						Inicio
 					</Link>
 					<Link href="/banco" className={linkClass("banco", active)}>
-						Actividades
+						Ejercicios
 					</Link>
 					<Link href="/guias" className={linkClass("guias", active)}>
-						Guías
+						Trabajo práctico
 					</Link>
 					<Link
 						href="/planificacion"
 						className={linkClass("planificacion", active)}
 					>
-						Plan anual
+						Planificador
 					</Link>
 				</div>
 			</nav>
