@@ -14,7 +14,23 @@ from app.models import Course, Student, Teacher
 TEACHER_NAME = "Ana Pérez"
 TEACHER_EMAIL = "ana@demo.cl"
 TEACHER_PASSWORD = "123"
-COURSE_NAME = "Quinto Básico"
+COURSES = [
+    {
+        "name": "5to A - Matemática",
+        "class_days": ["monday", "wednesday", "thursday"],
+        "block_number": 2,
+    },
+    {
+        "name": "5to B - Matemática",
+        "class_days": ["tuesday", "thursday", "friday"],
+        "block_number": 3,
+    },
+    {
+        "name": "5to C - Matemática",
+        "class_days": ["monday", "wednesday", "friday"],
+        "block_number": 5,
+    },
+]
 
 STUDENT_NAMES = [
     "Sofía Martínez",
@@ -67,21 +83,22 @@ def main() -> None:
             email=TEACHER_EMAIL,
             password_hash=hash_password(TEACHER_PASSWORD),
         )
-        course = Course(
-            name=COURSE_NAME,
-            teacher=teacher,
-            class_days=["monday", "wednesday", "thursday"],
-            block_number=2,
-        )
-        course.students = [Student(name=n) for n in STUDENT_NAMES]
+        teacher.courses = [
+            Course(
+                name=c["name"],
+                class_days=c["class_days"],
+                block_number=c["block_number"],
+                students=[Student(name=n) for n in STUDENT_NAMES] if i == 0 else [],
+            )
+            for i, c in enumerate(COURSES)
+        ]
         db.add(teacher)
         db.commit()
         db.refresh(teacher)
-        db.refresh(course)
         print(
-            f"Seeded teacher {teacher.email} (id={teacher.id}), "
-            f"course {course.name!r} (id={course.id}), "
-            f"{len(course.students)} students."
+            f"Seeded teacher {teacher.email} (id={teacher.id}) with "
+            f"{len(teacher.courses)} courses: "
+            f"{', '.join(c.name for c in teacher.courses)}."
         )
 
 
