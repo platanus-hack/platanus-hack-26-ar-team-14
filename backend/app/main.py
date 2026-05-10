@@ -24,6 +24,7 @@ from app.models import (
     Teacher,
 )
 from app.planificacion import extract_plan_from_pdf
+from app.transcription import transcribe_audio
 from app.worksheets.store import ingest_pdf
 
 app = FastAPI(title="Backend API")
@@ -224,6 +225,30 @@ def _plan_out(plan: PlanAnual) -> PlanOut:
             for it in plan.items
         ],
     )
+
+
+class TranscriptionOut(BaseModel):
+    text: str
+
+
+@app.post("/transcribe", response_model=TranscriptionOut)
+async def transcribe_endpoint(
+    file: UploadFile = File(...),
+    teacher: Teacher = Depends(get_current_teacher),
+):
+    """Transcribe a short audio clip (Spanish) via OpenRouter STT."""
+    audio = await file.read()
+    if not audio:
+        raise HTTPException(status_code=400, detail="Audio vacío")
+    try:
+        text = await transcribe_audio(
+            audio_bytes=audio,
+            filename=file.filename,
+            content_type=file.content_type,
+        )
+    except Exception as e:  # noqa: BLE001
+        raise HTTPException(status_code=502, detail=f"Falló la transcripción: {e}") from e
+    return TranscriptionOut(text=text.strip())
 
 
 @app.post("/planificacion/extract", response_model=PlanOut)

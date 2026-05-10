@@ -14,6 +14,7 @@ import {
 	getPlanificacionAction,
 	type Plan,
 } from "../../actions/planificacion";
+import { MicButton } from "../../components/mic-button";
 
 const markdownComponents: Components = {
 	p: ({ children }) => <p className="my-2 first:mt-0 last:mb-0">{children}</p>,
@@ -214,6 +215,12 @@ export function EditorClient({ initialPlan }: { initialPlan: Plan }) {
 							placeholder="Pide aclaraciones o un ajuste específico…"
 							disabled={busy}
 							className="min-h-[44px] flex-1 resize-none rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm leading-relaxed text-slate-800 focus:border-slate-400 focus:outline-none disabled:opacity-60"
+						/>
+						<MicButton
+							disabled={busy}
+							onTranscribed={(text) =>
+								setInput((prev) => (prev ? `${prev} ${text}` : text))
+							}
 						/>
 						<button
 							type="submit"

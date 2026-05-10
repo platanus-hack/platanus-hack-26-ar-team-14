@@ -5,6 +5,7 @@ import { TextStreamChatTransport } from "ai";
 import { type ReactNode, useLayoutEffect, useRef, useState } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { MicButton } from "./mic-button";
 import {
 	EmptyState,
 	ErrorNote,
@@ -190,12 +191,20 @@ export function Chat() {
 				{error ? <ErrorNote>{error.message}</ErrorNote> : null}
 			</section>
 
-			<div className="border-t border-rule/40 pt-4">
-				<NotebookForm
-					value={input}
-					onChange={setInput}
-					onSubmit={onSubmit}
+			<div className="flex items-end gap-3 border-t border-rule/40 pt-4">
+				<div className="flex-1">
+					<NotebookForm
+						value={input}
+						onChange={setInput}
+						onSubmit={onSubmit}
+						disabled={busy}
+					/>
+				</div>
+				<MicButton
 					disabled={busy}
+					onTranscribed={(text) =>
+						setInput((prev) => (prev ? `${prev} ${text}` : text))
+					}
 				/>
 			</div>
 		</div>
