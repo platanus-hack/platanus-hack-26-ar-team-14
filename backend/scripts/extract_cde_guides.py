@@ -22,7 +22,7 @@ from app.worksheets.parser import parse_pdf
 
 CDE_DIR = Path(__file__).resolve().parents[1] / "docs" / "cde"
 OUT_DIR = Path(__file__).resolve().parent / "seed_data" / "cde"
-IMG_DIR = OUT_DIR / "images"
+IMG_ROOT = OUT_DIR / "images"
 
 
 def _is_math_guide(path: Path) -> bool:
@@ -67,6 +67,8 @@ def _process(path: Path, data: bytes, source_hash: str) -> None:
     bank = extract_bank(parsed.full_text, valid_markers=set(image_by_marker.keys()))
     print(f"    got {len(bank.questions)} questions.")
 
+    img_subdir = IMG_ROOT / path.stem
+    img_subdir.mkdir(parents=True, exist_ok=True)
     questions_out: list[dict] = []
     for q in bank.questions:
         marker = q.image_marker if q.image_marker in image_by_marker else None
@@ -75,8 +77,8 @@ def _process(path: Path, data: bytes, source_hash: str) -> None:
         image_height: int | None = None
         if marker is not None:
             img = image_by_marker[marker]
-            image_file = f"{marker}.png"
-            (IMG_DIR / image_file).write_bytes(img.png_bytes)
+            image_file = f"{path.stem}/{marker}.png"
+            (img_subdir / f"{marker}.png").write_bytes(img.png_bytes)
             image_width = img.width
             image_height = img.height
         questions_out.append(
@@ -116,7 +118,7 @@ def _process(path: Path, data: bytes, source_hash: str) -> None:
 
 def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    IMG_DIR.mkdir(parents=True, exist_ok=True)
+    IMG_ROOT.mkdir(parents=True, exist_ok=True)
     pdfs = _unique_pdfs(CDE_DIR)
     print(f"Found {len(pdfs)} unique math PDFs in {CDE_DIR}.")
     for path, data, h in pdfs:

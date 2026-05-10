@@ -13,12 +13,12 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_1.png",
+      "image_file": "Matemática-5ºC-GP11/IMG_p2_1.png",
       "image_width": 880,
       "image_height": 479
     },
     {
-      "prompt": "Mide con una regla cada lado de las figuras tras la traslación y registra los valores:\nAB = AB´=\nCA = CA´=\nBC = BC´=",
+      "prompt": "Mide con una regla cada lado de las figuras originales y trasladadas: AB =    AB´=    CA =    CA´=    BC =    BC´=",
       "answer": null,
       "kind": "open",
       "alternatives": null,
@@ -28,7 +28,7 @@
       "image_height": null
     },
     {
-      "prompt": "¿Son estos dos triángulos (antes y después de la traslación) congruentes? ¿Por qué?",
+      "prompt": "¿Son estos dos triángulos (original y trasladado) congruentes? ¿Por qué?",
       "answer": null,
       "kind": "open",
       "alternatives": null,
@@ -43,12 +43,12 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_2.png",
+      "image_file": "Matemática-5ºC-GP11/IMG_p2_2.png",
       "image_width": 840,
       "image_height": 550
     },
     {
-      "prompt": "Mide con una regla cada lado de las figuras tras la reflexión y registra los valores:\nAB = AB´=\nCA = CA´=\nBC = BC´=",
+      "prompt": "Mide con una regla cada lado de las figuras originales y reflejadas: AB =    AB´=    CA =    CA´=    BC =    BC´=",
       "answer": null,
       "kind": "open",
       "alternatives": null,
@@ -58,7 +58,7 @@
       "image_height": null
     },
     {
-      "prompt": "¿Son estos dos cuadriláteros (antes y después de la reflexión) congruentes? ¿Por qué?",
+      "prompt": "¿Son estos dos cuadriláteros (original y reflejado) congruentes? ¿Por qué?",
       "answer": null,
       "kind": "open",
       "alternatives": null,
@@ -68,42 +68,42 @@
       "image_height": null
     },
     {
-      "prompt": "Rota la siguiente figura en el sentido antihorario en los grados que se indica y considerando el punto señalado.",
+      "prompt": "Rota la siguiente figura en sentido antihorario en los grados que se indica y considerando el punto señalado.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p3_3.png",
+      "image_file": "Matemática-5ºC-GP11/IMG_p3_3.png",
       "image_width": 472,
       "image_height": 390
     },
     {
-      "prompt": "Observa las figuras y pinta si representan una Traslación.",
+      "prompt": "Observa las figuras del ticket de salida y pinta si representan una Traslación.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p4_1.png",
+      "image_file": "Matemática-5ºC-GP11/IMG_p4_1.png",
       "image_width": 883,
       "image_height": 297
     },
     {
-      "prompt": "Observa las figuras y pinta si representan una Reflexión.",
+      "prompt": "Observa las figuras del ticket de salida y pinta si representan una Reflexión.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p4_2.png",
+      "image_file": "Matemática-5ºC-GP11/IMG_p4_2.png",
       "image_width": 883,
       "image_height": 293
     },
     {
-      "prompt": "Observa las figuras y pinta si representan una Rotación.",
+      "prompt": "Observa las figuras del ticket de salida y pinta si representan una Rotación.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p4_3.png",
+      "image_file": "Matemática-5ºC-GP11/IMG_p4_3.png",
       "image_width": 883,
       "image_height": 289
     }

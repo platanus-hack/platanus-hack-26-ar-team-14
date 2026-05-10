@@ -35,7 +35,7 @@
       "image_height": null
     },
     {
-      "prompt": "En un colegio los 5° básicos irán a una salida pedagógica. Para ello, se contratarán furgones con capacidad para 8 personas. Si en total son 130 estudiantes en 5° básico y se quiere contar con la menor cantidad de furgones. Los dos estudiantes restantes necesitan un furgón más. Por lo tanto, se necesitan 17 furgones. Si se utiliza la misma estrategia, y los estudiantes son 110 y la capacidad de los furgones es 7. ¿Cuántos furgones se necesitan?",
+      "prompt": "En un colegio los 5° básicos irán a una salida pedagógica. Para ello, se contratarán furgones con capacidad para 8 personas. Si en total son 130 estudiantes en 5° básico y se quiere contar con la menor cantidad de furgones, ¿cuántos furgones se necesitan? (Observe el procedimiento.) Los dos estudiantes restantes necesitan un furgón más. Por lo tanto, se necesitan 17 furgones. Si se utiliza la misma estrategia, y los estudiantes son 110 y la capacidad de los furgones es 7, ¿cuántos furgones se necesitan?",
       "answer": null,
       "kind": "multiple_choice",
       "alternatives": [
@@ -57,7 +57,7 @@
         }
       ],
       "correct_alternative": "c",
-      "image_file": "IMG_p1_1.png",
+      "image_file": "Matemática-5°C-PF02/IMG_p1_1.png",
       "image_width": 116,
       "image_height": 112
     },
@@ -84,7 +84,7 @@
         }
       ],
       "correct_alternative": null,
-      "image_file": "IMG_p2_1.png",
+      "image_file": "Matemática-5°C-PF02/IMG_p2_1.png",
       "image_width": 151,
       "image_height": 149
     },
@@ -111,7 +111,7 @@
         }
       ],
       "correct_alternative": "c",
-      "image_file": "IMG_p2_5.png",
+      "image_file": "Matemática-5°C-PF02/IMG_p2_5.png",
       "image_width": 697,
       "image_height": 300
     },
@@ -138,7 +138,7 @@
         }
       ],
       "correct_alternative": null,
-      "image_file": "IMG_p3_1.png",
+      "image_file": "Matemática-5°C-PF02/IMG_p3_1.png",
       "image_width": 359,
       "image_height": 76
     },
@@ -165,12 +165,12 @@
         }
       ],
       "correct_alternative": null,
-      "image_file": "IMG_p3_4.png",
-      "image_width": 365,
-      "image_height": 92
+      "image_file": "Matemática-5°C-PF02/IMG_p3_3.png",
+      "image_width": 371,
+      "image_height": 101
     },
     {
-      "prompt": "Si Romina coloca 9 libros en cada compartimento. ¿Cuántos libros hay en total en la repisa?",
+      "prompt": "Si Romina coloca 9 libros en cada compartimento, ¿cuántos libros hay en total en la repisa?",
       "answer": null,
       "kind": "multiple_choice",
       "alternatives": [
@@ -192,34 +192,34 @@
         }
       ],
       "correct_alternative": null,
-      "image_file": "IMG_p3_7.png",
+      "image_file": "Matemática-5°C-PF02/IMG_p3_7.png",
       "image_width": 811,
       "image_height": 128
     },
     {
-      "prompt": "Paula cotizó un departamento que al contado cuesta $54.000.000. Una de las formas de pago que le ofrecieron es la mostrada en la imagen. Si Paula compra el departamento utilizando esta forma de pago, ¿cuánto dinero pagará de más que si lo compra al contado?",
+      "prompt": "Paula cotizó un departamento que al contado cuesta $54.000.000. Una de las formas de pago que le ofrecieron es la siguiente (ver tabla). Si Paula compra el departamento utilizando esta forma de pago, ¿cuánto dinero pagará de más que si lo compra al contado?",
       "answer": null,
       "kind": "multiple_choice",
       "alternatives": [
         {
           "label": "a",
-          "text": "$89.400.000."
+          "text": "$89.400.000"
         },
         {
           "label": "b",
-          "text": "$84.000.000."
+          "text": "$84.000.000"
         },
         {
           "label": "c",
-          "text": "$35.400.000."
+          "text": "$35.400.000"
         },
         {
           "label": "d",
-          "text": "$30.000.000."
+          "text": "$30.000.000"
         }
       ],
       "correct_alternative": "c",
-      "image_file": "IMG_p4_1.png",
+      "image_file": "Matemática-5°C-PF02/IMG_p4_1.png",
       "image_width": 291,
       "image_height": 184
     },
@@ -246,7 +246,7 @@
         }
       ],
       "correct_alternative": "b",
-      "image_file": "IMG_p4_2.png",
+      "image_file": "Matemática-5°C-PF02/IMG_p4_2.png",
       "image_width": 823,
       "image_height": 246
     },
@@ -273,7 +273,7 @@
         }
       ],
       "correct_alternative": null,
-      "image_file": "IMG_p4_3.png",
+      "image_file": "Matemática-5°C-PF02/IMG_p4_3.png",
       "image_width": 700,
       "image_height": 143
     }

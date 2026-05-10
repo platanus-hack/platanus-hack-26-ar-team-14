@@ -4,7 +4,7 @@
   "asignatura": "Matemática",
   "nivel": "5° básico",
   "oa_code": "OA4",
-  "habilidad": "Argumentar y comunicar",
+  "habilidad": "Argumentar y Comunicar / Resolver Problemas / Representar",
   "contenido": "Multiplicación",
   "questions": [
     {
@@ -13,7 +13,7 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p1_1.png",
+      "image_file": "MATEMÁTICA-5°C-GP04/IMG_p1_1.png",
       "image_width": 117,
       "image_height": 123
     },
@@ -23,7 +23,7 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p1_2.png",
+      "image_file": "MATEMÁTICA-5°C-GP04/IMG_p1_2.png",
       "image_width": 198,
       "image_height": 25
     },
@@ -33,19 +33,19 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_1.png",
+      "image_file": "MATEMÁTICA-5°C-GP04/IMG_p2_1.png",
       "image_width": 74,
       "image_height": 25
     },
     {
-      "prompt": "Utiliza las propiedades conmutativa y asociativa para calcular. Ejemplo: 25 ∙ 4 ∙ 3 = (25 ∙ 4) ∙ 3",
+      "prompt": "Utiliza las propiedades conmutativa y asociativa para calcular. Ejemplo: 25 · 4 · 3 = (25 · 4) · 3",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_2.png",
-      "image_width": 86,
-      "image_height": 25
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
     },
     {
       "prompt": "Aplica paréntesis para facilitar los cálculos. (Propiedad Asociativa)",
@@ -53,19 +53,19 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_3.png",
-      "image_width": 98,
-      "image_height": 24
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
     },
     {
-      "prompt": "Desarrolla aplicando la propiedad distributiva (recuerda que debes resolver con dos operaciones). Ejemplo: (30 + 5) ∙ 8 = 30 ∙ 8 + 5 ∙ 8 = __ + __ = __",
+      "prompt": "Desarrolla aplicando la propiedad distributiva (recuerda que debes resolver con dos operaciones). Ejemplo: (30 + 5) · 8 = 30 · 8 + 5 · 8 = ___ + ___ = ___",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_4.png",
-      "image_width": 126,
-      "image_height": 25
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
     },
     {
       "prompt": "Redondea a la decena y estima el producto de los siguientes ejercicios: ____ = ______ / ____ = ______ / ____ = ______",
@@ -73,9 +73,9 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_5.png",
-      "image_width": 101,
-      "image_height": 25
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
     },
     {
       "prompt": "Resuelve las siguientes multiplicaciones de 2 dígitos por 2 dígitos.",
@@ -83,8 +83,8 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_6.png",
-      "image_width": 101,
+      "image_file": "MATEMÁTICA-5°C-GP04/IMG_p2_2.png",
+      "image_width": 86,
       "image_height": 25
     },
     {
@@ -98,7 +98,7 @@
       "image_height": null
     },
     {
-      "prompt": "Nicole desea embaldosar una superficie que mide 15 m de largo por 12 m de ancho. ¿Qué desea saber con el cálculo de 15 m ● 12 m?",
+      "prompt": "Nicole desea embaldosar una superficie que mide 15 m de largo por 12 m de ancho. ¿Qué desea saber con el cálculo de 15 m · 12 m?",
       "answer": null,
       "kind": "open",
       "alternatives": null,

@@ -5,65 +5,65 @@
   "nivel": "5° básico",
   "oa_code": "OA7",
   "habilidad": "Representar",
-  "contenido": "Fracciones",
+  "contenido": "Fracciones propias: representación, equivalencia, simplificación y amplificación",
   "questions": [
     {
-      "prompt": "Escribe la fracción que está representada en cada uno de estos segmentos. (Segmento 1)",
+      "prompt": "Escribe la fracción que está representada en cada uno de estos segmentos. Segmento 1 (segmento dividido en 3 partes iguales).",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_1.png",
+      "image_file": "MATEMÁTICA-5°C-GP07/IMG_p2_1.png",
       "image_width": 883,
       "image_height": 239
     },
     {
-      "prompt": "Escribe la fracción que está representada en cada uno de estos segmentos. (Segmento 2)",
+      "prompt": "Escribe la fracción que está representada en cada uno de estos segmentos. Segmento 2.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_2.png",
+      "image_file": "MATEMÁTICA-5°C-GP07/IMG_p2_2.png",
       "image_width": 883,
       "image_height": 399
     },
     {
-      "prompt": "Escribe la fracción que está representada en cada uno de estos segmentos. (Segmento 3)",
+      "prompt": "Escribe la fracción que está representada en cada uno de estos segmentos. Segmento 3.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_3.png",
+      "image_file": "MATEMÁTICA-5°C-GP07/IMG_p2_3.png",
       "image_width": 883,
       "image_height": 198
     },
     {
-      "prompt": "Representa en la cuadrícula la fracción indicada. (Fracción 1)",
+      "prompt": "Representa en la cuadrícula la fracción indicada. Fracción 1.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_4.png",
+      "image_file": "MATEMÁTICA-5°C-GP07/IMG_p2_4.png",
       "image_width": 47,
       "image_height": 88
     },
     {
-      "prompt": "Representa en la cuadrícula la fracción indicada. (Fracción 2)",
+      "prompt": "Representa en la cuadrícula la fracción indicada. Fracción 2.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_5.png",
+      "image_file": "MATEMÁTICA-5°C-GP07/IMG_p2_5.png",
       "image_width": 46,
       "image_height": 88
     },
     {
-      "prompt": "Representa en la cuadrícula la fracción indicada. (Fracción 3)",
+      "prompt": "Representa en la cuadrícula la fracción indicada. Fracción 3.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_6.png",
+      "image_file": "MATEMÁTICA-5°C-GP07/IMG_p2_6.png",
       "image_width": 46,
       "image_height": 88
     },
@@ -73,7 +73,7 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p3_1.png",
+      "image_file": "MATEMÁTICA-5°C-GP07/IMG_p3_1.png",
       "image_width": 992,
       "image_height": 398
     },
@@ -98,17 +98,17 @@
       "image_height": null
     },
     {
-      "prompt": "Obtén una fracción equivalente simplificando. (Fracción 1)",
+      "prompt": "Obtén una fracción equivalente simplificando. Fracción 1.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p3_2.png",
+      "image_file": "MATEMÁTICA-5°C-GP07/IMG_p3_2.png",
       "image_width": 790,
       "image_height": 192
     },
     {
-      "prompt": "Obtén una fracción equivalente simplificando. (Fracción 2)",
+      "prompt": "Obtén una fracción equivalente simplificando. Fracción 2.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
@@ -118,22 +118,32 @@
       "image_height": null
     },
     {
-      "prompt": "Amplifica por cuatro (4) cada una de estas fracciones. (Fracción 1)",
+      "prompt": "Amplifica por cuatro (4) cada una de estas fracciones. Fracción 1.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p4_1.png",
+      "image_file": "MATEMÁTICA-5°C-GP07/IMG_p4_1.png",
       "image_width": 955,
       "image_height": 310
     },
     {
-      "prompt": "Amplifica por cuatro (4) cada una de estas fracciones. (Fracción 2)",
+      "prompt": "Amplifica por cuatro (4) cada una de estas fracciones. Fracción 2.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p4_2.png",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Amplifica por cuatro (4) cada una de estas fracciones. Fracción 3.",
+      "answer": null,
+      "kind": "open",
+      "alternatives": null,
+      "correct_alternative": null,
+      "image_file": "MATEMÁTICA-5°C-GP07/IMG_p4_2.png",
       "image_width": 753,
       "image_height": 187
     }

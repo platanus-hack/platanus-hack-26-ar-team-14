@@ -13,7 +13,7 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_1.png",
+      "image_file": "Matemática-5ºC-GP09/IMG_p2_1.png",
       "image_width": 760,
       "image_height": 113
     },
@@ -23,7 +23,7 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_2.png",
+      "image_file": "Matemática-5ºC-GP09/IMG_p2_2.png",
       "image_width": 760,
       "image_height": 118
     },
@@ -33,12 +33,12 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_3.png",
+      "image_file": "Matemática-5ºC-GP09/IMG_p2_3.png",
       "image_width": 760,
       "image_height": 111
     },
     {
-      "prompt": "¿Cómo son estas tres fracciones (la que representa el color rojo, el verde y el azul)?",
+      "prompt": "¿Cómo son estas tres fracciones (la que representa el color rojo, la del color verde y la del color azul)?",
       "answer": null,
       "kind": "open",
       "alternatives": null,
@@ -53,9 +53,9 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p3_1.png",
-      "image_width": 155,
-      "image_height": 294
+      "image_file": "Matemática-5ºC-GP09/IMG_p3_3.png",
+      "image_width": 170,
+      "image_height": 333
     },
     {
       "prompt": "Completa con el valor que corresponde para obtener una fracción equivalente (ejercicio b).",
@@ -63,9 +63,9 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p3_2.png",
-      "image_width": 138,
-      "image_height": 275
+      "image_file": "Matemática-5ºC-GP09/IMG_p3_4.png",
+      "image_width": 190,
+      "image_height": 334
     },
     {
       "prompt": "Completa con el valor que corresponde para obtener una fracción equivalente (ejercicio c).",
@@ -73,9 +73,9 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p3_3.png",
-      "image_width": 170,
-      "image_height": 333
+      "image_file": "Matemática-5ºC-GP09/IMG_p3_5.png",
+      "image_width": 432,
+      "image_height": 324
     },
     {
       "prompt": "Completa con el valor que corresponde para obtener una fracción equivalente (ejercicio d).",
@@ -83,12 +83,12 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p3_4.png",
-      "image_width": 190,
-      "image_height": 334
+      "image_file": "Matemática-5ºC-GP09/IMG_p3_6.png",
+      "image_width": 433,
+      "image_height": 336
     },
     {
-      "prompt": "Indica si son o no fracciones equivalentes. Escribe SI o NO: 3/4 y 15/20.",
+      "prompt": "Indica si son o no fracciones equivalentes. Escribe SI o NO: 3/4 y 15/20",
       "answer": "SI",
       "kind": "open",
       "alternatives": null,
@@ -98,7 +98,7 @@
       "image_height": null
     },
     {
-      "prompt": "Indica si son o no fracciones equivalentes. Escribe SI o NO: 4/6 y 2/5.",
+      "prompt": "Indica si son o no fracciones equivalentes. Escribe SI o NO: 4/6 y 2/5",
       "answer": "NO",
       "kind": "open",
       "alternatives": null,
@@ -108,7 +108,7 @@
       "image_height": null
     },
     {
-      "prompt": "Indica si son o no fracciones equivalentes. Escribe SI o NO: 4/8 y 1/2.",
+      "prompt": "Indica si son o no fracciones equivalentes. Escribe SI o NO: 4/8 y 1/2",
       "answer": "SI",
       "kind": "open",
       "alternatives": null,
@@ -118,7 +118,7 @@
       "image_height": null
     },
     {
-      "prompt": "Indica si son o no fracciones equivalentes. Escribe SI o NO: 5/7 y 10/14.",
+      "prompt": "Indica si son o no fracciones equivalentes. Escribe SI o NO: 5/7 y 10/14",
       "answer": "SI",
       "kind": "open",
       "alternatives": null,

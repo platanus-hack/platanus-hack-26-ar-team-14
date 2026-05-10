@@ -8,17 +8,17 @@
   "contenido": "Patrones",
   "questions": [
     {
-      "prompt": "Observa las siguientes secuencias y completa: La cantidad de triángulos en la figura 4 sería: ………………………",
+      "prompt": "Observa la siguiente secuencia y completa: La cantidad de triángulos en la figura 4 sería: ………………………",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_1.png",
+      "image_file": "Matemática-5°C-GP10/IMG_p2_1.png",
       "image_width": 619,
       "image_height": 240
     },
     {
-      "prompt": "Observa las siguientes secuencias y completa: La cantidad de triángulos en la figura 5 sería: ………………………",
+      "prompt": "Observa la siguiente secuencia y completa: La cantidad de triángulos en la figura 5 sería: ………………………",
       "answer": null,
       "kind": "open",
       "alternatives": null,
@@ -28,7 +28,7 @@
       "image_height": null
     },
     {
-      "prompt": "Observa las siguientes secuencias y completa: La figura ……………………… tendría 49 triángulos.",
+      "prompt": "Observa la siguiente secuencia y completa: La figura ……………………… tendría 49 triángulos.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
@@ -38,17 +38,17 @@
       "image_height": null
     },
     {
-      "prompt": "Observa las siguientes secuencias y completa: La cantidad de círculos en la figura 4 sería: ………………………",
+      "prompt": "Observa la siguiente secuencia y completa: La cantidad de círculos en la figura 4 sería: ………………………",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_2.png",
+      "image_file": "Matemática-5°C-GP10/IMG_p2_2.png",
       "image_width": 562,
       "image_height": 164
     },
     {
-      "prompt": "Observa las siguientes secuencias y completa: La cantidad de círculos en la figura 6 sería: ………………………",
+      "prompt": "Observa la siguiente secuencia y completa: La cantidad de círculos en la figura 6 sería: ………………………",
       "answer": null,
       "kind": "open",
       "alternatives": null,
@@ -58,7 +58,7 @@
       "image_height": null
     },
     {
-      "prompt": "Observa las siguientes secuencias y completa: La figura ……………………… tendría 24 círculos.",
+      "prompt": "Observa la siguiente secuencia y completa: La figura ……………………… tendría 24 círculos.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
@@ -68,17 +68,17 @@
       "image_height": null
     },
     {
-      "prompt": "Observa las siguientes secuencias y completa: La cantidad de círculos en la figura 6 sería: ………………………",
+      "prompt": "Observa la siguiente secuencia y completa: La cantidad de círculos en la figura 6 sería: ………………………",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_3.png",
+      "image_file": "Matemática-5°C-GP10/IMG_p2_3.png",
       "image_width": 625,
       "image_height": 188
     },
     {
-      "prompt": "Observa las siguientes secuencias y completa: La cantidad de círculos en la figura 8 sería: ………………………",
+      "prompt": "Observa la siguiente secuencia y completa: La cantidad de círculos en la figura 8 sería: ………………………",
       "answer": null,
       "kind": "open",
       "alternatives": null,
@@ -88,7 +88,7 @@
       "image_height": null
     },
     {
-      "prompt": "Observa las siguientes secuencias y completa: La figura ……………………… tendría 28 círculos.",
+      "prompt": "Observa la siguiente secuencia y completa: La figura ……………………… tendría 28 círculos.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
@@ -98,32 +98,32 @@
       "image_height": null
     },
     {
-      "prompt": "Observa la secuencia y encuentra la figura que falta en el lugar dado. La figura en el lugar 22 será: ……………………………………………………………………………………",
+      "prompt": "Observa la secuencia y encuentra la figura que falta en el lugar dado. La figura en el lugar 22 será: ……………………………………………………………………………",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p3_1.png",
+      "image_file": "Matemática-5°C-GP10/IMG_p3_1.png",
       "image_width": 608,
       "image_height": 71
     },
     {
-      "prompt": "Observa la secuencia y encuentra la figura que falta en el lugar dado. La figura en el lugar 30 será: ……………………………………………………………………………………",
+      "prompt": "Observa la secuencia y encuentra la figura que falta en el lugar dado. La figura en el lugar 30 será: ……………………………………………………………………………",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p3_2.png",
+      "image_file": "Matemática-5°C-GP10/IMG_p3_2.png",
       "image_width": 614,
       "image_height": 61
     },
     {
-      "prompt": "Observa la secuencia y encuentra la figura que falta en el lugar dado. La figura en el lugar 16 será: ……………………………………………………………………………………",
+      "prompt": "Observa la secuencia y encuentra la figura que falta en el lugar dado. La figura en el lugar 16 será: ……………………………………………………………………………",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p3_3.png",
+      "image_file": "Matemática-5°C-GP10/IMG_p3_3.png",
       "image_width": 593,
       "image_height": 72
     },
@@ -133,7 +133,7 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p3_4.png",
+      "image_file": "Matemática-5°C-GP10/IMG_p3_4.png",
       "image_width": 915,
       "image_height": 588
     }

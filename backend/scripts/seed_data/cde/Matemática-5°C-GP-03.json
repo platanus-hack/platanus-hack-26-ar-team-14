@@ -13,7 +13,7 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p1_1.png",
+      "image_file": "Matemática-5°C-GP-03/IMG_p1_1.png",
       "image_width": 117,
       "image_height": 123
     },
@@ -38,32 +38,32 @@
       "image_height": null
     },
     {
-      "prompt": "Escribe en notación expandida los siguientes números:\n12.345.609 =\n345.200.006 =\n107.020.890 =",
+      "prompt": "Escribe en notación expandida los siguientes números:\na) 12.345.609 =\nb) 345.200.006 =\nc) 107.020.890 =",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_1.png",
+      "image_file": "Matemática-5°C-GP-03/IMG_p2_1.png",
       "image_width": 443,
       "image_height": 25
     },
     {
-      "prompt": "Determina el número que corresponde a las notaciones expandidas.",
+      "prompt": "Determina el número que corresponde a las notaciones expandidas indicadas en la tabla.",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_2.png",
+      "image_file": "Matemática-5°C-GP-03/IMG_p2_2.png",
       "image_width": 533,
       "image_height": 28
     },
     {
-      "prompt": "Completa la tabla indicando lugar y valor que representa el dígito 4 en los números dados, como indica el ejemplo:\n\nNumeral | Lugar posicional | Valor posicional\n12.3456l 4 | Centenas = 4C | 400\n134.368 | | \n243.544 | | \n4.587.047 | | \n43.463.621 | |",
+      "prompt": "Completa la tabla indicando el lugar y valor que representa el dígito 4 en los números dados, como indica el ejemplo:\n\nNumeral | Lugar posicional | Valor posicional\n12.3456 l 4 → Centenas = 4C → 400\n134.368\n243.544\n4.587.047\n43.463.621",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_3.png",
+      "image_file": "Matemática-5°C-GP-03/IMG_p2_3.png",
       "image_width": 315,
       "image_height": 24
     },
@@ -83,7 +83,7 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p3_1.png",
+      "image_file": "Matemática-5°C-GP-03/IMG_p3_1.png",
       "image_width": 170,
       "image_height": 190
     },
@@ -118,22 +118,22 @@
       "image_height": null
     },
     {
-      "prompt": "Escribe >, < ó = según corresponda:",
+      "prompt": "Escribe >, < ó = según corresponda entre los números indicados. (Recuerda que 5 > 3 y 2 < 8)",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p3_2.png",
+      "image_file": "Matemática-5°C-GP-03/IMG_p3_2.png",
       "image_width": 260,
       "image_height": 25
     },
     {
-      "prompt": "Redondea cada sumando a la unidad de millón y realiza una estimación de la adición, como indica el siguiente ejemplo:\n245.567.237 + 15.276.932 = 246.000.000 + 15.000.000 = 261.000.000\n\n_______ + _______ = _______ + _______ = _______\n_______ + _______ = _______ + _______ = _______\n_______ + _______ = _______ + _______ = _______",
+      "prompt": "Redondea cada sumando a la unidad de millón y realiza una estimación de la adición, como indica el siguiente ejemplo:\n245.567.237 + 15.276.932 = 246.000.000 + 15.000.000 = 261.000.000\n\nCompleta las siguientes estimaciones:\n___ + ___ = ___ + ___ = ___\n___ + ___ = ___ + ___ = ___\n___ + ___ = ___ + ___ = ___",
       "answer": null,
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p3_3.png",
+      "image_file": "Matemática-5°C-GP-03/IMG_p3_3.png",
       "image_width": 270,
       "image_height": 24
     }

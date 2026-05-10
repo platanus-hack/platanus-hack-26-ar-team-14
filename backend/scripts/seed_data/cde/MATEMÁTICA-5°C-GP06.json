@@ -5,7 +5,7 @@
   "nivel": "5° básico",
   "oa_code": "OA4",
   "habilidad": "Resolver problemas",
-  "contenido": "Multiplicación, División, Ejercicios combinados, Resolución de problemas",
+  "contenido": "Multiplicación, división, ejercicios combinados y resolución de problemas",
   "questions": [
     {
       "prompt": "Resuelve el ejercicio indicado en la imagen.",
@@ -13,9 +13,9 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p1_2.png",
-      "image_width": 613,
-      "image_height": 205
+      "image_file": "MATEMÁTICA-5°C-GP06/IMG_p1_1.png",
+      "image_width": 108,
+      "image_height": 104
     },
     {
       "prompt": "Miguel trabaja de lunes a viernes. Toma una micro para ir al trabajo y otra para regresar. Si el precio del pasaje es $720. ¿Cuánto gasta en locomoción en una semana de trabajo?",
@@ -33,7 +33,7 @@
       "kind": "open",
       "alternatives": null,
       "correct_alternative": null,
-      "image_file": "IMG_p2_1.png",
+      "image_file": "MATEMÁTICA-5°C-GP06/IMG_p2_1.png",
       "image_width": 610,
       "image_height": 184
     },
@@ -108,7 +108,7 @@
       "image_height": null
     },
     {
-      "prompt": "Lucas tiene un juego con fichas de colores. Tiene 8 bolsas con 25 fichas cada una. Para jugar uno de los juegos debe sacar las fichas negras. Si en cada bolsa hay 3 fichas negras. ¿Cuántas fichas le quedan para jugar?",
+      "prompt": "Lucas tiene un juego con fichas de colores. Tiene 8 bolsas con 25 fichas cada una. Para jugar uno de los juegos debe sacar las fichas negras. Si en cada bolsa hay 3 fichas negras, ¿cuántas fichas le quedan para jugar?",
       "answer": null,
       "kind": "open",
       "alternatives": null,
