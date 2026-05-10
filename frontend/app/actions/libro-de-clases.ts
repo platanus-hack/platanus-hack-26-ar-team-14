@@ -46,6 +46,13 @@ export async function getRecordAction(id: number): Promise<LearningRecord> {
 	return (await res.json()) as LearningRecord;
 }
 
+export async function listCourseRecordsAction(
+	courseId: number,
+): Promise<LearningRecord[]> {
+	const res = await authedFetch(`/libro-de-clases/by-course/${courseId}`);
+	return (await res.json()) as LearningRecord[];
+}
+
 export async function registerRecordAction(
 	id: number,
 	input: { oa_numbers: string[]; observations: string | null },

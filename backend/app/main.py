@@ -690,6 +690,27 @@ def list_pending_records(
     return [_record_out(r) for r in pending]
 
 
+@app.get(
+    "/libro-de-clases/by-course/{course_id}",
+    response_model=list[LearningRecordOut],
+)
+def list_course_records(
+    course_id: int,
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    course = db.get(Course, course_id)
+    if course is None or course.teacher_id != teacher.id:
+        raise HTTPException(status_code=404, detail="Curso no existe")
+    rows = (
+        db.query(ClassLearningRecord)
+        .filter(ClassLearningRecord.course_id == course_id)
+        .order_by(ClassLearningRecord.class_date.asc())
+        .all()
+    )
+    return [_record_out(r) for r in rows]
+
+
 @app.get("/libro-de-clases/{record_id}", response_model=LearningRecordOut)
 def get_record(
     record_id: int,

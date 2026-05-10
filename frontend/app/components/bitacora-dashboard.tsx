@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, BookOpenCheck, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Fragment, useEffect, useRef, useState } from "react";
 import type { LearningRecord } from "../actions/libro-de-clases";
@@ -32,6 +32,12 @@ const SPANISH_MONTHS = [
 	"noviembre",
 	"diciembre",
 ];
+
+// TODO: derivar del Date real cuando saquemos el demo. Hardcoded para que la
+// highlight del día actual y la línea de "ahora" funcionen consistentes en
+// cualquier navegador/zona durante el demo. Asume miércoles 13 a las 9:30 AM.
+const CURRENT_WEEKDAY: (typeof scheduleDays)[number] = "Miércoles";
+const CURRENT_TIME_MIN = 9 * 60 + 30;
 
 const SPANISH_WEEKDAYS = [
 	"domingo",
@@ -112,6 +118,7 @@ export function BitacoraDashboard({
 	const slotsByDay = getCoursesByDay(teacherCourses);
 	const visibleDays: ScheduleDay[] = [...scheduleDays];
 
+
 	useEffect(() => {
 		atTopRef.current = window.scrollY <= 8;
 
@@ -124,7 +131,7 @@ export function BitacoraDashboard({
 			}
 
 			setShowAlert(true);
-		}, 950);
+		}, 1300);
 
 		return () => window.clearTimeout(timeout);
 	}, []);
@@ -139,8 +146,8 @@ export function BitacoraDashboard({
 			const grid = gridRef.current;
 			if (!grid || HOUR_SLOTS.length === 0) return;
 
-			const now = new Date();
-			const nowMin = now.getHours() * 60 + now.getMinutes();
+			// Hardcoded para el demo (ver CURRENT_TIME_MIN arriba).
+			const nowMin = CURRENT_TIME_MIN;
 			const slotMins = HOUR_SLOTS.map(parseTime);
 			const firstMin = slotMins[0];
 			const lastMin = slotMins[slotMins.length - 1];
@@ -200,11 +207,10 @@ export function BitacoraDashboard({
 				<>
 					<section className="bitacora-pending-banner">
 						<h2 className="bitacora-pending-banner-title">
-							{teacherName}, hay {pendingRecords.length}{" "}
-							{pendingRecords.length === 1
-								? "clase sin registrar"
-								: "clases sin registrar"}{" "}
-							en el libro de clases.
+							{teacherName}, todavía tienes que registrar{" "}
+							{pendingRecords.length}{" "}
+							{pendingRecords.length === 1 ? "clase" : "clases"} en el libro de
+							clases.
 						</h2>
 					</section>
 					<section className="bitacora-pending-section">
@@ -214,22 +220,21 @@ export function BitacoraDashboard({
 									<Link
 										href={`/libro-de-clases/${record.id}`}
 										className="bitacora-pending-card"
-										style={{ animationDelay: `${index * 60}ms` }}
+										style={{
+											animationDelay: `${730 + Math.min(index, 7) * 50}ms`,
+										}}
 									>
-										<span className="bitacora-pending-icon" aria-hidden>
-											<BookOpenCheck size={18} strokeWidth={2.2} />
-										</span>
-										<div className="bitacora-pending-body">
-											<p className="bitacora-pending-course">
+										<div className="bitacora-pending-card-info">
+											<span className="bitacora-pending-card-course">
 												{record.course_name}
-											</p>
-											<p className="bitacora-pending-date">
+											</span>
+											<span className="bitacora-pending-card-date">
 												{formatClassDate(record.class_date)}
-											</p>
+											</span>
 										</div>
-										<span className="bitacora-pending-cta">
+										<span className="bitacora-pending-card-cta">
 											Registrar
-											<ArrowRight size={14} strokeWidth={2.5} />
+											<ArrowRight size={12} strokeWidth={2.5} />
 										</span>
 									</Link>
 								</li>
@@ -244,8 +249,9 @@ export function BitacoraDashboard({
 				className={`bitacora-alert-banner ${showAlert ? "bitacora-alert-banner-visible" : ""}`}
 			>
 				<h1 className="bitacora-alert-title">
-					{teacherName}, hay {priorityCourses.length} cursos que necesitan de
-					tu atención ahora mismo.
+					{teacherName}, tienes que modificar la planificación de{" "}
+					{priorityCourses.length}{" "}
+					{priorityCourses.length === 1 ? "curso" : "cursos"}.
 				</h1>
 			</section>
 
@@ -261,7 +267,7 @@ export function BitacoraDashboard({
 							key={course.id}
 							href={`/course/${course.id}`}
 							className="bitacora-course-card"
-							style={{ animationDelay: `${index * 120}ms` }}
+							style={{ animationDelay: `${1900 + index * 120}ms` }}
 						>
 							<div className="flex flex-wrap items-center justify-between gap-3">
 								<span
@@ -326,25 +332,6 @@ export function BitacoraDashboard({
 					<h2 className="bitacora-calendar-title">Tu calendario semanal</h2>
 				</div>
 
-				<ul className="bitacora-calendar-legend">
-					<li className="bitacora-calendar-legend-item">
-						<span className="bitacora-calendar-legend-swatch bg-[#fce7e2] border-[#b94b45]/52" />
-						Urgencia alta
-					</li>
-					<li className="bitacora-calendar-legend-item">
-						<span className="bitacora-calendar-legend-swatch bg-[#fdf1d8] border-[#d0891a]/52" />
-						Urgencia media
-					</li>
-					<li className="bitacora-calendar-legend-item">
-						<span className="bitacora-calendar-legend-swatch bg-[#dbeafe] border-[#3b82f6]/48" />
-						Urgencia baja
-					</li>
-					<li className="bitacora-calendar-legend-item">
-						<span className="bitacora-calendar-legend-swatch bg-slate-50 border-slate-200/90" />
-						Al día
-					</li>
-				</ul>
-
 				<div className="bitacora-calendar-board">
 					<div
 						className="bitacora-calendar-grid"
@@ -355,7 +342,10 @@ export function BitacoraDashboard({
 					>
 						<div className="bitacora-calendar-corner" />
 						{visibleDays.map((day) => (
-							<div key={day} className="bitacora-calendar-header">
+							<div
+								key={day}
+								className={`bitacora-calendar-header${day === CURRENT_WEEKDAY ? " bitacora-calendar-header-today" : ""}`}
+							>
 								{day}
 							</div>
 						))}
@@ -425,8 +415,41 @@ export function BitacoraDashboard({
 								</div>
 							));
 						})}
+
+						{visibleDays.includes(CURRENT_WEEKDAY) ? (
+							<div
+								className="bitacora-calendar-day-highlight"
+								style={{
+									gridColumn: visibleDays.indexOf(CURRENT_WEEKDAY) + 2,
+									gridRow: `2 / ${HOUR_SLOTS.length + 2}`,
+								}}
+								aria-hidden
+							/>
+						) : null}
 					</div>
 				</div>
+
+				<p className="mt-4 text-center text-xs italic text-slate-500">
+					Urgencia según alineación con tu planificación anual
+				</p>
+				<ul className="bitacora-calendar-legend mt-2">
+					<li className="bitacora-calendar-legend-item">
+						<span className="bitacora-calendar-legend-swatch bg-[#fce7e2] border-[#b94b45]/52" />
+						Urgencia alta
+					</li>
+					<li className="bitacora-calendar-legend-item">
+						<span className="bitacora-calendar-legend-swatch bg-[#fdf1d8] border-[#d0891a]/52" />
+						Urgencia media
+					</li>
+					<li className="bitacora-calendar-legend-item">
+						<span className="bitacora-calendar-legend-swatch bg-[#dbeafe] border-[#3b82f6]/48" />
+						Urgencia baja
+					</li>
+					<li className="bitacora-calendar-legend-item">
+						<span className="bitacora-calendar-legend-swatch bg-slate-50 border-slate-200/90" />
+						Al día
+					</li>
+				</ul>
 			</section>
 		</main>
 	);

@@ -1,5 +1,8 @@
 import { notFound, redirect } from "next/navigation";
-import { getRecordAction } from "../../actions/libro-de-clases";
+import {
+	getRecordAction,
+	listCourseRecordsAction,
+} from "../../actions/libro-de-clases";
 import { getCurrentTeacher } from "../../lib/auth";
 import { RegistroClient } from "./registro-client";
 
@@ -22,5 +25,18 @@ export default async function LibroDeClasesPage({ params }: PageProps) {
 		notFound();
 	}
 
-	return <RegistroClient teacherName={teacher.name} record={record} />;
+	let courseRecords;
+	try {
+		courseRecords = await listCourseRecordsAction(record.course_id);
+	} catch {
+		courseRecords = [record];
+	}
+
+	return (
+		<RegistroClient
+			teacherName={teacher.name}
+			record={record}
+			courseRecords={courseRecords}
+		/>
+	);
 }
