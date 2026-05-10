@@ -18,11 +18,13 @@ from app.config import settings
 from app.curriculum import buscar_actividades, listar_unidades, obtener_oa
 from app.dashboard.status import CourseStatusOut, classify_course, sort_status_rows
 from app.db import get_db
+from app.guias.generation import GeneratedGuideDraft, generate_remediation_guide
 from app.models import (
     Assessment,
     Alert,
     ClassLearningRecord,
     Course,
+    GeneratedGuiaQuestion,
     Guia,
     GuiaItem,
     PlanAnual,
@@ -245,17 +247,15 @@ ID_PATTERNS = {
     "assessment_id": re.compile(r"\bAssessment ID:\s*(\d+)\b", re.IGNORECASE),
 }
 
-CONFIRMATION_RE = re.compile(
-    r"^\s*(sí|si|aplica|hazlo|dale|ok|oka|confirmo|házlo)\s*[.!]?\s*$",
+FOLLOWUP_CONFIRMATION_RE = re.compile(
+    r"^\s*(sí|si|aplica|hazlo|dale|ok|oka|confirmo|házlo|dale todo|dale todo noma|dale todo noma papi|todo|todo nom[aá])[\s.!]*$",
     re.IGNORECASE,
 )
 
 
 def _extract_chat_context_ids(messages: list[ChatMessage]) -> dict[str, int | None]:
     joined = "\n".join(
-        message.content
-        for message in messages
-        if isinstance(message.content, str)
+        message.content for message in messages if isinstance(message.content, str)
     )
     out: dict[str, int | None] = {
         "plan_id": None,
@@ -270,24 +270,70 @@ def _extract_chat_context_ids(messages: list[ChatMessage]) -> dict[str, int | No
     return out
 
 
-def _augment_followup_with_assessment_context(
+def _latest_assistant_text(messages: list[ChatMessage]) -> str | None:
+    for message in reversed(messages):
+        if message.role != "assistant" or not isinstance(message.content, str):
+            continue
+        text = message.content.strip()
+        if text:
+            return text
+    return None
+
+
+def _augment_followup_with_conversation_context(
     *,
     last_text: str,
     parsed_messages: list[ChatMessage],
 ) -> str:
     ids = _extract_chat_context_ids(parsed_messages)
     assessment_id = ids.get("assessment_id")
-    if assessment_id is None:
-        return last_text
-    if ID_PATTERNS["assessment_id"].search(last_text):
-        return last_text
-    if not CONFIRMATION_RE.match(last_text.strip()):
-        return last_text
-    suffix = (
-        f"\n\nAssessment ID: {assessment_id}.\n"
-        "Este turno confirma una propuesta previa sobre esa evaluación. "
-        "Sigue con esa evaluación y no vuelvas a pedir archivos."
+    plan_id = ids.get("plan_id")
+
+    if assessment_id is not None and ID_PATTERNS["assessment_id"].search(last_text):
+        assessment_id = None
+    if plan_id is not None and ID_PATTERNS["plan_id"].search(last_text):
+        plan_id = None
+
+    short_followup = len(last_text.strip()) <= 24
+    previous_proposal = _latest_assistant_text(parsed_messages)
+    explicit_followup = short_followup or bool(
+        FOLLOWUP_CONFIRMATION_RE.match(last_text.strip())
     )
+
+    if (
+        assessment_id is None
+        and plan_id is None
+        and not (explicit_followup and previous_proposal)
+    ):
+        return last_text
+
+    context_lines: list[str] = []
+    if plan_id is not None:
+        context_lines.append(f"Plan ID: {plan_id}.")
+    if assessment_id is not None:
+        context_lines.append(f"Assessment ID: {assessment_id}.")
+    context_lines.append(
+        "Sigue con la misma conversación y la propuesta más reciente ya hecha."
+    )
+    context_lines.append(
+        "Si el docente pide recordar, aclarar o aplicar la propuesta, retómala sin pedir estos IDs otra vez."
+    )
+    if assessment_id is not None:
+        context_lines.append(
+            "No vuelvas a pedir archivos ni digas que la evaluación era un ejemplo."
+        )
+    if explicit_followup and previous_proposal:
+        context_lines.append("La última propuesta o respuesta del asistente fue esta:")
+        context_lines.append(previous_proposal[:1500])
+        context_lines.append(
+            "Interpreta este turno corto como una petición de aclaración o continuación sobre esa respuesta."
+        )
+    if FOLLOWUP_CONFIRMATION_RE.match(last_text.strip()):
+        context_lines.append(
+            "Este turno confirma o aprueba ejecutar la propuesta más reciente si esa propuesta cerraba con una pregunta de confirmación."
+        )
+
+    suffix = "\n\n" + "\n".join(context_lines)
     return f"{last_text.rstrip()}{suffix}"
 
 
@@ -442,7 +488,7 @@ async def chat_stream_with_files(
         )
         last_text = f"{last_text.strip()}\n\n{assessment_context}".strip()
     else:
-        last_text = _augment_followup_with_assessment_context(
+        last_text = _augment_followup_with_conversation_context(
             last_text=last_text,
             parsed_messages=parsed_messages,
         )
@@ -725,7 +771,9 @@ def _assessment_summary_out(assessment: Assessment) -> AssessmentSummaryOut:
         record_id=assessment.record_id,
         title=assessment.title,
         status=assessment.status,
-        weak_oa_codes=sorted(metric.oa_code for metric in assessment.oa_metrics if metric.weak),
+        weak_oa_codes=sorted(
+            metric.oa_code for metric in assessment.oa_metrics if metric.weak
+        ),
         created_at=assessment.created_at,
     )
 
@@ -755,7 +803,9 @@ def _assessment_detail_out(assessment: Assessment) -> AssessmentDetailOut:
         result_rows=[
             AssessmentResultRowOut(
                 student_name=row.student_name,
-                question_scores={key: float(value) for key, value in row.question_scores.items()},
+                question_scores={
+                    key: float(value) for key, value in row.question_scores.items()
+                },
                 total_score=row.total_score,
             )
             for row in assessment.result_rows
@@ -820,7 +870,9 @@ async def upload_assessment(
     if record_id is not None:
         record = db.get(ClassLearningRecord, record_id)
         if record is None or record.course_id != course_id:
-            raise HTTPException(status_code=404, detail="Registro no existe para este curso")
+            raise HTTPException(
+                status_code=404, detail="Registro no existe para este curso"
+            )
     if not test_pdf.filename or not test_pdf.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Sube la prueba en PDF")
 
@@ -858,7 +910,9 @@ async def upload_assessment(
     return _assessment_summary_out(assessment)
 
 
-@app.get("/evaluaciones/by-course/{course_id}", response_model=list[AssessmentSummaryOut])
+@app.get(
+    "/evaluaciones/by-course/{course_id}", response_model=list[AssessmentSummaryOut]
+)
 def list_assessments_by_course(
     course_id: int,
     teacher: Teacher = Depends(get_current_teacher),
@@ -962,7 +1016,25 @@ def delete_all_questions(
 
 class GuiaCreate(BaseModel):
     name: str
-    question_ids: list[int]
+    items: list["GuiaItemIn"]
+
+
+class GuiaGeneratedQuestionIn(BaseModel):
+    kind: str = "open"
+    prompt: str
+    alternatives: list[dict[str, str]] = []
+    correct_alternative: str | None = None
+    answer: str | None = None
+    oa_code: str | None = None
+    habilidad: str | None = None
+    contenido: str | None = None
+    source_note: str | None = None
+
+
+class GuiaItemIn(BaseModel):
+    type: str
+    question_id: int | None = None
+    generated: GuiaGeneratedQuestionIn | None = None
 
 
 class GuiaSummary(BaseModel):
@@ -975,15 +1047,141 @@ class GuiaSummary(BaseModel):
 class GuiaDetail(BaseModel):
     id: int
     name: str
-    questions: list[QuestionOut]
+    items: list["GuiaQuestionItemOut"]
+
+
+class GuiaGeneratedQuestionOut(BaseModel):
+    id: int | None
+    kind: str
+    prompt: str
+    alternatives: list[AlternativeOut]
+    correct_alternative: str | None
+    answer: str | None
+    oa_code: str | None
+    habilidad: str | None
+    contenido: str | None
+    source_note: str | None
+
+
+class GuiaQuestionItemOut(BaseModel):
+    type: str
+    ordinal: int
+    bank_question: QuestionOut | None = None
+    generated_question: GuiaGeneratedQuestionOut | None = None
+
+
+class AutoGuiaCreateIn(BaseModel):
+    name: str
+    bank_question_ids: list[int] = []
+    generated_questions: list[GuiaGeneratedQuestionIn] = []
+
+
+class AutoGuiaGenerateIn(BaseModel):
+    name: str
+    oa_codes: list[str]
+    weak_metrics: list[dict] = []
+    plan_context: str = ""
+
+
+def _generated_question_out(q: GeneratedGuiaQuestion) -> GuiaGeneratedQuestionOut:
+    return GuiaGeneratedQuestionOut(
+        id=q.id,
+        kind=q.kind,
+        prompt=q.prompt,
+        alternatives=[
+            AlternativeOut(label=a.get("label", ""), text=a.get("text", ""))
+            for a in (q.alternatives or [])
+        ],
+        correct_alternative=q.correct_alternative,
+        answer=q.answer,
+        oa_code=q.oa_code,
+        habilidad=q.habilidad,
+        contenido=q.contenido,
+        source_note=q.source_note,
+    )
 
 
 def _guia_detail(g: Guia) -> GuiaDetail:
+    merged_items: list[GuiaQuestionItemOut] = []
+    for item in g.items:
+        merged_items.append(
+            GuiaQuestionItemOut(
+                type="bank",
+                ordinal=item.ordinal,
+                bank_question=_question_out(item.question),
+            )
+        )
+    for item in g.generated_questions:
+        merged_items.append(
+            GuiaQuestionItemOut(
+                type="generated",
+                ordinal=item.ordinal,
+                generated_question=_generated_question_out(item),
+            )
+        )
+    merged_items.sort(key=lambda item: item.ordinal)
     return GuiaDetail(
         id=g.id,
         name=g.name,
-        questions=[_question_out(item.question) for item in g.items],
+        items=merged_items,
     )
+
+
+def _validate_guia_items(items: list[GuiaItemIn], db: Session) -> set[int]:
+    if not items:
+        raise HTTPException(status_code=400, detail="Selecciona al menos una pregunta")
+    bank_ids = [
+        item.question_id for item in items if item.type == "bank" and item.question_id
+    ]
+    if bank_ids:
+        found = db.query(Question.id).filter(Question.id.in_(bank_ids)).all()
+        found_ids = {row.id for row in found}
+        missing = [qid for qid in bank_ids if qid not in found_ids]
+        if missing:
+            raise HTTPException(
+                status_code=400, detail=f"Preguntas inexistentes: {missing}"
+            )
+    for item in items:
+        if item.type == "bank" and item.question_id is None:
+            raise HTTPException(
+                status_code=400, detail="Falta question_id en item banco"
+            )
+        if item.type == "generated":
+            if item.generated is None or not item.generated.prompt.strip():
+                raise HTTPException(
+                    status_code=400,
+                    detail="Cada pregunta generada debe tener enunciado",
+                )
+        if item.type not in {"bank", "generated"}:
+            raise HTTPException(status_code=400, detail=f"Tipo inválido: {item.type}")
+    return {qid for qid in bank_ids if qid is not None}
+
+
+def _apply_guia_items(guia: Guia, items: list[GuiaItemIn], db: Session) -> None:
+    for row in list(guia.items):
+        db.delete(row)
+    for row in list(guia.generated_questions):
+        db.delete(row)
+    db.flush()
+    for ordinal, item in enumerate(items, start=1):
+        if item.type == "bank" and item.question_id is not None:
+            guia.items.append(GuiaItem(question_id=item.question_id, ordinal=ordinal))
+            continue
+        if item.type == "generated" and item.generated is not None:
+            guia.generated_questions.append(
+                GeneratedGuiaQuestion(
+                    ordinal=ordinal,
+                    prompt=item.generated.prompt,
+                    answer=item.generated.answer,
+                    kind=item.generated.kind,
+                    alternatives=item.generated.alternatives or None,
+                    correct_alternative=item.generated.correct_alternative,
+                    oa_code=item.generated.oa_code,
+                    habilidad=item.generated.habilidad,
+                    contenido=item.generated.contenido,
+                    source_note=item.generated.source_note,
+                )
+            )
 
 
 @app.post("/guias", response_model=GuiaDetail)
@@ -995,21 +1193,12 @@ def create_guia(
     name = body.name.strip()
     if not name:
         raise HTTPException(status_code=400, detail="Falta el nombre")
-    if not body.question_ids:
-        raise HTTPException(status_code=400, detail="Selecciona al menos una pregunta")
-
-    found = db.query(Question.id).filter(Question.id.in_(body.question_ids)).all()
-    found_ids = {row.id for row in found}
-    missing = [qid for qid in body.question_ids if qid not in found_ids]
-    if missing:
-        raise HTTPException(
-            status_code=400, detail=f"Preguntas inexistentes: {missing}"
-        )
+    _validate_guia_items(body.items, db)
 
     guia = Guia(teacher_id=teacher.id, name=name)
-    for ord_, qid in enumerate(body.question_ids, start=1):
-        guia.items.append(GuiaItem(question_id=qid, ordinal=ord_))
     db.add(guia)
+    db.flush()
+    _apply_guia_items(guia, body.items, db)
     db.commit()
     db.refresh(guia)
     return _guia_detail(guia)
@@ -1030,7 +1219,7 @@ def list_guias(
         GuiaSummary(
             id=r.id,
             name=r.name,
-            question_count=len(r.items),
+            question_count=len(r.items) + len(r.generated_questions),
             oa_codes=_collect_oa_codes(r),
         )
         for r in rows
@@ -1043,6 +1232,11 @@ def _collect_oa_codes(g: Guia) -> list[str]:
     codes: list[str] = []
     for item in g.items:
         code = item.question.oa_code
+        if code and code not in seen:
+            seen.add(code)
+            codes.append(code)
+    for item in g.generated_questions:
+        code = item.oa_code
         if code and code not in seen:
             seen.add(code)
             codes.append(code)
@@ -1080,26 +1274,42 @@ def update_guia(
     name = body.name.strip()
     if not name:
         raise HTTPException(status_code=400, detail="Falta el nombre")
-    if not body.question_ids:
-        raise HTTPException(status_code=400, detail="Selecciona al menos una pregunta")
-
-    found = db.query(Question.id).filter(Question.id.in_(body.question_ids)).all()
-    found_ids = {row.id for row in found}
-    missing = [qid for qid in body.question_ids if qid not in found_ids]
-    if missing:
-        raise HTTPException(
-            status_code=400, detail=f"Preguntas inexistentes: {missing}"
-        )
+    _validate_guia_items(body.items, db)
 
     guia.name = name
-    for item in list(guia.items):
-        db.delete(item)
-    db.flush()
-    for ord_, qid in enumerate(body.question_ids, start=1):
-        guia.items.append(GuiaItem(question_id=qid, ordinal=ord_))
+    _apply_guia_items(guia, body.items, db)
     db.commit()
     db.refresh(guia)
     return _guia_detail(guia)
+
+
+@app.post("/guias/auto", response_model=GuiaDetail)
+def create_auto_guia(
+    body: AutoGuiaCreateIn,
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    items = [
+        *[GuiaItemIn(type="bank", question_id=qid) for qid in body.bank_question_ids],
+        *[
+            GuiaItemIn(type="generated", generated=generated)
+            for generated in body.generated_questions
+        ],
+    ]
+    return create_guia(GuiaCreate(name=body.name, items=items), teacher, db)
+
+
+@app.post("/guias/generate", response_model=GeneratedGuideDraft)
+def generate_guia_draft(
+    body: AutoGuiaGenerateIn,
+    teacher: Teacher = Depends(get_current_teacher),
+):
+    return generate_remediation_guide(
+        oa_codes=body.oa_codes,
+        weak_metrics=body.weak_metrics,
+        plan_context=body.plan_context,
+        suggested_name=body.name,
+    )
 
 
 @app.delete("/guias/{guia_id}")

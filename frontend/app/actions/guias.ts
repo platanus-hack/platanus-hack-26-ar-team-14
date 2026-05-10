@@ -53,11 +53,55 @@ export type Question = {
 	image_height: number | null;
 };
 
+export type GeneratedQuestion = {
+	id: number | null;
+	kind: string;
+	prompt: string;
+	alternatives: Alternative[];
+	correct_alternative: string | null;
+	answer: string | null;
+	oa_code: string | null;
+	habilidad: string | null;
+	contenido: string | null;
+	source_note: string | null;
+};
+
+export type GuiaQuestionItem =
+	| {
+			type: "bank";
+			ordinal: number;
+			bank_question: Question;
+			generated_question: null;
+	  }
+	| {
+			type: "generated";
+			ordinal: number;
+			bank_question: null;
+			generated_question: GeneratedQuestion;
+	  };
+
 export type GuiaDetail = {
 	id: number;
 	name: string;
-	questions: Question[];
+	items: GuiaQuestionItem[];
 };
+
+export type GuiaQuestionInputItem =
+	| { type: "bank"; question_id: number }
+	| {
+			type: "generated";
+			generated: {
+				kind: string;
+				prompt: string;
+				alternatives: Alternative[];
+				correct_alternative: string | null;
+				answer: string | null;
+				oa_code: string | null;
+				habilidad: string | null;
+				contenido: string | null;
+				source_note: string | null;
+			};
+	  };
 
 export async function listGuiasAction(): Promise<GuiaSummary[]> {
 	const res = await authedFetch("/guias");
@@ -71,7 +115,7 @@ export async function listBankQuestionsAction(): Promise<Question[]> {
 
 export async function createGuiaAction(input: {
 	name: string;
-	question_ids: number[];
+	items: GuiaQuestionInputItem[];
 }): Promise<GuiaDetail> {
 	const res = await authedFetch("/guias", {
 		method: "POST",
@@ -89,7 +133,7 @@ export async function getGuiaAction(id: number): Promise<GuiaDetail> {
 
 export async function updateGuiaAction(
 	id: number,
-	input: { name: string; question_ids: number[] },
+	input: { name: string; items: GuiaQuestionInputItem[] },
 ): Promise<GuiaDetail> {
 	const res = await authedFetch(`/guias/${id}`, {
 		method: "PUT",

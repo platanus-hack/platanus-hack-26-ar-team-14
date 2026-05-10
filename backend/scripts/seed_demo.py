@@ -9,13 +9,10 @@ import json
 from datetime import date, timedelta
 from pathlib import Path
 
-from alembic import command
-from alembic.config import Config
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.auth import hash_password
-from app.db import SessionLocal, engine
+from app.db import SessionLocal
 from app.models import (
     Alert,
     ClassLearningRecord,
@@ -515,7 +512,9 @@ def _seed_guides_for_teacher(db: Session, teacher: Teacher) -> None:
         artifact = _load_guide_artifact(json_path)
         guia_name = json_path.stem
         existing_guide = (
-            db.query(Guia).filter_by(teacher_id=teacher.id, name=guia_name).one_or_none()
+            db.query(Guia)
+            .filter_by(teacher_id=teacher.id, name=guia_name)
+            .one_or_none()
         )
         if existing_guide is not None:
             print(f"  - Guia '{guia_name}' already exists; skip.")
@@ -549,7 +548,9 @@ def _seed_guides_for_teacher(db: Session, teacher: Teacher) -> None:
         db.commit()
         db.refresh(guia)
         created += 1
-        print(f"    seeded guia '{guia_name}' (id={guia.id}) with {len(questions)} items.")
+        print(
+            f"    seeded guia '{guia_name}' (id={guia.id}) with {len(questions)} items."
+        )
 
     print(f"Guides seeded: {created} new, {len(artifacts) - created} pre-existing.")
 

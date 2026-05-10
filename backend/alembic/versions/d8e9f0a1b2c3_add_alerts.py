@@ -24,9 +24,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("course_id", sa.Integer(), nullable=False),
         sa.Column("severity", sa.String(length=16), nullable=False),
-        sa.Column(
-            "observations", sa.JSON(), nullable=False, server_default="[]"
-        ),
+        sa.Column("observations", sa.JSON(), nullable=False, server_default="[]"),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -36,9 +34,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["course_id"], ["courses.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(
-        op.f("ix_alerts_course_id"), "alerts", ["course_id"], unique=False
-    )
+    op.create_index(op.f("ix_alerts_course_id"), "alerts", ["course_id"], unique=False)
 
 
 def downgrade() -> None:

@@ -41,7 +41,9 @@ def listar_evaluaciones_curso(course_id: int) -> dict:
                     if assessment.created_at
                     else None,
                     "weak_oa_codes": sorted(
-                        metric.oa_code for metric in assessment.oa_metrics if metric.weak
+                        metric.oa_code
+                        for metric in assessment.oa_metrics
+                        if metric.weak
                     ),
                 }
                 for assessment in assessments
@@ -85,7 +87,8 @@ def leer_evaluacion(assessment_id: int) -> dict:
             "oa_metrics": [
                 _serialize_metric(metric)
                 for metric in sorted(
-                    assessment.oa_metrics, key=lambda item: (item.mastery_pct, item.oa_code)
+                    assessment.oa_metrics,
+                    key=lambda item: (item.mastery_pct, item.oa_code),
                 )
             ],
         }
@@ -102,7 +105,10 @@ def leer_metricas_oa_evaluacion(assessment_id: int) -> dict:
             assessment.oa_metrics,
             key=lambda metric: (metric.mastery_pct, metric.oa_code),
         )
-        return {"assessment_id": assessment.id, "metrics": [_serialize_metric(m) for m in metrics]}
+        return {
+            "assessment_id": assessment.id,
+            "metrics": [_serialize_metric(m) for m in metrics],
+        }
 
 
 @tool
