@@ -78,9 +78,9 @@ export function getUrgencyTone(urgency: UrgencyLevel) {
 		case "Baja":
 			return {
 				badge: "urgency-low",
-				border: "border-[#2f8f6b]/48",
-				surface: "bg-[#e4f4ec]",
-				accent: "text-[#1c6a4e]",
+				border: "border-[#3b82f6]/48",
+				surface: "bg-[#dbeafe]",
+				accent: "text-[#1e3a8a]",
 			};
 	}
 }
@@ -103,10 +103,10 @@ export const bitacoraCourses: CourseRecord[] = [
 		highlightReason:
 			"Este curso es urgente porque debería llevar 7 OAs y solo lleva 2.",
 		issues: [
-			"Debería llevar 7 OAs enseñados y solo lleva 2.",
-			"OA4 fue enseñado, pero el aprendizaje promedio es 38%.",
-			"OA7 está planificado demasiado tarde para la próxima evaluación.",
-			"La Unidad 2 necesita replanificación inmediata.",
+			"Replanificar Unidad 2 para recuperar 5 OAs pendientes.",
+			"Agregar guía de refuerzo para OA4 (aprendizaje 38%).",
+			"Adelantar OA7 antes de la próxima evaluación.",
+			"Reasignar la evaluación para incluir OA4 y OA7.",
 		],
 		initialChatMessage:
 			"Encontré 3 problemas prioritarios en este plan:\n\n1. Hay una brecha curricular de 5 OAs: a esta altura deberías llevar 7 OAs enseñados y solo llevas 2.\n2. OA4 fue enseñado, pero el aprendizaje promedio es 38%.\n3. OA7 está planificado para dos semanas más, pero debería adelantarse porque es prerrequisito de la próxima evaluación.\n\nTe sugiero replanificar la semana 18, agregar una guía de refuerzo para OA4 y reasignar la próxima prueba a OA4 y OA7.",
@@ -205,10 +205,10 @@ export const bitacoraCourses: CourseRecord[] = [
 		highlightReason:
 			"Este curso está priorizado porque debería llevar 6 OAs y solo lleva 3.",
 		issues: [
-			"Debería llevar 6 OAs enseñados y solo lleva 3.",
-			"Dos OAs priorizados no tienen evidencia asociada.",
-			"La evaluación de la Unidad 1 no está conectada a objetivos específicos.",
-			"Falta actividad de refuerzo para contenidos descendidos.",
+			"Comprimir 3 OAs en las próximas dos semanas.",
+			"Asociar evidencia a los 2 OAs priorizados sin registro.",
+			"Vincular la evaluación de Unidad 1 a OAs específicos.",
+			"Crear actividad de refuerzo para contenidos descendidos.",
 		],
 		initialChatMessage:
 			"Detecté una brecha curricular de 3 OAs y dos vacíos de evidencia. Te conviene conectar la evaluación de la Unidad 1 con objetivos específicos y agregar un refuerzo corto antes del próximo bloque de laboratorio.",
@@ -298,10 +298,10 @@ export const bitacoraCourses: CourseRecord[] = [
 		highlightReason:
 			"Este curso está levemente bajo lo esperado: debería llevar 5 OAs y lleva 4.",
 		issues: [
-			"Debería llevar 5 OAs enseñados y lleva 4.",
-			"Una semana futura está sobrecargada de objetivos.",
-			"Falta asociar una guía a OA9.",
-			"El avance está levemente bajo lo esperado.",
+			"Avanzar 1 OA durante la próxima semana.",
+			"Redistribuir los objetivos de la semana sobrecargada.",
+			"Asociar una guía pedagógica a OA9.",
+			"Monitorear el avance esta semana para volver al ritmo.",
 		],
 		initialChatMessage:
 			"La brecha curricular es baja, pero veo una sobrecarga en una semana futura y una guía faltante para OA9. Conviene ajustar ahora para no acumular riesgo.",
@@ -380,8 +380,8 @@ export const bitacoraCourses: CourseRecord[] = [
 		expectedVsActual: "OAs esperados: 5 · OAs enseñados: 5",
 		highlightReason: "Este curso va al día: no requiere corrección inmediata.",
 		issues: [
-			"El avance curricular está alineado a la fecha.",
-			"Conviene monitorear el desempeño del último control.",
+			"Mantener el ritmo actual de avance curricular.",
+			"Revisar resultados del último control para ajustes finos.",
 		],
 		initialChatMessage:
 			"Este plan va al día. Si quieres, puedo ayudarte a revisar aprendizaje o preparar refuerzo específico antes de la próxima evaluación.",
@@ -427,72 +427,18 @@ export const bitacoraCourses: CourseRecord[] = [
 ];
 
 export const weeklySchedule: WeeklyBlock[] = [
-	{
-		day: "Lunes",
-		time: "08:15",
-		courseId: "lenguaje-5a",
-		shortLabel: "Lenguaje 5°A",
-	},
-	{
-		day: "Lunes",
-		time: "10:00",
-		courseId: "ciencias-6b",
-		shortLabel: "Ciencias 6°B",
-	},
-	{
-		day: "Lunes",
-		time: "11:45",
-		courseId: "historia-4a",
-		shortLabel: "Historia 4°A",
-	},
-	{
-		day: "Martes",
-		time: "08:15",
-		courseId: "lenguaje-5a",
-		shortLabel: "Lenguaje 5°A",
-	},
-	{
-		day: "Martes",
-		time: "12:00",
-		courseId: "matematica-5a",
-		shortLabel: "Matemática 5°A",
-	},
-	{
-		day: "Miércoles",
-		time: "09:00",
-		courseId: "ciencias-6b",
-		shortLabel: "Ciencias 6°B",
-	},
-	{
-		day: "Miércoles",
-		time: "11:00",
-		courseId: "lenguaje-5a",
-		shortLabel: "Lenguaje 5°A",
-	},
-	{
-		day: "Jueves",
-		time: "08:15",
-		courseId: "historia-4a",
-		shortLabel: "Historia 4°A",
-	},
-	{
-		day: "Jueves",
-		time: "10:00",
-		courseId: "lenguaje-5a",
-		shortLabel: "Lenguaje 5°A",
-	},
-	{
-		day: "Viernes",
-		time: "09:45",
-		courseId: "ciencias-6b",
-		shortLabel: "Ciencias 6°B",
-	},
-	{
-		day: "Viernes",
-		time: "12:00",
-		courseId: "historia-4a",
-		shortLabel: "Historia 4°A",
-	},
+	{ day: "Lunes", time: "08:00", courseId: "lenguaje-5a", shortLabel: "Lenguaje 5°A" },
+	{ day: "Lunes", time: "14:00", courseId: "historia-4a", shortLabel: "Historia 4°A" },
+	{ day: "Martes", time: "09:00", courseId: "ciencias-6b", shortLabel: "Ciencias 6°B" },
+	{ day: "Martes", time: "12:00", courseId: "matematica-5a", shortLabel: "Matemática 5°A" },
+	{ day: "Miércoles", time: "08:00", courseId: "matematica-5a", shortLabel: "Matemática 5°A" },
+	{ day: "Miércoles", time: "11:00", courseId: "ciencias-6b", shortLabel: "Ciencias 6°B" },
+	{ day: "Miércoles", time: "13:00", courseId: "lenguaje-5a", shortLabel: "Lenguaje 5°A" },
+	{ day: "Jueves", time: "09:00", courseId: "historia-4a", shortLabel: "Historia 4°A" },
+	{ day: "Jueves", time: "14:00", courseId: "matematica-5a", shortLabel: "Matemática 5°A" },
+	{ day: "Viernes", time: "10:00", courseId: "lenguaje-5a", shortLabel: "Lenguaje 5°A" },
+	{ day: "Viernes", time: "15:00", courseId: "ciencias-6b", shortLabel: "Ciencias 6°B" },
+	{ day: "Viernes", time: "16:00", courseId: "historia-4a", shortLabel: "Historia 4°A" },
 ];
 
 export const scheduleDays = [
