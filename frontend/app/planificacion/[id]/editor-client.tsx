@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import {
 	type FormEvent,
+	useCallback,
 	useEffect,
 	useMemo,
 	useRef,
@@ -88,7 +89,7 @@ export function EditorClient({ initialPlan }: { initialPlan: Plan }) {
 		el.scrollTop = el.scrollHeight;
 	}, [messages.length, lastTextLength, busy]);
 
-	async function streamReply(history: Msg[]) {
+	const streamReply = useCallback(async (history: Msg[]) => {
 		setBusy(true);
 		const ctrl = new AbortController();
 		abortRef.current = ctrl;
@@ -135,7 +136,7 @@ export function EditorClient({ initialPlan }: { initialPlan: Plan }) {
 			setBusy(false);
 			abortRef.current = null;
 		}
-	}
+	}, [plan.id]);
 
 	useEffect(() => {
 		if (startedRef.current) return;
@@ -147,7 +148,7 @@ export function EditorClient({ initialPlan }: { initialPlan: Plan }) {
 		};
 		setMessages([first]);
 		void streamReply([first]);
-	}, [plan.id]);
+	}, [plan.id, streamReply]);
 
 	function onSendFollowup(e: FormEvent) {
 		e.preventDefault();

@@ -31,6 +31,7 @@ export type TeacherCourse = {
 	name: string;
 	class_days: string[];
 	block_number: number;
+	plan_anual_id: number | null;
 };
 
 export async function getTeacherCourses(): Promise<TeacherCourse[]> {

@@ -1,10 +1,8 @@
-"""Seed script for the demo: 1 teacher, 1 course (Quinto Básico), 30 students.
+"""Seed script for the Bitácora demo.
 
 Run from the backend directory:
-    DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/app \\
+    DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/app \
       uv run python -m scripts.seed_demo
-
-Idempotent: re-running with the same teacher email is a no-op.
 """
 
 import json
@@ -27,28 +25,134 @@ from app.models import (
     Teacher,
 )
 
-DEMO_PLAN_ANUAL_PATH = Path(__file__).with_name("demo_plan_anual.json")
 CDE_SEED_DIR = Path(__file__).resolve().parent / "seed_data" / "cde"
 CDE_IMG_DIR = CDE_SEED_DIR / "images"
 
 TEACHER_NAME = "Ana Pérez"
 TEACHER_EMAIL = "ana@demo.cl"
 TEACHER_PASSWORD = "123"
-COURSES = [
+SCHOOL_YEAR = date.today().year
+
+COURSE_SEEDS = [
     {
-        "name": "5to A - Matemática",
-        "class_days": ["monday", "wednesday", "thursday"],
-        "block_number": 2,
-    },
-    {
-        "name": "5to B - Matemática",
-        "class_days": ["tuesday", "thursday", "friday"],
-        "block_number": 3,
-    },
-    {
-        "name": "5to C - Matemática",
+        "name": "Lenguaje y Comunicación - 5° Básico A",
         "class_days": ["monday", "wednesday", "friday"],
+        "block_number": 1,
+        "plan": {
+            "name": "Plan anual Lenguaje 5° Básico A",
+            "asignatura": "Lenguaje y Comunicación",
+            "curso": "5° Básico A",
+            "items": [
+                {
+                    "mes": "Marzo",
+                    "unidad": "Unidad 1",
+                    "oa_codes": ["OA1", "OA2"],
+                    "objetivo": "Comprender textos narrativos y aplicar estrategias iniciales de lectura.",
+                },
+                {
+                    "mes": "Abril",
+                    "unidad": "Unidad 2",
+                    "oa_codes": ["OA4"],
+                    "objetivo": "Analizar aspectos relevantes de narraciones leídas y producir evidencia escrita.",
+                },
+                {
+                    "mes": "Mayo",
+                    "unidad": "Unidad 2",
+                    "oa_codes": ["OA7"],
+                    "objetivo": "Evaluar información explícita e implícita del texto antes de la próxima evaluación.",
+                },
+            ],
+        },
+    },
+    {
+        "name": "Ciencias Naturales - 6° Básico B",
+        "class_days": ["tuesday", "wednesday", "friday"],
+        "block_number": 3,
+        "plan": {
+            "name": "Plan anual Ciencias 6° Básico B",
+            "asignatura": "Ciencias Naturales",
+            "curso": "6° Básico B",
+            "items": [
+                {
+                    "mes": "Marzo",
+                    "unidad": "Unidad 1",
+                    "oa_codes": ["OA3"],
+                    "objetivo": "Explicar relaciones entre organismos y ambiente con evidencia experimental.",
+                },
+                {
+                    "mes": "Abril",
+                    "unidad": "Unidad 1",
+                    "oa_codes": ["OA6", "OA7"],
+                    "objetivo": "Analizar cambios en cadenas alimentarias y factores humanos sobre el equilibrio ecosistémico.",
+                },
+                {
+                    "mes": "Mayo",
+                    "unidad": "Unidad 2",
+                    "oa_codes": ["OA8"],
+                    "objetivo": "Describir efectos de fuerzas en objetos cotidianos y vincularlos con actividades de laboratorio.",
+                },
+            ],
+        },
+    },
+    {
+        "name": "Historia - 4° Básico A",
+        "class_days": ["monday", "thursday", "friday"],
+        "block_number": 7,
+        "plan": {
+            "name": "Plan anual Historia 4° Básico A",
+            "asignatura": "Historia",
+            "curso": "4° Básico A",
+            "items": [
+                {
+                    "mes": "Marzo",
+                    "unidad": "Unidad 1",
+                    "oa_codes": ["OA4", "OA5"],
+                    "objetivo": "Reconocer elementos de la vida cotidiana colonial y compararlos con la actualidad.",
+                },
+                {
+                    "mes": "Abril",
+                    "unidad": "Unidad 2",
+                    "oa_codes": ["OA8"],
+                    "objetivo": "Analizar cambios en las formas de organización social durante la colonia.",
+                },
+                {
+                    "mes": "Mayo",
+                    "unidad": "Unidad 2",
+                    "oa_codes": ["OA9"],
+                    "objetivo": "Relacionar fuentes y guías pedagógicas con procesos históricos del período colonial.",
+                },
+            ],
+        },
+    },
+    {
+        "name": "Matemática - 5° Básico A",
+        "class_days": ["tuesday", "thursday"],
         "block_number": 5,
+        "plan": {
+            "name": "Plan anual Matemática 5° Básico A",
+            "asignatura": "Matemática",
+            "curso": "5° Básico A",
+            "items": [
+                {
+                    "mes": "Marzo",
+                    "unidad": "Unidad 1",
+                    "oa_codes": ["OA1", "OA3"],
+                    "objetivo": "Resolver problemas de valor posicional y operaciones básicas en contextos cotidianos.",
+                },
+                {
+                    "mes": "Abril",
+                    "unidad": "Unidad 2",
+                    "oa_codes": ["OA5"],
+                    "objetivo": "Aplicar estrategias de cálculo mental y estimación para situaciones de aula.",
+                },
+                {
+                    "mes": "Mayo",
+                    "unidad": "Unidad 3",
+                    "oa_codes": ["OA7"],
+                    "objetivo": "Representar datos y comunicar resultados mediante tablas y gráficos simples.",
+                },
+            ],
+        },
     },
 ]
 
@@ -119,11 +223,7 @@ def _load_guide_artifact(json_path: Path) -> dict:
 
 
 def _question_rows_from_artifact(artifact: dict) -> list[Question]:
-    """Build Question ORM rows from a pre-extracted seed artifact.
-
-    Image bytes are loaded from ``scripts/seed_data/cde/images/`` so the row
-    matches what ``ingest_pdf`` would have produced at runtime.
-    """
+    """Build Question ORM rows from a pre-extracted seed artifact."""
     rows: list[Question] = []
     for q in artifact["questions"]:
         image_data: bytes | None = None
@@ -155,11 +255,7 @@ def _question_rows_from_artifact(artifact: dict) -> list[Question]:
 
 
 def _seed_guides_for_teacher(db: Session, teacher: Teacher) -> None:
-    """Load pre-extracted guides from seed_data/cde and attach one Guia per PDF.
-
-    Idempotent: a Guia with the same (teacher_id, name) is left untouched, and
-    Question rows for an already-ingested ``source_hash`` are reused.
-    """
+    """Load pre-extracted guides from seed_data/cde and attach them to the teacher."""
     if not CDE_SEED_DIR.exists():
         print(
             f"seed_data dir missing at {CDE_SEED_DIR}; "
@@ -174,59 +270,78 @@ def _seed_guides_for_teacher(db: Session, teacher: Teacher) -> None:
     for json_path in artifacts:
         artifact = _load_guide_artifact(json_path)
         guia_name = json_path.stem
-        if (
-            db.query(Guia)
-            .filter_by(teacher_id=teacher.id, name=guia_name)
-            .one_or_none()
-            is not None
-        ):
-            print(f"  • Guia '{guia_name}' already exists; skip.")
+        existing_guide = (
+            db.query(Guia).filter_by(teacher_id=teacher.id, name=guia_name).one_or_none()
+        )
+        if existing_guide is not None:
+            print(f"  - Guia '{guia_name}' already exists; skip.")
             continue
 
         source_hash = artifact.get("source_hash")
-        existing_qs = (
+        existing_questions = (
             db.query(Question).filter_by(source_hash=source_hash).all()
             if source_hash
             else []
         )
-        if existing_qs:
-            questions = existing_qs
-            print(f"  • Reusing {len(questions)} existing questions for '{guia_name}'.")
+        if existing_questions:
+            questions = existing_questions
+            print(f"  - Reusing {len(questions)} existing questions for '{guia_name}'.")
         else:
             questions = _question_rows_from_artifact(artifact)
-            for q in questions:
-                db.add(q)
+            for question in questions:
+                db.add(question)
             db.flush()
-            print(f"  • Inserted {len(questions)} questions for '{guia_name}'.")
+            print(f"  - Inserted {len(questions)} questions for '{guia_name}'.")
 
         guia = Guia(
             teacher_id=teacher.id,
             name=guia_name,
             items=[
-                GuiaItem(question_id=q.id, ordinal=i)
-                for i, q in enumerate(questions)
+                GuiaItem(question_id=question.id, ordinal=ordinal)
+                for ordinal, question in enumerate(questions)
             ],
         )
         db.add(guia)
         db.commit()
         db.refresh(guia)
         created += 1
-        print(f"    ✓ Guia '{guia_name}' (id={guia.id}) — {len(questions)} preguntas.")
+        print(f"    seeded guia '{guia_name}' (id={guia.id}) with {len(questions)} items.")
 
     print(f"Guides seeded: {created} new, {len(artifacts) - created} pre-existing.")
+
+
+def build_plan(seed: dict, teacher_id: int) -> PlanAnual:
+    plan = PlanAnual(
+        teacher_id=teacher_id,
+        name=seed["plan"]["name"],
+        asignatura=seed["plan"]["asignatura"],
+        curso=seed["plan"]["curso"],
+        anio=SCHOOL_YEAR,
+        docente=TEACHER_NAME,
+    )
+    for ordinal, item in enumerate(seed["plan"]["items"]):
+        plan.items.append(
+            PlanAnualItem(
+                ordinal=ordinal,
+                mes=item["mes"],
+                unidad=item["unidad"],
+                oa_codes=list(item["oa_codes"]),
+                objetivo=item["objetivo"],
+            )
+        )
+    return plan
 
 
 def main() -> None:
     assert len(STUDENT_NAMES) == 30, "expected 30 student names"
     assert len(set(STUDENT_NAMES)) == 30, "student names must be unique"
-    school_year = date.today().year
 
     with SessionLocal() as db:
         teacher = db.query(Teacher).filter_by(email=TEACHER_EMAIL).one_or_none()
         if teacher is not None:
             print(
                 f"Teacher {TEACHER_EMAIL} already exists (id={teacher.id}); "
-                f"reusing for guide seeding."
+                "reusing for guide seeding."
             )
             _seed_guides_for_teacher(db, teacher)
             return
@@ -236,11 +351,18 @@ def main() -> None:
             email=TEACHER_EMAIL,
             password_hash=hash_password(TEACHER_PASSWORD),
         )
-        teacher.courses = [
-            Course(
-                name=c["name"],
-                class_days=c["class_days"],
-                block_number=c["block_number"],
+        db.add(teacher)
+        db.flush()
+
+        courses: list[Course] = []
+        for index, seed in enumerate(COURSE_SEEDS):
+            plan = build_plan(seed, teacher.id)
+            course = Course(
+                name=seed["name"],
+                teacher_id=teacher.id,
+                class_days=list(seed["class_days"]),
+                block_number=seed["block_number"],
+                plan_anual=plan,
                 learning_records=[
                     ClassLearningRecord(
                         class_date=class_date,
@@ -249,46 +371,23 @@ def main() -> None:
                         observations=None,
                     )
                     for class_date in estimate_class_dates_for_year(
-                        c["class_days"], school_year
+                        seed["class_days"], SCHOOL_YEAR
                     )
                 ],
-                students=[Student(name=n) for n in STUDENT_NAMES] if i == 0 else [],
+                students=[Student(name=name) for name in STUDENT_NAMES]
+                if index == 0
+                else [],
             )
-            for i, c in enumerate(COURSES)
-        ]
-        db.add(teacher)
-        db.flush()  # populate teacher.id for the plan FK below
-        plan_data = json.loads(DEMO_PLAN_ANUAL_PATH.read_text(encoding="utf-8"))
-        plan = PlanAnual(
-            teacher_id=teacher.id,
-            name=plan_data["name"],
-            asignatura=plan_data.get("asignatura"),
-            curso=plan_data.get("curso"),
-            anio=plan_data.get("anio"),
-            docente=plan_data.get("docente"),
-            items=[
-                PlanAnualItem(
-                    ordinal=it["ordinal"],
-                    mes=it.get("mes"),
-                    unidad=it.get("unidad"),
-                    oa_codes=list(it.get("oa_codes") or []),
-                    objetivo=it.get("objetivo") or "",
-                )
-                for it in plan_data["items"]
-            ],
-        )
-        db.add(plan)
+            courses.append(course)
+
+        teacher.courses = courses
         db.commit()
         db.refresh(teacher)
-        db.refresh(plan)
         print(
             f"Seeded teacher {teacher.email} (id={teacher.id}) with "
-            f"{len(teacher.courses)} courses: "
-            f"{', '.join(c.name for c in teacher.courses)}. "
+            f"{len(teacher.courses)} courses and {len(COURSE_SEEDS)} linked plans. "
             f"Pre-created {sum(len(c.learning_records) for c in teacher.courses)} "
-            f"class learning records for {school_year}. "
-            f"Seeded plan anual '{plan.name}' (id={plan.id}) with "
-            f"{len(plan.items)} items."
+            f"class learning records for {SCHOOL_YEAR}."
         )
         _seed_guides_for_teacher(db, teacher)
 

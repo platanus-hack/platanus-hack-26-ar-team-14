@@ -49,8 +49,12 @@ class Course(Base):
     # Time block number (1-based) within the school day when this course meets.
     # Matches the frontend HOUR_SLOTS index (block 1 = first slot, etc.).
     block_number: Mapped[int] = mapped_column(default=1, server_default="1")
+    plan_anual_id: Mapped[int | None] = mapped_column(
+        ForeignKey("plan_anuales.id", ondelete="SET NULL"), nullable=True, index=True
+    )
 
     teacher: Mapped["Teacher"] = relationship(back_populates="courses")
+    plan_anual: Mapped["PlanAnual | None"] = relationship(back_populates="courses")
     students: Mapped[list["Student"]] = relationship(
         back_populates="course", cascade="all, delete-orphan"
     )
@@ -215,6 +219,7 @@ class PlanAnual(Base):
         cascade="all, delete-orphan",
         order_by="PlanAnualItem.ordinal",
     )
+    courses: Mapped[list["Course"]] = relationship(back_populates="plan_anual")
 
 
 class PlanAnualItem(Base):

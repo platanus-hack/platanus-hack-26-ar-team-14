@@ -1,7 +1,7 @@
+import json
 import asyncio
 from datetime import date, datetime
-
-from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
+from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, StreamingResponse
 from pydantic import BaseModel, EmailStr
@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.agent import agent
 from app.auth import create_access_token, get_current_teacher, verify_password
+from app.chat_attachments import build_last_user_message_content
 from app.chat_status import describe_tool_end, describe_tool_start
 from app.config import settings
 from app.curriculum import buscar_actividades, listar_unidades, obtener_oa
@@ -84,6 +85,7 @@ class CourseOut(BaseModel):
     name: str
     class_days: list[str]
     block_number: int
+    plan_anual_id: int | None
 
 
 @app.get("/courses", response_model=list[CourseOut])
@@ -103,6 +105,7 @@ def list_courses(
             name=c.name,
             class_days=list(c.class_days or []),
             block_number=c.block_number,
+            plan_anual_id=c.plan_anual_id,
         )
         for c in courses
     ]
@@ -117,21 +120,10 @@ class ChatRequest(BaseModel):
     messages: list[ChatMessage]
 
 
-@app.post("/chat/stream")
-async def chat_stream(
-    req: ChatRequest,
-    teacher: Teacher = Depends(get_current_teacher),
-):
-    """Stream the agent's tool activity and final tokens as plain UTF-8 text.
-
-    Tool calls are surfaced as short Spanish status lines (prefixed with
-    a marker so the frontend can style them) — the user sees what the
-    asistente is consulting without reading raw JSON.
-    """
-
+def _chat_stream_response(messages: list[dict]) -> StreamingResponse:
     async def event_stream():
         async for event in agent.astream_events(
-            {"messages": [m.model_dump() for m in req.messages]},
+            {"messages": messages},
             version="v2",
         ):
             kind = event["event"]
@@ -153,6 +145,56 @@ async def chat_stream(
                         yield block["text"]
 
     return StreamingResponse(event_stream(), media_type="text/plain; charset=utf-8")
+
+
+@app.post("/chat/stream")
+async def chat_stream(
+    req: ChatRequest,
+    teacher: Teacher = Depends(get_current_teacher),
+):
+    """Stream the agent's tool activity and final tokens as plain UTF-8 text.
+
+    Tool calls are surfaced as short Spanish status lines (prefixed with
+    a marker so the frontend can style them) — the user sees what the
+    asistente is consulting without reading raw JSON.
+    """
+
+    return _chat_stream_response([m.model_dump() for m in req.messages])
+
+
+@app.post("/chat/stream-with-files")
+async def chat_stream_with_files(
+    messages: str = Form(...),
+    files: list[UploadFile] = File([]),
+    teacher: Teacher = Depends(get_current_teacher),
+):
+    try:
+        raw_messages = json.loads(messages)
+        parsed_messages = [
+            ChatMessage.model_validate(message) for message in raw_messages
+        ]
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(
+            status_code=400, detail="Payload de mensajes inválido"
+        ) from exc
+
+    if not parsed_messages:
+        raise HTTPException(status_code=400, detail="Debes enviar al menos un mensaje")
+
+    message_payloads = [message.model_dump() for message in parsed_messages]
+    last_message = parsed_messages[-1]
+    if last_message.role != "user":
+        raise HTTPException(
+            status_code=400,
+            detail="Los archivos deben acompañar el último mensaje del usuario",
+        )
+
+    last_text = last_message.content if isinstance(last_message.content, str) else ""
+    message_payloads[-1]["content"] = await build_last_user_message_content(
+        last_text,
+        files,
+    )
+    return _chat_stream_response(message_payloads)
 
 
 class SearchRequest(BaseModel):
@@ -247,7 +289,9 @@ async def transcribe_endpoint(
             content_type=file.content_type,
         )
     except Exception as e:  # noqa: BLE001
-        raise HTTPException(status_code=502, detail=f"Falló la transcripción: {e}") from e
+        raise HTTPException(
+            status_code=502, detail=f"Falló la transcripción: {e}"
+        ) from e
     return TranscriptionOut(text=text.strip())
 
 

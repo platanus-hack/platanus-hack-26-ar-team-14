@@ -35,7 +35,9 @@ export function MicButton({ onTranscribed, disabled }: Props) {
 		return () => {
 			const rec = recorderRef.current;
 			if (rec && rec.state === "recording") rec.stop();
-			streamRef.current?.getTracks().forEach((t) => t.stop());
+			streamRef.current?.getTracks().forEach((t) => {
+				t.stop();
+			});
 		};
 	}, []);
 
@@ -51,7 +53,9 @@ export function MicButton({ onTranscribed, disabled }: Props) {
 				if (e.data.size > 0) chunksRef.current.push(e.data);
 			};
 			rec.onstop = async () => {
-				stream.getTracks().forEach((t) => t.stop());
+				stream.getTracks().forEach((t) => {
+					t.stop();
+				});
 				streamRef.current = null;
 				const type = rec.mimeType || "audio/webm";
 				const blob = new Blob(chunksRef.current, { type });

@@ -28,6 +28,7 @@ export type WeekPlan = {
 
 export type CourseRecord = {
 	id: string;
+	backendCourseName: string;
 	subject: string;
 	courseName: string;
 	shortName: string;
@@ -88,6 +89,7 @@ export function getUrgencyTone(urgency: UrgencyLevel) {
 export const bitacoraCourses: CourseRecord[] = [
 	{
 		id: "lenguaje-5a",
+		backendCourseName: "Lenguaje y Comunicación - 5° Básico A",
 		subject: "Lenguaje y Comunicación",
 		courseName: "5° Básico A",
 		shortName: "Lenguaje 5°A",
@@ -190,6 +192,7 @@ export const bitacoraCourses: CourseRecord[] = [
 	},
 	{
 		id: "ciencias-6b",
+		backendCourseName: "Ciencias Naturales - 6° Básico B",
 		subject: "Ciencias Naturales",
 		courseName: "6° Básico B",
 		shortName: "Ciencias 6°B",
@@ -283,6 +286,7 @@ export const bitacoraCourses: CourseRecord[] = [
 	},
 	{
 		id: "historia-4a",
+		backendCourseName: "Historia - 4° Básico A",
 		subject: "Historia",
 		courseName: "4° Básico A",
 		shortName: "Historia 4°A",
@@ -366,6 +370,7 @@ export const bitacoraCourses: CourseRecord[] = [
 	},
 	{
 		id: "matematica-5a",
+		backendCourseName: "Matemática - 5° Básico A",
 		subject: "Matemática",
 		courseName: "5° Básico A",
 		shortName: "Matemática 5°A",
@@ -451,6 +456,13 @@ export const scheduleDays = [
 
 export function getCourseById(courseId: string) {
 	return bitacoraCourses.find((course) => course.id === courseId) ?? null;
+}
+
+export function getCourseByBackendName(courseName: string) {
+	return (
+		bitacoraCourses.find((course) => course.backendCourseName === courseName) ??
+		null
+	);
 }
 
 export function getPriorityCourses() {

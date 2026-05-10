@@ -111,7 +111,6 @@ export function BitacoraDashboard({
 	const atTopRef = useRef(true);
 	const slotsByDay = getCoursesByDay(teacherCourses);
 	const visibleDays: ScheduleDay[] = [...scheduleDays];
-	const localScheduleTimes = HOUR_SLOTS;
 
 	useEffect(() => {
 		atTopRef.current = window.scrollY <= 8;
@@ -138,45 +137,47 @@ export function BitacoraDashboard({
 
 		function update() {
 			const grid = gridRef.current;
-			if (!grid || localScheduleTimes.length === 0) return;
+			if (!grid || HOUR_SLOTS.length === 0) return;
 
 			const now = new Date();
 			const nowMin = now.getHours() * 60 + now.getMinutes();
-			const slotMins = localScheduleTimes.map(parseTime);
+			const slotMins = HOUR_SLOTS.map(parseTime);
 			const firstMin = slotMins[0];
 			const lastMin = slotMins[slotMins.length - 1];
-			// Each slot covers one hour, so the calendar's visible range
-			// extends from firstMin until the end of the last slot.
-			const endMin = lastMin + 60;
 
-			if (nowMin < firstMin || nowMin >= endMin) {
-				setCurrentLineTop(null);
-				return;
-			}
-
-			const nodes = localScheduleTimes.map(
-				(t) =>
-					grid.querySelector<HTMLElement>(`[data-time="${t}"]`) ?? null,
-			);
-			if (nodes.some((n) => !n)) return;
+			const nodes = HOUR_SLOTS.reduce<HTMLElement[]>((acc, time) => {
+				const node = grid.querySelector<HTMLElement>(`[data-time="${time}"]`);
+				if (node) {
+					acc.push(node);
+				}
+				return acc;
+			}, []);
+			if (nodes.length !== HOUR_SLOTS.length) return;
 
 			let top: number;
-			if (nowMin >= lastMin) {
-				const last = nodes[nodes.length - 1]!;
-				const ratio = (nowMin - lastMin) / 60;
-				top = last.offsetTop + ratio * last.offsetHeight;
+			if (nowMin <= firstMin) {
+				top = nodes[0].offsetTop;
+			} else if (nowMin >= lastMin) {
+				const last = nodes[nodes.length - 1];
+				top = last.offsetTop + last.offsetHeight;
 			} else {
 				let idx = 0;
 				while (idx < slotMins.length - 1 && slotMins[idx + 1] <= nowMin) {
 					idx++;
 				}
-				const before = nodes[idx]!;
-				const after = nodes[idx + 1]!;
+				const before = nodes[idx];
+				const after = nodes[idx + 1];
 				const ratio =
 					(nowMin - slotMins[idx]) / (slotMins[idx + 1] - slotMins[idx]);
 				top =
 					before.offsetTop + ratio * (after.offsetTop - before.offsetTop);
 			}
+
+			const first = nodes[0];
+			const last = nodes[nodes.length - 1];
+			const minTop = first.offsetTop + 6;
+			const maxTop = last.offsetTop + last.offsetHeight - 6;
+			top = Math.max(minTop, Math.min(maxTop, top));
 
 			setCurrentLineTop(top);
 		}
@@ -189,7 +190,7 @@ export function BitacoraDashboard({
 			window.clearInterval(interval);
 			window.removeEventListener("resize", onResize);
 		};
-	}, [localScheduleTimes]);
+	}, []);
 
 	return (
 		<main className="bitacora-dashboard-shell">
@@ -367,7 +368,7 @@ export function BitacoraDashboard({
 							/>
 						)}
 
-						{localScheduleTimes.map((time, rowIdx) => (
+							{HOUR_SLOTS.map((time, rowIdx) => (
 							<Fragment key={time}>
 								<div
 									className="bitacora-calendar-time"

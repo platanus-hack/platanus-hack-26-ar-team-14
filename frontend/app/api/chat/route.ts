@@ -24,6 +24,22 @@ export async function POST(req: Request) {
 	const token = await getToken();
 	if (!token) return new Response("unauthorized", { status: 401 });
 
+	const contentType = req.headers.get("content-type") ?? "";
+	if (contentType.includes("multipart/form-data")) {
+		const form = await req.formData();
+		const upstream = await fetch(`${BACKEND_URL}/chat/stream-with-files`, {
+			method: "POST",
+			headers: { authorization: `Bearer ${token}` },
+			body: form,
+		});
+		if (!upstream.ok || !upstream.body) {
+			return new Response(await upstream.text(), { status: upstream.status });
+		}
+		return new Response(upstream.body, {
+			headers: { "content-type": "text/plain; charset=utf-8" },
+		});
+	}
+
 	const { messages } = (await req.json()) as ChatBody;
 
 	const upstream = await fetch(`${BACKEND_URL}/chat/stream`, {
@@ -41,12 +57,7 @@ export async function POST(req: Request) {
 	});
 
 	if (!upstream.ok || !upstream.body) {
-		return new Response(
-			`backend ${upstream.status}: ${await upstream.text()}`,
-			{
-				status: 502,
-			},
-		);
+		return new Response(await upstream.text(), { status: upstream.status });
 	}
 
 	return new Response(upstream.body, {
