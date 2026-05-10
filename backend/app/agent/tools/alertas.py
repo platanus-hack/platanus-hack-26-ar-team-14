@@ -77,4 +77,56 @@ def crear_alerta(
         }
 
 
-ALERTAS_TOOLS = [listar_cursos, crear_alerta]
+@tool
+def listar_alertas_curso(course_id: int) -> dict:
+    """Lista las alertas abiertas de un curso, de más reciente a más antigua.
+
+    Útil cuando el lector confirma un ajuste al plan y necesitas identificar
+    qué alerta cerrar.
+    """
+    with SessionLocal() as db:
+        course = db.get(Course, course_id)
+        if course is None:
+            return {"error": f"Curso {course_id} no existe."}
+        rows = (
+            db.execute(
+                select(Alert)
+                .where(Alert.course_id == course_id)
+                .order_by(Alert.created_at.desc(), Alert.id.desc())
+            )
+            .scalars()
+            .all()
+        )
+        return {
+            "alerts": [
+                {
+                    "id": a.id,
+                    "course_id": a.course_id,
+                    "severity": a.severity,
+                    "observations": list(a.observations or []),
+                    "created_at": a.created_at.isoformat() if a.created_at else None,
+                }
+                for a in rows
+            ]
+        }
+
+
+@tool
+def cerrar_alerta(alert_id: int) -> dict:
+    """Cierra (elimina) una alerta una vez que la causa que la motivó está resuelta.
+
+    Llama esto cuando aplicaste el ajuste al plan que cierra la brecha
+    señalada por la alerta. Usa `listar_alertas_curso` si necesitas ubicar
+    el `alert_id` a partir del curso.
+    """
+    with SessionLocal() as db:
+        alert = db.get(Alert, alert_id)
+        if alert is None:
+            return {"error": f"Alerta {alert_id} no existe."}
+        course_id = alert.course_id
+        db.delete(alert)
+        db.commit()
+        return {"ok": True, "closed_alert_id": alert_id, "course_id": course_id}
+
+
+ALERTAS_TOOLS = [listar_cursos, crear_alerta, listar_alertas_curso, cerrar_alerta]

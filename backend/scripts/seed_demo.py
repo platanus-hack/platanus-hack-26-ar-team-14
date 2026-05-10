@@ -9,10 +9,13 @@ import json
 from datetime import date, timedelta
 from pathlib import Path
 
+from alembic import command
+from alembic.config import Config
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.auth import hash_password
-from app.db import SessionLocal
+from app.db import SessionLocal, engine
 from app.models import (
     Alert,
     ClassLearningRecord,
@@ -34,36 +37,46 @@ TEACHER_EMAIL = "ana@demo.cl"
 TEACHER_PASSWORD = "123"
 SCHOOL_YEAR = date.today().year
 
+DEMO_PLAN_JSON = Path(__file__).resolve().parent / "demo_plan_anual.json"
+
+
+def _load_demo_plan_anual(plan_name: str, curso_label: str) -> dict:
+    """Load the long Matemática 5° plan from `demo_plan_anual.json`.
+
+    The JSON is the canonical curricular plan extracted from the official PDF
+    (28 items, all OAs of the year). Used as the linked plan for the
+    Matemática 5° Básico courses so the agent has a realistic plan to reason
+    against.
+    """
+    data = json.loads(DEMO_PLAN_JSON.read_text(encoding="utf-8"))
+    items = sorted(data["items"], key=lambda it: it.get("ordinal", 0))
+    return {
+        "name": plan_name,
+        "asignatura": "Matemática",
+        "curso": curso_label,
+        "anio": data.get("anio") or SCHOOL_YEAR,
+        "docente": data.get("docente") or TEACHER_NAME,
+        "items": [
+            {
+                "mes": it.get("mes"),
+                "unidad": it.get("unidad"),
+                "oa_codes": list(it.get("oa_codes") or []),
+                "objetivo": it.get("objetivo") or "",
+            }
+            for it in items
+        ],
+    }
+
+
 COURSE_SEEDS = [
     {
         "name": "Matemática - 5° Básico B",
         "class_days": ["monday", "wednesday", "friday"],
         "block_number": 1,
-        "plan": {
-            "name": "Plan anual Matemática 5° Básico B",
-            "asignatura": "Matemática",
-            "curso": "5° Básico B",
-            "items": [
-                {
-                    "mes": "Marzo",
-                    "unidad": "Unidad 1",
-                    "oa_codes": ["OA2", "OA4"],
-                    "objetivo": "Reconocer patrones numéricos y resolver adiciones y sustracciones con números hasta 1.000.000.",
-                },
-                {
-                    "mes": "Abril",
-                    "unidad": "Unidad 2",
-                    "oa_codes": ["OA6"],
-                    "objetivo": "Aplicar estrategias de multiplicación y división con números de hasta tres dígitos.",
-                },
-                {
-                    "mes": "Mayo",
-                    "unidad": "Unidad 2",
-                    "oa_codes": ["OA8"],
-                    "objetivo": "Resolver problemas rutinarios usando operaciones combinadas en contextos cotidianos.",
-                },
-            ],
-        },
+        "plan": _load_demo_plan_anual(
+            plan_name="Plan anual Matemática 5° Básico B",
+            curso_label="5° Básico B",
+        ),
     },
     {
         "name": "Ciencias Naturales - 6° Básico B",
@@ -129,183 +142,10 @@ COURSE_SEEDS = [
         "name": "Matemática - 5° Básico A",
         "class_days": ["tuesday", "thursday"],
         "block_number": 5,
-        "plan": {
-            "name": "Plan anual Matemática 5° Básico A",
-            "asignatura": "Matemática",
-            "curso": "5° Básico A",
-            "anio": 2025,
-            "docente": "Héctor González Gaete",
-            "items": [
-                {
-                    "mes": "Marzo",
-                    "unidad": None,
-                    "oa_codes": [],
-                    "objetivo": "Repaso general contenidos año anterior",
-                },
-                {
-                    "mes": "Marzo",
-                    "unidad": "Unidad 1",
-                    "oa_codes": ["OA1"],
-                    "objetivo": "OA 1 : Representar y describir números de hasta más de 6 dígitos y menores que 1 000 millones: › identificando el valor posicional de los dígitos › componiendo y descomponiendo números naturales en forma estándar y expandida › aproximando cantidades › comparando y ordenando números naturales en este ámbito numérico › dando ejemplos de estos números naturales en contextos reales.",
-                },
-                {
-                    "mes": "Marzo",
-                    "unidad": "Unidad 1",
-                    "oa_codes": ["OA2"],
-                    "objetivo": "OA 2: Aplicar estrategias de cálculo mental para la multiplicación: › anexar ceros cuando se multiplica por un múltiplo de 10 › doblar y dividir por 2 en forma repetida › usando las propiedades conmutativa, asociativa y distributiva",
-                },
-                {
-                    "mes": "Abril",
-                    "unidad": "Unidad 1",
-                    "oa_codes": ["OA3"],
-                    "objetivo": "OA 3: Demostrar que comprende la multiplicación de 2 dígitos por 2 dígitos: › estimando productos › aplicando estrategias de cálculo mental › usando la propiedad distributiva de la adición respecto de la multiplicación › resolviendo problemas rutinarios y no rutinarios, aplicando el algoritmo",
-                },
-                {
-                    "mes": "Abril",
-                    "unidad": "Unidad 1",
-                    "oa_codes": ["OA4"],
-                    "objetivo": "OA 4: Demostrar que comprende la división con dividendos de tres dígitos y divisores de un dígito: › interpretando el resto › resolviendo problemas rutinarios y no rutinarios que impliquen divisiones",
-                },
-                {
-                    "mes": "Abril",
-                    "unidad": "Unidad 1",
-                    "oa_codes": ["OA5"],
-                    "objetivo": "OA 5 : Realizar cálculos que involucren las cuatro operaciones con expresiones numéricas, aplicando las reglas relativas a paréntesis y la prevalencia de la multiplicación y la división por sobre la adición y la sustracción cuando corresponda",
-                },
-                {
-                    "mes": "Mayo",
-                    "unidad": "Unidad 1",
-                    "oa_codes": ["OA6"],
-                    "objetivo": "OA 6: Resolver problemas rutinarios y no rutinarios que involucren las cuatro operaciones y combinaciones de ellas: › que incluyan situaciones con dinero › usando la calculadora y el computador en ámbitos numéricos superiores al 10 000",
-                },
-                {
-                    "mes": "Mayo",
-                    "unidad": "Unidad 1",
-                    "oa_codes": ["OA14"],
-                    "objetivo": "OA 14: Descubrir alguna regla que explique una sucesión dada y que permita hacer predicciones.",
-                },
-                {
-                    "mes": "Mayo",
-                    "unidad": "Unidad 1",
-                    "oa_codes": ["OA15"],
-                    "objetivo": "OA 15: Resolver problemas, usando ecuaciones de un paso que involucren adiciones y sustracciones, en forma pictórica y simbólica.",
-                },
-                {
-                    "mes": "Junio",
-                    "unidad": "Unidad 2",
-                    "oa_codes": ["OA16"],
-                    "objetivo": "OA 16: Identificar y dibujar puntos en el primer cuadrante del plano cartesiano, dadas sus coordenadas en números naturales",
-                },
-                {
-                    "mes": "Junio",
-                    "unidad": "Unidad 2",
-                    "oa_codes": ["OA17"],
-                    "objetivo": "OA 17: Describir y dar ejemplos de aristas y caras de figuras 3D, y lados de figuras 2D: › que son paralelos › que se interceptan › que son perpendiculares",
-                },
-                {
-                    "mes": "Junio",
-                    "unidad": "Unidad 2",
-                    "oa_codes": ["OA18"],
-                    "objetivo": "OA 18: Demostrar que comprende el concepto de congruencia, usando la traslación, la reflexión y la rotación en cuadrículas.",
-                },
-                {
-                    "mes": "Julio",
-                    "unidad": "Unidad 2",
-                    "oa_codes": ["OA19"],
-                    "objetivo": "OA 19: Medir longitudes con unidades estandarizadas (m, cm, mm) en el contexto de la resolución de problemas.",
-                },
-                {
-                    "mes": "Julio",
-                    "unidad": "Unidad 2",
-                    "oa_codes": ["OA20"],
-                    "objetivo": "OA 20: Realizar transformaciones entre unidades de medidas de longitud (km a m, m a cm, cm a mm y viceversa), usando software educativo.",
-                },
-                {
-                    "mes": "Julio",
-                    "unidad": "Unidad 2",
-                    "oa_codes": ["OA21"],
-                    "objetivo": "OA 21: Diseñar y construir diferentes rectángulos, dados el perímetro o el área o ambos, y sacar conclusiones.",
-                },
-                {
-                    "mes": "Agosto",
-                    "unidad": "Unidad 2",
-                    "oa_codes": ["OA22"],
-                    "objetivo": "OA 22: Calcular áreas de triángulos, de paralelogramos y de trapecios, y estimar áreas de figuras irregulares aplicando las estrategias: › conteo de cuadrículas › comparación con el área de un rectángulo › completando figuras por traslación",
-                },
-                {
-                    "mes": "Septiembre",
-                    "unidad": "Unidad 3",
-                    "oa_codes": ["OA7"],
-                    "objetivo": "OA 7: Demostrar que comprende las fracciones propias: › representándolas de manera concreta, pictórica y simbólica › creando grupos de fracciones equivalentes – simplificando y ampliando– de manera concreta, pictórica, simbólica, de forma manual y/o con software educativo › comparando fracciones propias con igual y distinto denominador de manera concreta, pictórica y simbólica",
-                },
-                {
-                    "mes": "Septiembre",
-                    "unidad": "Unidad 3",
-                    "oa_codes": ["OA8"],
-                    "objetivo": "OA 8: Demostrar que comprende las fracciones impropias de uso común de denominadores 2, 3, 4, 5, 6, 8, 10, 12 y los números mixtos asociados: › usando material concreto y pictórico para representarlas, de manera manual y/o usando software educativo › identificando y determinando equivalencias entre fracciones impropias y números mixtos › representando estas fracciones y estos números mixtos en la recta numérica.",
-                },
-                {
-                    "mes": "Septiembre",
-                    "unidad": "Unidad 3",
-                    "oa_codes": ["OA9"],
-                    "objetivo": "OA 9: Resolver adiciones y sustracciones con fracciones propias con denominadores menores o iguales a 12: › de manera pictórica y simbólica › amplificando o simplificando.",
-                },
-                {
-                    "mes": "Septiembre",
-                    "unidad": "Unidad 3",
-                    "oa_codes": ["OA10"],
-                    "objetivo": "OA 10: Determinar el decimal que corresponde a fracciones con denominador 2, 4, 5 y 10.",
-                },
-                {
-                    "mes": "Octubre",
-                    "unidad": "Unidad 3",
-                    "oa_codes": ["OA11"],
-                    "objetivo": "OA 11: Comparar y ordenar decimales hasta la milésima.",
-                },
-                {
-                    "mes": "Octubre",
-                    "unidad": "Unidad 3",
-                    "oa_codes": ["OA12"],
-                    "objetivo": "OA 12: Resolver adiciones y sustracciones de decimales, empleando el valor posicional hasta la milésima.",
-                },
-                {
-                    "mes": "Octubre",
-                    "unidad": "Unidad 3",
-                    "oa_codes": ["OA13"],
-                    "objetivo": "OA 13: Resolver problemas rutinarios y no rutinarios, aplicando adiciones y sustracciones de fracciones propias o decimales hasta la milésima.",
-                },
-                {
-                    "mes": "Noviembre",
-                    "unidad": "Unidad 4",
-                    "oa_codes": ["OA26"],
-                    "objetivo": "OA 26: Leer, interpretar y completar tablas, gráficos de barra simple y gráficos de línea, y comunicar sus conclusiones.",
-                },
-                {
-                    "mes": "Noviembre",
-                    "unidad": "Unidad 4",
-                    "oa_codes": ["OA23"],
-                    "objetivo": "OA 23: Calcular el promedio de datos e interpretarlo en su contexto.",
-                },
-                {
-                    "mes": "Noviembre",
-                    "unidad": "Unidad 4",
-                    "oa_codes": ["OA24"],
-                    "objetivo": "OA 24: Describir la posibilidad de ocurrencia de un evento de acuerdo con un experimento aleatorio, empleando los términos seguros – posible – poco posible – imposible.",
-                },
-                {
-                    "mes": "Noviembre",
-                    "unidad": "Unidad 4",
-                    "oa_codes": ["OA25"],
-                    "objetivo": "OA 25: Comparar probabilidades de distintos eventos sin calcularlas.",
-                },
-                {
-                    "mes": "Noviembre",
-                    "unidad": "Unidad 4",
-                    "oa_codes": ["OA27"],
-                    "objetivo": "OA 27: Utilizar diagramas de tallo y hojas para representar datos provenientes de muestras aleatorias.",
-                },
-            ],
-        },
+        "plan": _load_demo_plan_anual(
+            plan_name="Plan anual Matemática 5° Básico A",
+            curso_label="5° Básico A",
+        ),
     },
 ]
 
@@ -477,10 +317,8 @@ def _build_learning_records(seed: dict, cutoff: date) -> list[ClassLearningRecor
     for class_date in estimate_class_dates_for_year(seed["class_days"], SCHOOL_YEAR):
         if class_date < cutoff:
             oas = _oas_for_class(plan_items, class_date.month, past_idx)
-            if asignatura == "Matemática":
-                oas = [code for code in oas if code != "OA8"]
-                if class_date.month == 5 and class_date.day <= 6:
-                    oas = ["OA6"]
+            if asignatura == "Matemática" and class_date.month == 5:
+                oas = ["OA4"]
             obs = templates[past_idx % len(templates)]
             past_idx += 1
             if oas:
@@ -596,17 +434,7 @@ def _seed_guides_for_teacher(db: Session, teacher: Teacher) -> None:
     print(f"Guides seeded: {created} new, {len(artifacts) - created} pre-existing.")
 
 
-ALERT_SEEDS = [
-    {
-        "course_name": "Matemática - 5° Básico A",
-        "severity": "high",
-        "observations": [
-            "Brecha curricular de 5 OAs respecto a lo esperado para la semana 18.",
-            "OA4 enseñado pero con aprendizaje promedio bajo el 40%.",
-            "OA7 planificado tarde: es prerrequisito de la próxima evaluación.",
-        ],
-    },
-]
+ALERT_SEEDS: list[dict] = []
 
 
 def _seed_alerts(db: Session, teacher: Teacher) -> None:
@@ -659,9 +487,30 @@ def build_plan(seed: dict, teacher_id: int) -> PlanAnual:
     return plan
 
 
+def _reset_database() -> None:
+    """Drop the public schema and re-run alembic upgrade to a clean state.
+
+    Wipes everything including alembic_version, then replays migrations so the
+    schema matches HEAD. Safer than `Base.metadata.create_all` because it keeps
+    the seed run aligned with the migration history the app boots against.
+    """
+    print("Dropping public schema…")
+    with engine.begin() as conn:
+        conn.execute(text("DROP SCHEMA public CASCADE"))
+        conn.execute(text("CREATE SCHEMA public"))
+    engine.dispose()
+    print("Running alembic upgrade head…")
+    backend_root = Path(__file__).resolve().parent.parent
+    cfg = Config(str(backend_root / "alembic.ini"))
+    cfg.set_main_option("script_location", str(backend_root / "alembic"))
+    command.upgrade(cfg, "head")
+
+
 def main() -> None:
     assert len(STUDENT_NAMES) == 30, "expected 30 student names"
     assert len(set(STUDENT_NAMES)) == 30, "student names must be unique"
+
+    _reset_database()
 
     # Past records get filled in for any class date strictly before this cutoff.
     # The 2-day buffer keeps the most recent class day pending so the dashboard's
@@ -669,17 +518,6 @@ def main() -> None:
     cutoff = date.today() - timedelta(days=2)
 
     with SessionLocal() as db:
-        teacher = db.query(Teacher).filter_by(email=TEACHER_EMAIL).one_or_none()
-        if teacher is not None:
-            print(
-                f"Teacher {TEACHER_EMAIL} already exists (id={teacher.id}); "
-                "reusing for guide seeding."
-            )
-            _seed_guides_for_teacher(db, teacher)
-            _seed_alerts(db, teacher)
-            db.commit()
-            return
-
         teacher = Teacher(
             name=TEACHER_NAME,
             email=TEACHER_EMAIL,

@@ -1,0 +1,161 @@
+{
+  "source_file": "Matemática-5°C-PF05A.pdf",
+  "source_hash": "seed-demo-oa5-pf05a-v1",
+  "asignatura": "Matemática",
+  "nivel": "5° básico",
+  "oa_code": "OA5",
+  "habilidad": "Calcular",
+  "contenido": "Operaciones combinadas, Paréntesis, Prevalencia",
+  "questions": [
+    {
+      "prompt": "¿Cuál es el resultado de 6 + 4 × 3?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "30"},
+        {"label": "b", "text": "18"},
+        {"label": "c", "text": "22"},
+        {"label": "d", "text": "12"}
+      ],
+      "correct_alternative": "b",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Calcula: (8 + 2) × 5",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "18"},
+        {"label": "b", "text": "40"},
+        {"label": "c", "text": "50"},
+        {"label": "d", "text": "26"}
+      ],
+      "correct_alternative": "c",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Resuelve: 24 ÷ 4 + 2",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "4"},
+        {"label": "b", "text": "8"},
+        {"label": "c", "text": "6"},
+        {"label": "d", "text": "12"}
+      ],
+      "correct_alternative": "b",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "¿Cuál es el resultado de 20 − 3 × 4?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "68"},
+        {"label": "b", "text": "8"},
+        {"label": "c", "text": "12"},
+        {"label": "d", "text": "17"}
+      ],
+      "correct_alternative": "b",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Calcula: 5 × (6 − 2)",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "20"},
+        {"label": "b", "text": "28"},
+        {"label": "c", "text": "10"},
+        {"label": "d", "text": "30"}
+      ],
+      "correct_alternative": "a",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Resuelve: 18 ÷ (3 + 6)",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "6"},
+        {"label": "b", "text": "9"},
+        {"label": "c", "text": "2"},
+        {"label": "d", "text": "12"}
+      ],
+      "correct_alternative": "c",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "¿Cuál es el resultado de 7 + 2 × 5 − 3?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "14"},
+        {"label": "b", "text": "42"},
+        {"label": "c", "text": "20"},
+        {"label": "d", "text": "30"}
+      ],
+      "correct_alternative": "a",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Calcula: (12 + 8) ÷ 4",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "14"},
+        {"label": "b", "text": "5"},
+        {"label": "c", "text": "8"},
+        {"label": "d", "text": "20"}
+      ],
+      "correct_alternative": "b",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Resuelve: 9 + 6 ÷ 3",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "5"},
+        {"label": "b", "text": "11"},
+        {"label": "c", "text": "15"},
+        {"label": "d", "text": "9"}
+      ],
+      "correct_alternative": "b",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "¿Cuál es el resultado de (15 − 5) × 2 + 4?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "24"},
+        {"label": "b", "text": "16"},
+        {"label": "c", "text": "26"},
+        {"label": "d", "text": "44"}
+      ],
+      "correct_alternative": "a",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    }
+  ]
+}

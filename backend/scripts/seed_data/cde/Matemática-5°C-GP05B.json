@@ -1,0 +1,191 @@
+{
+  "source_file": "Matemática-5°C-GP05B.pdf",
+  "source_hash": "seed-demo-oa5-gp05b-v1",
+  "asignatura": "Matemática",
+  "nivel": "5° básico",
+  "oa_code": "OA5",
+  "habilidad": "Resolver problemas",
+  "contenido": "Operaciones combinadas, Resolución de problemas",
+  "questions": [
+    {
+      "prompt": "Una caja trae 12 chocolates. Si se compran 4 cajas y se reparten en partes iguales entre 6 niños, ¿cuántos chocolates recibe cada niño? Plantea la expresión y calcúlala.",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "(12 × 4) ÷ 6 = 8"},
+        {"label": "b", "text": "12 × (4 ÷ 6) = 8"},
+        {"label": "c", "text": "12 + 4 ÷ 6 = 12"},
+        {"label": "d", "text": "12 ÷ 4 × 6 = 18"}
+      ],
+      "correct_alternative": "a",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "En una librería un cuaderno cuesta $1.200 y un lápiz $300. Si compras 3 cuadernos y 5 lápices, ¿cuál expresión representa el total a pagar?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "3 × 1.200 + 5 × 300"},
+        {"label": "b", "text": "3 + 1.200 × 5 + 300"},
+        {"label": "c", "text": "(3 + 5) × (1.200 + 300)"},
+        {"label": "d", "text": "3 × (1.200 + 5) × 300"}
+      ],
+      "correct_alternative": "a",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Calcula: 3 × 4 + 2 × 5",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "70"},
+        {"label": "b", "text": "22"},
+        {"label": "c", "text": "26"},
+        {"label": "d", "text": "30"}
+      ],
+      "correct_alternative": "b",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Una pizza se corta en 8 trozos. Si Juan come 2 pizzas y media en trozos enteros, y luego paga $7.000 por pizza, ¿cuántos trozos comió y cuánto pagó? Marca la pareja correcta.",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "20 trozos y $17.500"},
+        {"label": "b", "text": "16 trozos y $14.000"},
+        {"label": "c", "text": "24 trozos y $21.000"},
+        {"label": "d", "text": "18 trozos y $15.000"}
+      ],
+      "correct_alternative": "a",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Resuelve: 50 − (4 × 6 + 10)",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "16"},
+        {"label": "b", "text": "30"},
+        {"label": "c", "text": "20"},
+        {"label": "d", "text": "26"}
+      ],
+      "correct_alternative": "a",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Una sala tiene 6 filas con 8 sillas cada una. Si se sacan 5 sillas para repararlas, ¿cuántas sillas quedan? Marca la expresión y el resultado correctos.",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "6 + 8 − 5 = 9"},
+        {"label": "b", "text": "6 × (8 − 5) = 18"},
+        {"label": "c", "text": "6 × 8 − 5 = 43"},
+        {"label": "d", "text": "(6 − 5) × 8 = 8"}
+      ],
+      "correct_alternative": "c",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Calcula: (9 + 3) × (10 − 6)",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "48"},
+        {"label": "b", "text": "33"},
+        {"label": "c", "text": "16"},
+        {"label": "d", "text": "60"}
+      ],
+      "correct_alternative": "a",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Sofía ahorra $500 cada día durante 4 días y luego gasta $800 en un libro. ¿Cuánto le queda?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "500 × 4 − 800 = 1.200"},
+        {"label": "b", "text": "500 + 4 − 800 = −296"},
+        {"label": "c", "text": "(500 − 800) × 4 = −1.200"},
+        {"label": "d", "text": "500 × (4 − 800) = −398.000"}
+      ],
+      "correct_alternative": "a",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Resuelve: 100 ÷ (2 + 3) − 4",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "16"},
+        {"label": "b", "text": "46"},
+        {"label": "c", "text": "20"},
+        {"label": "d", "text": "10"}
+      ],
+      "correct_alternative": "a",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "En el comedor hay 5 mesas con 4 niños cada una. Llegan 3 niños más y luego se van 2. ¿Cuántos niños hay ahora?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "5 × 4 + 3 − 2 = 21"},
+        {"label": "b", "text": "5 + 4 × 3 − 2 = 15"},
+        {"label": "c", "text": "(5 + 4) × (3 − 2) = 9"},
+        {"label": "d", "text": "5 × (4 + 3 − 2) = 25"}
+      ],
+      "correct_alternative": "a",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Calcula: 7 × 6 − 4 × 3",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "30"},
+        {"label": "b", "text": "114"},
+        {"label": "c", "text": "26"},
+        {"label": "d", "text": "54"}
+      ],
+      "correct_alternative": "a",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    },
+    {
+      "prompt": "Un colegio compra 8 cajas de jugos con 6 jugos cada una. Si se reparten en partes iguales en 4 cursos, ¿cuántos jugos recibe cada curso?",
+      "answer": null,
+      "kind": "multiple_choice",
+      "alternatives": [
+        {"label": "a", "text": "(8 × 6) ÷ 4 = 12"},
+        {"label": "b", "text": "8 + 6 ÷ 4 = 9,5"},
+        {"label": "c", "text": "8 × (6 ÷ 4) = 12"},
+        {"label": "d", "text": "8 × 6 ÷ 4 + 4 = 16"}
+      ],
+      "correct_alternative": "a",
+      "image_file": null,
+      "image_width": null,
+      "image_height": null
+    }
+  ]
+}

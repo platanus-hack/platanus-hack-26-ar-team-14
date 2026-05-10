@@ -16,14 +16,8 @@ type Msg = BitacoraChatMessage;
 
 function buildReviewPrompt(planId: number): string {
 	return [
-		`Plan ID: ${planId}.`,
-		"Estás en una audiencia UTP sobre la planificación anual de Matemática 5° básico.",
-		"Carga el plan con `listar_plan(" + planId + ")`, audita cobertura de los 27 OA,",
-		"ubicación por unidad, OA mal escritos, y factibilidad por mes con `clases_en_mes`.",
-		"Propón las correcciones en texto y espera mi confirmación antes de tocar el plan",
-		"con `crear_item_plan`, `actualizar_item_plan` o `eliminar_item_plan`.",
-		"No reescribas el plan en prosa: el frontend lo recarga desde la base de datos.",
-		"Cierra con la sección # Correcciones según tu formato.",
+		`Plan ${planId}. Audítalo en silencio (listar_plan, clases_en_mes, OA y Programa según haga falta) y responde solo con la sección # Correcciones: hasta 5 bullets, una línea cada uno, terminando con "¿Aplico estos cambios?".`,
+		"Salta el resumen del plan, las listas de OA cubiertos y las secciones de fuentes; el lector ve la tabla en pantalla. Espera confirmación antes de mutar.",
 	].join(" ");
 }
 

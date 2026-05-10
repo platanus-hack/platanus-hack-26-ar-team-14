@@ -10,6 +10,11 @@ reset:
 	docker compose up -d postgres
 	uv run alembic upgrade head
 
+seed:
+	docker compose -f ../docker-compose.dev.yml exec backend python -m scripts.seed_demo
+
+reseed: reset seed
+
 dev-up: db-up migrate
 	uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 

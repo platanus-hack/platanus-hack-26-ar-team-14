@@ -244,16 +244,18 @@ export function BitacoraDashboard({
 				</>
 			)}
 
-			<section
-				ref={alertRef}
-				className={`bitacora-alert-banner ${showAlert ? "bitacora-alert-banner-visible" : ""}`}
-			>
-				<h1 className="bitacora-alert-title">
-					{teacherName}, tienes que modificar la planificación de{" "}
-					{priorityCourses.length}{" "}
-					{priorityCourses.length === 1 ? "curso" : "cursos"}.
-				</h1>
-			</section>
+			{priorityCourses.length > 0 && (
+				<section
+					ref={alertRef}
+					className={`bitacora-alert-banner ${showAlert ? "bitacora-alert-banner-visible" : ""}`}
+				>
+					<h1 className="bitacora-alert-title">
+						{teacherName}, tienes que modificar la planificación de{" "}
+						{priorityCourses.length}{" "}
+						{priorityCourses.length === 1 ? "curso" : "cursos"}.
+					</h1>
+				</section>
+			)}
 
 			<section className="mt-8 grid gap-[18px] md:grid-cols-2">
 				{priorityCourses.map((course, index) => {
