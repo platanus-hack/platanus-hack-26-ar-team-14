@@ -24,17 +24,17 @@ const markdownComponents: Components = {
 	),
 	li: ({ children }) => <li className="my-0.5">{children}</li>,
 	h1: ({ children }) => (
-		<h1 className="font-display mt-4 mb-2 text-[24px] leading-tight first:mt-0">
+		<h1 className="font-display mt-4 mb-2 text-[28px] leading-tight first:mt-0">
 			{children}
 		</h1>
 	),
 	h2: ({ children }) => (
-		<h2 className="font-display mt-4 mb-2 text-[20px] leading-tight first:mt-0">
+		<h2 className="font-display mt-4 mb-2 text-[22px] leading-tight first:mt-0">
 			{children}
 		</h2>
 	),
 	h3: ({ children }) => (
-		<h3 className="font-display mt-3 mb-1 text-[18px] leading-tight first:mt-0">
+		<h3 className="font-display mt-3 mb-1 text-[20px] leading-tight first:mt-0">
 			{children}
 		</h3>
 	),
@@ -58,7 +58,7 @@ const markdownComponents: Components = {
 		</code>
 	),
 	pre: ({ children }) => (
-		<pre className="my-2 overflow-x-auto rounded bg-ink/5 p-3 font-mono text-[12px]">
+		<pre className="my-2 overflow-x-auto rounded bg-ink/5 p-3 font-mono text-[14px]">
 			{children}
 		</pre>
 	),
@@ -70,7 +70,7 @@ const markdownComponents: Components = {
 	hr: () => <hr className="my-3 border-rule/40" />,
 	table: ({ children }) => (
 		<div className="my-2 overflow-x-auto">
-			<table className="w-full border-collapse text-[14px]">{children}</table>
+			<table className="w-full border-collapse text-[16px]">{children}</table>
 		</div>
 	),
 	th: ({ children }) => (

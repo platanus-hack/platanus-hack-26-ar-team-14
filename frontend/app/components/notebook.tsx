@@ -69,7 +69,7 @@ export function MessageBlock({
 			<div className="meta-mono w-14 shrink-0 pt-[5px]">{label}</div>
 			<div
 				className={[
-					"min-w-0 flex-1 font-serif text-[16px] leading-[1.55]",
+					"min-w-0 flex-1 font-serif text-[18px] leading-[1.6]",
 					speaker === "teacher" ? "italic text-ink-soft" : "text-ink",
 				].join(" ")}
 			>
