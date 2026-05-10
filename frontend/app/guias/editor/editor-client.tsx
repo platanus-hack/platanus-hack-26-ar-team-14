@@ -401,6 +401,7 @@ function WorksheetItem({
 						alt={`Pregunta ${q.id}`}
 						width={q.image_width ?? 1200}
 						height={q.image_height ?? 900}
+						unoptimized
 						className="mt-3 max-h-64 rounded-xl border border-slate-200 object-contain"
 					/>
 				) : null}
