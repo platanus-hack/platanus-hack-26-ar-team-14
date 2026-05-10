@@ -61,6 +61,9 @@ class Course(Base):
     learning_records: Mapped[list["ClassLearningRecord"]] = relationship(
         back_populates="course", cascade="all, delete-orphan"
     )
+    alerts: Mapped[list["Alert"]] = relationship(
+        back_populates="course", cascade="all, delete-orphan"
+    )
 
 
 class Student(Base):
@@ -97,6 +100,24 @@ class ClassLearningRecord(Base):
     observations: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     course: Mapped["Course"] = relationship(back_populates="learning_records")
+
+
+class Alert(Base):
+    """Alerta sobre un curso: severidad y observaciones que la motivan."""
+
+    __tablename__ = "alerts"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    course_id: Mapped[int] = mapped_column(
+        ForeignKey("courses.id", ondelete="CASCADE"), index=True
+    )
+    severity: Mapped[str] = mapped_column(String(16))
+    observations: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    course: Mapped["Course"] = relationship(back_populates="alerts")
 
 
 class Question(Base):
