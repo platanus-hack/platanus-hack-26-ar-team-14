@@ -928,18 +928,10 @@ body {
 		display: block;
 		min-inline-size: 0;
 		margin: 0;
-		border: 1px dashed rgba(148, 163, 184, 0.24);
-		border-radius: 28px;
-		padding: 16px;
-		background: linear-gradient(
-			180deg,
-			rgba(248, 250, 252, 0.98),
-			rgba(241, 245, 249, 0.92)
-		);
-		transition:
-			border-color 180ms ease,
-			background 180ms ease,
-			box-shadow 180ms ease;
+		border: 0;
+		padding: 0;
+		background: transparent;
+		transition: box-shadow 180ms ease;
 	}
 
 	.bitacora-chat-composer-row {
@@ -949,9 +941,8 @@ body {
 	}
 
 	.bitacora-chat-composer-drag {
-		border-color: rgba(185, 75, 69, 0.38);
-		background: rgba(252, 231, 226, 0.75);
-		box-shadow: inset 0 0 0 1px rgba(185, 75, 69, 0.18);
+		box-shadow: 0 0 0 2px rgba(185, 75, 69, 0.28);
+		border-radius: 32px;
 	}
 
 	.bitacora-file-pill {
