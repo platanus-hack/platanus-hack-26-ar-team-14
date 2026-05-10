@@ -55,6 +55,26 @@ async def health():
     return {"status": "ok"}
 
 
+@app.api_route("/reset", methods=["GET", "POST"])
+async def reset_demo():
+    """Wipe and re-seed the demo teachers (ana@demo.cl + ana2@demo.cl).
+
+    Equivalente a `uv run python -m scripts.seed_demo`. Es destructivo para
+    los dos docentes demo (borra cursos, planes, libro de clases, alumnos,
+    materiales, alertas y guías) y los recrea desde cero. Pensado para
+    devolver el demo a un estado limpio durante presentaciones.
+    """
+    from scripts.seed_demo import main as run_seed
+
+    try:
+        await asyncio.to_thread(run_seed)
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(
+            status_code=500, detail=f"Falló el reset del demo: {exc}"
+        ) from exc
+    return {"status": "ok"}
+
+
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
