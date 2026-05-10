@@ -160,6 +160,8 @@ export type BitacoraChatPanelProps = {
 	onRemovePendingFile?: (id: string) => void;
 	acceptFiles?: string;
 	className?: string;
+	teacherName?: string;
+	assistantName?: string;
 };
 
 export function BitacoraChatPanel({
@@ -177,6 +179,8 @@ export function BitacoraChatPanel({
 	onRemovePendingFile,
 	acceptFiles = FILE_ACCEPT_DEFAULT,
 	className,
+	teacherName,
+	assistantName = "Agente",
 }: BitacoraChatPanelProps) {
 	const supportsFiles = Boolean(onAddFiles);
 	const visibleMessages = useMemo(
@@ -326,7 +330,9 @@ export function BitacoraChatPanel({
 						}
 					>
 						<p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-							{message.role === "assistant" ? "Agente" : "Profesor"}
+							{message.role === "assistant"
+								? assistantName
+								: (teacherName ?? "Profesor")}
 						</p>
 						{message.attachments?.length ? (
 							<div className="mb-3 flex flex-wrap gap-2">

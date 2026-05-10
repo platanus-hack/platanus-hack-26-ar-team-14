@@ -203,6 +203,8 @@ export function RegistroClient({
 					onInputChange={setInput}
 					onSubmit={submitInput}
 					placeholder="Mensaje a Bita…"
+					teacherName={teacherName}
+					assistantName="Bita"
 				/>
 			</div>
 		</main>
