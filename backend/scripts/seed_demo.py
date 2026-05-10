@@ -35,31 +35,31 @@ SCHOOL_YEAR = date.today().year
 
 COURSE_SEEDS = [
     {
-        "name": "Lenguaje y Comunicación - 5° Básico A",
+        "name": "Matemática - 5° Básico B",
         "class_days": ["monday", "wednesday", "friday"],
         "block_number": 1,
         "plan": {
-            "name": "Plan anual Lenguaje 5° Básico A",
-            "asignatura": "Lenguaje y Comunicación",
-            "curso": "5° Básico A",
+            "name": "Plan anual Matemática 5° Básico B",
+            "asignatura": "Matemática",
+            "curso": "5° Básico B",
             "items": [
                 {
                     "mes": "Marzo",
                     "unidad": "Unidad 1",
-                    "oa_codes": ["OA1", "OA2"],
-                    "objetivo": "Comprender textos narrativos y aplicar estrategias iniciales de lectura.",
+                    "oa_codes": ["OA2", "OA4"],
+                    "objetivo": "Reconocer patrones numéricos y resolver adiciones y sustracciones con números hasta 1.000.000.",
                 },
                 {
                     "mes": "Abril",
                     "unidad": "Unidad 2",
-                    "oa_codes": ["OA4"],
-                    "objetivo": "Analizar aspectos relevantes de narraciones leídas y producir evidencia escrita.",
+                    "oa_codes": ["OA6"],
+                    "objetivo": "Aplicar estrategias de multiplicación y división con números de hasta tres dígitos.",
                 },
                 {
                     "mes": "Mayo",
                     "unidad": "Unidad 2",
-                    "oa_codes": ["OA7"],
-                    "objetivo": "Evaluar información explícita e implícita del texto antes de la próxima evaluación.",
+                    "oa_codes": ["OA8"],
+                    "objetivo": "Resolver problemas rutinarios usando operaciones combinadas en contextos cotidianos.",
                 },
             ],
         },
@@ -218,24 +218,6 @@ SPANISH_MONTHS_TITLE = [
 # rotate through these deterministically, so the demo libro de clases reads as
 # realistic without any LLM call. Templates are short (≤ 2 lines clamp in UI).
 OBS_TEMPLATES_BY_ASIGNATURA: dict[str, list[str]] = {
-    "Lenguaje y Comunicación": [
-        "Lectura compartida en voz alta del texto seleccionado. Identificamos elementos narrativos en una tabla colaborativa. Buena concentración general. Tarea: ficha de personajes.",
-        "Trabajo de inferencias en parejas a partir de un fragmento corto. Resultados variables; refuerzo grupal al cierre. Catalina hizo aportes destacados.",
-        "Producción escrita individual con planificador previo. Pasé por los puestos dando retroalimentación. Avance disparejo, varios necesitan más andamiaje.",
-        "Análisis de estructura narrativa: inicio, desarrollo y desenlace. Esquema en pizarra y copia en cuadernos. Pendiente: reforzar conflicto narrativo.",
-        "Discusión guiada sobre el cuento leído. Participación amplia. Sofía y Mateo destacaron por sus argumentos. Tarea: redactar opinión personal breve.",
-        "Coevaluación entre pares con rúbrica simple. Funcionó bien la dinámica. Cada estudiante recibió retroalimentación de dos compañeros. Buen ambiente.",
-        "Ejercicio de vocabulario contextual a partir de palabras desconocidas. Hipótesis de significado en grupos. Tarea: completar glosario personal.",
-        "Lectura silenciosa con anotaciones marginales. Sostener silencio fue desafío inicial. Trabajo individual posterior con guía de comprensión.",
-        "Punto de vista narrativo: primera y tercera persona. Diferenciación con fragmentos cortos. Ejercicio de conversión entre puntos de vista; difícil para varios.",
-        "Diálogos en relatos: uso de raya y comillas. Ejercicios graduales en cuaderno. Tres estudiantes confunden puntuación al cambiar hablante. Refuerzo necesario.",
-        "Análisis de simbolismo en narraciones. Concepto difícil; usé ejemplos visuales primero. Algunos lo captaron rápidamente, otros requirieron apoyo individual.",
-        "Lectura coral del texto. Distribución de fragmentos por filas. Buena dinámica. Trabajo posterior con preguntas literales.",
-        "Caracterización de personajes con ficha detallada. Diferenciamos personaje plano y redondo. Joaquín hizo preguntas pertinentes.",
-        "Tema y mensaje en narraciones. Diferenciamos los conceptos con ejemplos contrastantes. Trabajo individual; buena profundidad analítica del grupo.",
-        "Estrategia de predicción a partir del título y portada. La mayoría logró predicciones razonables. Pendiente: predicción durante la lectura.",
-        "Cierre de unidad con coevaluación de borradores. Producto final mejor de lo esperado en general. Tarea: traer cuento ilustrado y limpio.",
-    ],
     "Ciencias Naturales": [
         "Introducción al concepto con ejemplos cercanos al curso. Activación de conocimientos previos en lluvia de ideas. Tarea: traer imagen relacionada.",
         "Experimento corto en aula con material disponible. Registro de observaciones en cuaderno. Curso entusiasmado. Pendiente: análisis de datos.",
@@ -335,7 +317,7 @@ def _build_learning_records(seed: dict, cutoff: date) -> list[ClassLearningRecor
     asignatura = seed["plan"]["asignatura"]
     templates = OBS_TEMPLATES_BY_ASIGNATURA.get(asignatura)
     if not templates:
-        templates = OBS_TEMPLATES_BY_ASIGNATURA["Lenguaje y Comunicación"]
+        templates = OBS_TEMPLATES_BY_ASIGNATURA["Matemática"]
 
     records: list[ClassLearningRecord] = []
     past_idx = 0
