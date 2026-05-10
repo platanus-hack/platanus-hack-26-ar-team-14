@@ -84,55 +84,12 @@ function groupItemsByMes(items: PlanItem[]): MonthGroup[] {
 	);
 }
 
-function ResultsPill({ material }: { material: Material }) {
-	const r = material.resultados;
-	if (!r) return null;
-	const promedioColor =
-		r.promedio >= 5.5
-			? "text-emerald-700"
-			: r.promedio >= 4.0
-				? "text-slate-800"
-				: "text-rose-700";
-	const aprobColor =
-		r.pct_aprobados >= 80
-			? "text-emerald-700"
-			: r.pct_aprobados >= 60
-				? "text-amber-700"
-				: "text-rose-700";
-	return (
-		<div
-			title={`${material.name} · ${r.n_alumnos} alumnos`}
-			className="inline-flex flex-col gap-0.5 rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] leading-tight shadow-sm"
-		>
-			<div className="flex items-baseline gap-1.5">
-				<span className={`text-[15px] font-semibold tabular-nums ${promedioColor}`}>
-					{r.promedio.toFixed(1)}
-				</span>
-				<span className="text-[10px] text-slate-500">prom</span>
-			</div>
-			<div className="flex items-center gap-1 text-[10px] text-slate-500">
-				<span className={`font-semibold tabular-nums ${aprobColor}`}>
-					{Math.round(r.pct_aprobados)}%
-				</span>
-				<span>aprob · n={r.n_alumnos}</span>
-			</div>
-		</div>
-	);
-}
-
 function MaterialPill({ material }: { material: Material }) {
-	const kindLabel =
-		material.kind === "prueba"
-			? "Prueba"
-			: material.kind === "recurso"
-				? "Recurso"
-				: "Guía";
+	const kindLabel = material.kind === "recurso" ? "Recurso" : "Guía";
 	const kindClass =
-		material.kind === "prueba"
-			? "border-amber-300 bg-amber-50 text-amber-700"
-			: material.kind === "recurso"
-				? "border-slate-300 bg-slate-50 text-slate-700"
-				: "border-emerald-300 bg-emerald-50 text-emerald-700";
+		material.kind === "recurso"
+			? "border-slate-300 bg-slate-50 text-slate-700"
+			: "border-emerald-300 bg-emerald-50 text-emerald-700";
 
 	const content = (
 		<span className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 py-1 text-[12px] text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
@@ -241,9 +198,6 @@ export function PlanAnualTable({ plan, headerExtra, className }: Props) {
 							<th className="border-b border-slate-200 px-4 py-2.5">
 								Material docente
 							</th>
-							<th className="border-b border-slate-200 px-4 py-2.5">
-								Resultados
-							</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -337,29 +291,12 @@ export function PlanAnualTable({ plan, headerExtra, className }: Props) {
 											</div>
 										)}
 									</td>
-									<td className={`border-b border-slate-100 px-4 py-2.5 ${cellOpacity}`}>
-										{(() => {
-											const withResults = group.materials.filter(
-												(m) => m.resultados !== null,
-											);
-											if (withResults.length === 0) {
-												return <span className="text-slate-300">—</span>;
-											}
-											return (
-												<div className="flex flex-col items-start gap-1">
-													{withResults.map((m) => (
-														<ResultsPill key={m.id} material={m} />
-													))}
-												</div>
-											);
-										})()}
-									</td>
 								</tr>
 							);
 						})}
 						{groups.length === 0 ? (
 							<tr>
-								<td colSpan={5} className="px-4 py-8 text-center text-slate-500">
+								<td colSpan={4} className="px-4 py-8 text-center text-slate-500">
 									Sin filas. Pide al agente que agregue OA con `crear_item_plan`.
 								</td>
 							</tr>

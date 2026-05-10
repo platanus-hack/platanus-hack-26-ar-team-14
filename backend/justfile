@@ -6,9 +6,11 @@ migrate:
 
 reset:
 	docker compose down -v
-	heads=$$(uv run alembic heads | grep -c '(head)'); if [ "$$heads" -gt 1 ]; then uv run alembic merge heads -m "merge heads"; else echo "Alembic already has a single head"; fi
+	heads=$(uv run alembic heads | rg -F -c "(head)"); if [ "$heads" -gt 1 ]; then uv run alembic merge heads -m "merge heads"; else echo "Alembic already has a single head"; fi
 	docker compose up -d postgres
+	until docker compose exec -T postgres pg_isready -U postgres -d app >/dev/null 2>&1; do sleep 1; done
 	uv run alembic upgrade head
+	uv run python -m scripts.seed_demo
 
 seed:
 	docker compose -f ../docker-compose.dev.yml exec backend python -m scripts.seed_demo

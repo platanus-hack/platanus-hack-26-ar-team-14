@@ -142,6 +142,58 @@ def _start_clases_restantes_mes(_args: dict) -> str:
     return "Calculando clases restantes del mes…"
 
 
+def _start_listar_evaluaciones_curso(_args: dict) -> str:
+    return "Revisando evaluaciones cargadas para este curso…"
+
+
+def _end_listar_evaluaciones_curso(payload: Any) -> str:
+    data = _safe_load(payload)
+    if isinstance(data, dict) and isinstance(data.get("assessments"), list):
+        return f"Encontré {len(data['assessments'])} evaluaciones."
+    return "Listo."
+
+
+def _start_leer_evaluacion(_args: dict) -> str:
+    return "Leyendo la evaluación y sus resultados…"
+
+
+def _end_leer_evaluacion(payload: Any) -> str:
+    data = _safe_load(payload)
+    if isinstance(data, dict):
+        q = data.get("question_count")
+        s = data.get("student_count")
+        if isinstance(q, int) and isinstance(s, int):
+            return f"Evaluación con {q} preguntas y {s} estudiantes."
+    return "Listo."
+
+
+def _start_leer_metricas_oa_evaluacion(_args: dict) -> str:
+    return "Calculando debilidades por OA en la evaluación…"
+
+
+def _end_leer_metricas_oa_evaluacion(payload: Any) -> str:
+    data = _safe_load(payload)
+    if isinstance(data, dict) and isinstance(data.get("metrics"), list):
+        return f"Encontré {len(data['metrics'])} métricas OA."
+    return "Listo."
+
+
+def _start_buscar_items_plan_por_oa(args: dict) -> str:
+    oa_code = args.get("oa_code")
+    return (
+        f"Buscando dónde aparece {oa_code} en el plan…"
+        if oa_code
+        else "Buscando filas del plan por OA…"
+    )
+
+
+def _end_buscar_items_plan_por_oa(payload: Any) -> str:
+    data = _safe_load(payload)
+    if isinstance(data, dict) and isinstance(data.get("matches"), list):
+        return f"Encontré {len(data['matches'])} filas."
+    return "Listo."
+
+
 _START: dict[str, Callable[[dict], str]] = {
     "listar_unidades": _start_listar_unidades,
     "obtener_oa": _start_obtener_oa,
@@ -152,6 +204,10 @@ _START: dict[str, Callable[[dict], str]] = {
     "eliminar_item_plan": _start_eliminar_item_plan,
     "clases_en_mes": _start_clases_en_mes,
     "clases_restantes_mes": _start_clases_restantes_mes,
+    "listar_evaluaciones_curso": _start_listar_evaluaciones_curso,
+    "leer_evaluacion": _start_leer_evaluacion,
+    "leer_metricas_oa_evaluacion": _start_leer_metricas_oa_evaluacion,
+    "buscar_items_plan_por_oa": _start_buscar_items_plan_por_oa,
 }
 
 _END: dict[str, Callable[[Any], str]] = {
@@ -163,6 +219,10 @@ _END: dict[str, Callable[[Any], str]] = {
     "actualizar_item_plan": _end_actualizar_item_plan,
     "eliminar_item_plan": _end_eliminar_item_plan,
     "clases_en_mes": _end_clases_en_mes,
+    "listar_evaluaciones_curso": _end_listar_evaluaciones_curso,
+    "leer_evaluacion": _end_leer_evaluacion,
+    "leer_metricas_oa_evaluacion": _end_leer_metricas_oa_evaluacion,
+    "buscar_items_plan_por_oa": _end_buscar_items_plan_por_oa,
 }
 
 

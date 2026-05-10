@@ -23,7 +23,6 @@ def _serialize_item(item: PlanAnualItem) -> dict:
             "name": material.name,
             "kind": material.kind,
             "guia_id": material.guia_id,
-            "tiene_resultados": material.resultados_uploaded_at is not None,
         }
     return {
         "id": item.id,

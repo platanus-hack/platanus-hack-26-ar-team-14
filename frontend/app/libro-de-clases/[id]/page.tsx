@@ -9,28 +9,43 @@ import { RegistroClient } from "./registro-client";
 
 type PageProps = {
 	params: Promise<{ id: string }>;
+	searchParams: Promise<{ source?: string; tab?: string }>;
 };
 
-export default async function LibroDeClasesPage({ params }: PageProps) {
+export default async function LibroDeClasesPage({
+	params,
+	searchParams,
+}: PageProps) {
 	const teacher = await getCurrentTeacher();
 	if (!teacher) redirect("/login");
 
-	const { id } = await params;
-	const recordId = Number(id);
-	if (!Number.isFinite(recordId)) notFound();
+	const [{ id }, { source, tab }] = await Promise.all([params, searchParams]);
+	const resourceId = Number(id);
+	if (!Number.isFinite(resourceId)) notFound();
 
 	let record;
-	try {
-		record = await getRecordAction(recordId);
-	} catch {
-		notFound();
-	}
-
 	let courseRecords;
-	try {
-		courseRecords = await listCourseRecordsAction(record.course_id);
-	} catch {
-		courseRecords = [record];
+
+	if (source === "course") {
+		try {
+			courseRecords = await listCourseRecordsAction(resourceId);
+		} catch {
+			notFound();
+		}
+		record = courseRecords.at(-1);
+		if (!record) notFound();
+	} else {
+		try {
+			record = await getRecordAction(resourceId);
+		} catch {
+			notFound();
+		}
+
+		try {
+			courseRecords = await listCourseRecordsAction(record.course_id);
+		} catch {
+			courseRecords = [record];
+		}
 	}
 
 	let plan: Plan | null = null;
@@ -44,12 +59,15 @@ export default async function LibroDeClasesPage({ params }: PageProps) {
 		plan = null;
 	}
 
+	const initialTab = tab === "planificacion" && plan ? "planificacion" : "libro";
+
 	return (
 		<RegistroClient
 			teacherName={teacher.name}
 			record={record}
 			courseRecords={courseRecords}
 			plan={plan}
+			initialTab={initialTab}
 		/>
 	);
 }

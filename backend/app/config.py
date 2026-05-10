@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     stt_language: str = "es"
 
     agent_model: str = "claude-sonnet-4-6"
+    libreoffice_bin: str = "soffice"
 
     cors_origins: list[str] = [
         "http://localhost:3000",

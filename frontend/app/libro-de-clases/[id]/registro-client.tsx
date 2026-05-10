@@ -21,6 +21,7 @@ type Props = {
 	record: LearningRecord;
 	courseRecords: LearningRecord[];
 	plan: Plan | null;
+	initialTab: TabId;
 };
 
 const SPANISH_MONTHS = [
@@ -82,10 +83,11 @@ function buildPlanOrGradesPrompt(record: LearningRecord, planId: number): string
 		`Plan ID: ${planId}.`,
 		`Class Record ID: ${record.id}.`,
 		`Curso: ${record.course_name}.`,
-		"En este chat el docente puede pedir dos cosas y tú decides cuál según lo que escriba:",
+		"En este chat el docente puede pedir tres cosas y tú decides cuál según lo que escriba:",
 		"(1) Registrar calificaciones de esta clase: si dicta o pega notas (ej. \"Sofía 6.2, Mateo 5.5\"), repítelas en una tabla compacta nombre · nota para confirmar, valida rango chileno 1.0–7.0, no inventes nombres ni notas, y pregunta antes de seguir si algo no calza con el curso.",
 		`(2) Modificar la planificación anual: si pide ajustes al plan, carga el plan con \`listar_plan(${planId})\`, propone correcciones en texto y espera confirmación antes de tocarlo con \`crear_item_plan\`, \`actualizar_item_plan\` o \`eliminar_item_plan\`. No reescribas el plan en prosa: el frontend lo recarga desde la base de datos.`,
-		"Salúdame breve y dime que puedo dictarte calificaciones de esta clase o pedirte ajustes a la planificación, lo que necesite. No asumas cuál de las dos antes de que el docente lo aclare.",
+		"(3) Analizar una evaluación cargada y proponer replanificación del OA débil: lee la evaluación, cruza con el plan y propone cambios exactos, pero nunca mutas el plan sin confirmación explícita.",
+		"Salúdame breve y dime que puedo dictarte calificaciones de esta clase, subir una evaluación o pedirte ajustes a la planificación, lo que necesite. No asumas cuál de las tres antes de que el docente lo aclare.",
 	].join(" ");
 }
 
@@ -102,6 +104,12 @@ type ChatStream = {
 	addFiles: (files: File[]) => void;
 	removePendingFile: (id: string) => void;
 	submit: () => void;
+	sendMessage: (input: {
+		text: string;
+		transportText?: string;
+		hidden?: boolean;
+		files?: File[];
+	}) => void;
 };
 
 function useChatStream(
@@ -192,38 +200,58 @@ function useChatStream(
 	useEffect(() => {
 		if (initializedKeyRef.current === resetKey) return;
 		initializedKeyRef.current = resetKey;
-		abortRef.current?.abort();
-		setError(null);
-		setInput("");
-		setPendingFiles([]);
-		if (!initialPrompt) {
-			setMessages([]);
-			return;
-		}
-		const first: Msg = {
-			id: crypto.randomUUID(),
-			role: "teacher",
-			text: initialPrompt,
-			hidden: true,
+		const reset = () => {
+			abortRef.current?.abort();
+			setError(null);
+			setInput("");
+			setPendingFiles([]);
+			if (!initialPrompt) {
+				setMessages([]);
+				return;
+			}
+			const first: Msg = {
+				id: crypto.randomUUID(),
+				role: "teacher",
+				text: initialPrompt,
+				hidden: true,
+			};
+			setMessages([first]);
+			void streamReply([first], []);
 		};
-		setMessages([first]);
-		void streamReply([first], []);
+		const timeoutId = window.setTimeout(reset, 0);
+		return () => window.clearTimeout(timeoutId);
 	}, [resetKey, initialPrompt, streamReply]);
 
 	function submit() {
 		const text = input.trim();
 		const filesToSend = pendingFiles.map((file) => file.file);
 		if ((!text && filesToSend.length === 0) || busy) return;
+		sendMessage({
+			text: text || "Revisa estos archivos adjuntos.",
+			files: filesToSend,
+		});
+		setInput("");
+		setPendingFiles([]);
+	}
+
+	function sendMessage(input: {
+		text: string;
+		transportText?: string;
+		hidden?: boolean;
+		files?: File[];
+	}) {
+		if ((!input.text.trim() && !(input.files?.length ?? 0)) || busy) return;
+		const filesToSend = input.files ?? [];
 		const next: Msg = {
 			id: crypto.randomUUID(),
 			role: "teacher",
-			text: text || "Revisa estos archivos adjuntos.",
+			text: input.text,
+			transportText: input.transportText,
+			hidden: input.hidden,
 			attachments: filesToSend.map((file) => ({ name: file.name })),
 		};
 		const history = [...messages, next];
 		setMessages(history);
-		setInput("");
-		setPendingFiles([]);
 		void streamReply(history, filesToSend);
 	}
 
@@ -237,6 +265,7 @@ function useChatStream(
 		addFiles,
 		removePendingFile,
 		submit,
+		sendMessage,
 	};
 }
 
@@ -247,9 +276,10 @@ export function RegistroClient({
 	record,
 	courseRecords,
 	plan,
+	initialTab,
 }: Props) {
 	const router = useRouter();
-	const [tab, setTab] = useState<TabId>("libro");
+	const [tab, setTab] = useState<TabId>(initialTab);
 
 	const registro = useChatStream(
 		buildClassRecordPrompt(record, plan?.id ?? null),
@@ -364,7 +394,8 @@ export function RegistroClient({
 				>
 					<PlanAnualTable plan={plan} />
 					<BitacoraChatPanel
-						title={AGENT_NAME}
+						title="Calificaciones o plan"
+						subtitle="Dícta notas de esta clase, o adjunta por este chat un PDF de prueba más una planilla de resultados para que el agente proponga ajustes a la planificación."
 						messages={planificacion.messages}
 						busy={planificacion.busy}
 						error={planificacion.error}
@@ -374,7 +405,7 @@ export function RegistroClient({
 						pendingFiles={planificacion.pendingFiles}
 						onAddFiles={planificacion.addFiles}
 						onRemovePendingFile={planificacion.removePendingFile}
-						placeholder="Mensaje a Brunito…"
+						placeholder={"Mensaje..."}
 						teacherName={teacherName}
 						assistantName="Brunito"
 					/>

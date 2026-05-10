@@ -83,13 +83,13 @@ def _validate_supported_file(file: UploadFile) -> None:
         return
     if suffix in TEXT_EXTENSIONS:
         return
-    if suffix == ".xlsx":
+    if suffix in {".xlsx", ".xls"}:
         return
     raise HTTPException(
         status_code=400,
         detail=(
             f"Tipo de archivo no soportado: {file.filename}. "
-            "Solo se aceptan PDF, imágenes, texto, CSV y XLSX."
+            "Solo se aceptan PDF, imágenes, texto, CSV, XLSX y XLS."
         ),
     )
 
@@ -238,6 +238,8 @@ async def build_last_user_message_content(
             extracted = _decode_text_file(file_name, file_bytes)
         elif suffix == ".xlsx":
             extracted = _extract_xlsx_text(file_bytes)
+        elif suffix == ".xls":
+            extracted = "[archivo XLS adjunto]"
         else:
             extracted = ""
 

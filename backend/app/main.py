@@ -1,6 +1,8 @@
 import json
 import asyncio
 from datetime import date, datetime
+from pathlib import Path
+import re
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, StreamingResponse
@@ -8,6 +10,7 @@ from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session, selectinload
 
 from app.agent import agent
+from app.assessments import ingest_assessment
 from app.auth import create_access_token, get_current_teacher, verify_password
 from app.chat_attachments import build_last_user_message_content
 from app.chat_status import describe_tool_end, describe_tool_start
@@ -16,6 +19,7 @@ from app.curriculum import buscar_actividades, listar_unidades, obtener_oa
 from app.dashboard.status import CourseStatusOut, classify_course, sort_status_rows
 from app.db import get_db
 from app.models import (
+    Assessment,
     Alert,
     ClassLearningRecord,
     Course,
@@ -31,6 +35,9 @@ from app.transcription import transcribe_audio
 from app.worksheets.store import ingest_pdf
 
 app = FastAPI(title="Backend API")
+
+# Keep pending-record logic aligned with the frontend dashboard demo clock.
+DEMO_NOW = datetime(2026, 5, 13, 9, 30)
 
 app.add_middleware(
     CORSMiddleware,
@@ -231,6 +238,120 @@ class ChatRequest(BaseModel):
     messages: list[ChatMessage]
 
 
+ID_PATTERNS = {
+    "plan_id": re.compile(r"\bPlan ID:\s*(\d+)\b", re.IGNORECASE),
+    "course_id": re.compile(r"\bCourse ID:\s*(\d+)\b", re.IGNORECASE),
+    "record_id": re.compile(r"\bClass Record ID:\s*(\d+)\b", re.IGNORECASE),
+    "assessment_id": re.compile(r"\bAssessment ID:\s*(\d+)\b", re.IGNORECASE),
+}
+
+CONFIRMATION_RE = re.compile(
+    r"^\s*(sí|si|aplica|hazlo|dale|ok|oka|confirmo|házlo)\s*[.!]?\s*$",
+    re.IGNORECASE,
+)
+
+
+def _extract_chat_context_ids(messages: list[ChatMessage]) -> dict[str, int | None]:
+    joined = "\n".join(
+        message.content
+        for message in messages
+        if isinstance(message.content, str)
+    )
+    out: dict[str, int | None] = {
+        "plan_id": None,
+        "course_id": None,
+        "record_id": None,
+        "assessment_id": None,
+    }
+    for key, pattern in ID_PATTERNS.items():
+        matches = pattern.findall(joined)
+        if matches:
+            out[key] = int(matches[-1])
+    return out
+
+
+def _augment_followup_with_assessment_context(
+    *,
+    last_text: str,
+    parsed_messages: list[ChatMessage],
+) -> str:
+    ids = _extract_chat_context_ids(parsed_messages)
+    assessment_id = ids.get("assessment_id")
+    if assessment_id is None:
+        return last_text
+    if ID_PATTERNS["assessment_id"].search(last_text):
+        return last_text
+    if not CONFIRMATION_RE.match(last_text.strip()):
+        return last_text
+    suffix = (
+        f"\n\nAssessment ID: {assessment_id}.\n"
+        "Este turno confirma una propuesta previa sobre esa evaluación. "
+        "Sigue con esa evaluación y no vuelvas a pedir archivos."
+    )
+    return f"{last_text.rstrip()}{suffix}"
+
+
+async def _maybe_ingest_assessment_from_chat(
+    *,
+    files: list[UploadFile],
+    parsed_messages: list[ChatMessage],
+    teacher: Teacher,
+    db: Session,
+) -> tuple[Assessment | None, list[UploadFile]]:
+    pdf_files: list[UploadFile] = []
+    result_files: list[UploadFile] = []
+    passthrough_files: list[UploadFile] = []
+
+    for file in files:
+        suffix = Path(file.filename or "").suffix.lower()
+        if suffix == ".pdf":
+            pdf_files.append(file)
+        elif suffix in {".xlsx", ".xls", ".csv"}:
+            result_files.append(file)
+        else:
+            passthrough_files.append(file)
+
+    if len(pdf_files) != 1 or len(result_files) != 1 or passthrough_files:
+        return None, files
+
+    ids = _extract_chat_context_ids(parsed_messages)
+    course_id = ids.get("course_id")
+    if course_id is None:
+        return None, files
+
+    course = db.get(Course, course_id)
+    if course is None or course.teacher_id != teacher.id:
+        raise HTTPException(status_code=404, detail="Curso no existe")
+
+    test_file = pdf_files[0]
+    results_file = result_files[0]
+    test_bytes = await test_file.read()
+    results_bytes = await results_file.read()
+    if not test_bytes or not results_bytes:
+        raise HTTPException(status_code=400, detail="Faltan archivos o vienen vacíos")
+
+    try:
+        assessment = ingest_assessment(
+            db,
+            course_id=course_id,
+            record_id=ids.get("record_id"),
+            test_file_name=test_file.filename or "prueba.pdf",
+            test_content_type=test_file.content_type,
+            test_bytes=test_bytes,
+            results_file_name=results_file.filename or "resultados.xlsx",
+            results_content_type=results_file.content_type,
+            results_bytes=results_bytes,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(
+            status_code=500,
+            detail=f"Falló el análisis de la evaluación: {exc}",
+        ) from exc
+    return assessment, []
+
+
 def _chat_stream_response(messages: list[dict]) -> StreamingResponse:
     async def event_stream():
         async for event in agent.astream_events(
@@ -302,6 +423,29 @@ async def chat_stream_with_files(
         )
 
     last_text = last_message.content if isinstance(last_message.content, str) else ""
+    assessment, files = await _maybe_ingest_assessment_from_chat(
+        files=files,
+        parsed_messages=parsed_messages,
+        teacher=teacher,
+        db=db,
+    )
+    if assessment is not None:
+        weak_oa_codes = sorted(
+            metric.oa_code for metric in assessment.oa_metrics if metric.weak
+        )
+        weak_summary = ", ".join(weak_oa_codes) if weak_oa_codes else "sin OA débiles"
+        assessment_context = (
+            f"Assessment ID: {assessment.id}.\n"
+            f"Se procesó la evaluación «{assessment.title}» en este turno.\n"
+            f"OA débiles detectados: {weak_summary}.\n"
+            "Revisa la evaluación con las herramientas de evaluación, cruza con el plan y propone replanificación concreta. No apliques cambios sin confirmación."
+        )
+        last_text = f"{last_text.strip()}\n\n{assessment_context}".strip()
+    else:
+        last_text = _augment_followup_with_assessment_context(
+            last_text=last_text,
+            parsed_messages=parsed_messages,
+        )
     message_payloads[-1]["content"] = await build_last_user_message_content(
         last_text,
         files,
@@ -337,19 +481,11 @@ def get_unidades():
 # ──────────────────────────── Planificación anual (extracción) ────────────────────────────
 
 
-class ResultadosPruebaOut(BaseModel):
-    n_alumnos: int
-    promedio: float
-    pct_aprobados: float
-    uploaded_at: datetime
-
-
 class MaterialOut(BaseModel):
     id: int
     name: str
-    kind: str  # "guia" | "prueba" | "recurso"
+    kind: str  # "guia" | "recurso"
     guia_id: int | None = None
-    resultados: ResultadosPruebaOut | None = None
 
 
 class PlanItemOut(BaseModel):
@@ -380,25 +516,11 @@ class PlanSummary(BaseModel):
 def _material_out(material) -> MaterialOut | None:
     if material is None:
         return None
-    resultados: ResultadosPruebaOut | None = None
-    if (
-        material.resultados_uploaded_at is not None
-        and material.n_alumnos is not None
-        and material.promedio is not None
-        and material.pct_aprobados is not None
-    ):
-        resultados = ResultadosPruebaOut(
-            n_alumnos=material.n_alumnos,
-            promedio=material.promedio,
-            pct_aprobados=material.pct_aprobados,
-            uploaded_at=material.resultados_uploaded_at,
-        )
     return MaterialOut(
         id=material.id,
         name=material.name,
         kind=material.kind or "guia",
         guia_id=material.guia_id,
-        resultados=resultados,
     )
 
 
@@ -547,6 +669,116 @@ class QuestionOut(BaseModel):
     image_height: int | None
 
 
+class AssessmentArtifactOut(BaseModel):
+    kind: str
+    filename: str
+    content_type: str | None
+
+
+class AssessmentQuestionOut(BaseModel):
+    ordinal: int
+    score_key: str
+    prompt: str
+    kind: str
+    oa_codes: list[str]
+    max_points: float | None
+
+
+class AssessmentResultRowOut(BaseModel):
+    student_name: str
+    question_scores: dict[str, float]
+    total_score: float | None
+
+
+class AssessmentOaMetricOut(BaseModel):
+    oa_code: str
+    question_ordinals: list[int]
+    mastery_pct: float
+    average_score: float
+    max_score: float
+    student_count: int
+    weak: bool
+    evidence_summary: str | None
+
+
+class AssessmentSummaryOut(BaseModel):
+    id: int
+    course_id: int
+    record_id: int | None
+    title: str
+    status: str
+    weak_oa_codes: list[str]
+    created_at: datetime
+
+
+class AssessmentDetailOut(AssessmentSummaryOut):
+    artifacts: list[AssessmentArtifactOut]
+    questions: list[AssessmentQuestionOut]
+    result_rows: list[AssessmentResultRowOut]
+    oa_metrics: list[AssessmentOaMetricOut]
+
+
+def _assessment_summary_out(assessment: Assessment) -> AssessmentSummaryOut:
+    return AssessmentSummaryOut(
+        id=assessment.id,
+        course_id=assessment.course_id,
+        record_id=assessment.record_id,
+        title=assessment.title,
+        status=assessment.status,
+        weak_oa_codes=sorted(metric.oa_code for metric in assessment.oa_metrics if metric.weak),
+        created_at=assessment.created_at,
+    )
+
+
+def _assessment_detail_out(assessment: Assessment) -> AssessmentDetailOut:
+    return AssessmentDetailOut(
+        **_assessment_summary_out(assessment).model_dump(),
+        artifacts=[
+            AssessmentArtifactOut(
+                kind=artifact.kind,
+                filename=artifact.filename,
+                content_type=artifact.content_type,
+            )
+            for artifact in assessment.artifacts
+        ],
+        questions=[
+            AssessmentQuestionOut(
+                ordinal=question.ordinal,
+                score_key=question.score_key,
+                prompt=question.prompt,
+                kind=question.kind,
+                oa_codes=list(question.oa_codes or []),
+                max_points=question.max_points,
+            )
+            for question in assessment.questions
+        ],
+        result_rows=[
+            AssessmentResultRowOut(
+                student_name=row.student_name,
+                question_scores={key: float(value) for key, value in row.question_scores.items()},
+                total_score=row.total_score,
+            )
+            for row in assessment.result_rows
+        ],
+        oa_metrics=[
+            AssessmentOaMetricOut(
+                oa_code=metric.oa_code,
+                question_ordinals=list(metric.question_ordinals or []),
+                mastery_pct=metric.mastery_pct,
+                average_score=metric.average_score,
+                max_score=metric.max_score,
+                student_count=metric.student_count,
+                weak=metric.weak,
+                evidence_summary=metric.evidence_summary,
+            )
+            for metric in sorted(
+                assessment.oa_metrics,
+                key=lambda item: (item.mastery_pct, item.oa_code),
+            )
+        ],
+    )
+
+
 def _question_out(q: Question) -> QuestionOut:
     has_img = q.image_data is not None
     raw_alts = q.alternatives or []
@@ -571,6 +803,89 @@ def _question_out(q: Question) -> QuestionOut:
         image_width=q.image_width,
         image_height=q.image_height,
     )
+
+
+@app.post("/evaluaciones", response_model=AssessmentSummaryOut)
+async def upload_assessment(
+    course_id: int = Form(...),
+    record_id: int | None = Form(None),
+    test_pdf: UploadFile = File(...),
+    results_file: UploadFile = File(...),
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    course = db.get(Course, course_id)
+    if course is None or course.teacher_id != teacher.id:
+        raise HTTPException(status_code=404, detail="Curso no existe")
+    if record_id is not None:
+        record = db.get(ClassLearningRecord, record_id)
+        if record is None or record.course_id != course_id:
+            raise HTTPException(status_code=404, detail="Registro no existe para este curso")
+    if not test_pdf.filename or not test_pdf.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Sube la prueba en PDF")
+
+    results_suffix = (results_file.filename or "").lower()
+    if not results_suffix.endswith((".xlsx", ".xls", ".csv")):
+        raise HTTPException(
+            status_code=400,
+            detail="Los resultados deben venir en XLSX, XLS o CSV",
+        )
+
+    test_bytes = await test_pdf.read()
+    results_bytes = await results_file.read()
+    if not test_bytes or not results_bytes:
+        raise HTTPException(status_code=400, detail="Faltan archivos o vienen vacíos")
+
+    try:
+        assessment = ingest_assessment(
+            db,
+            course_id=course_id,
+            record_id=record_id,
+            test_file_name=test_pdf.filename,
+            test_content_type=test_pdf.content_type,
+            test_bytes=test_bytes,
+            results_file_name=results_file.filename or "resultados.xlsx",
+            results_content_type=results_file.content_type,
+            results_bytes=results_bytes,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(
+            status_code=500,
+            detail=f"Falló el análisis de la evaluación: {exc}",
+        ) from exc
+    return _assessment_summary_out(assessment)
+
+
+@app.get("/evaluaciones/by-course/{course_id}", response_model=list[AssessmentSummaryOut])
+def list_assessments_by_course(
+    course_id: int,
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    course = db.get(Course, course_id)
+    if course is None or course.teacher_id != teacher.id:
+        raise HTTPException(status_code=404, detail="Curso no existe")
+    rows = (
+        db.query(Assessment)
+        .filter(Assessment.course_id == course_id)
+        .order_by(Assessment.created_at.desc(), Assessment.id.desc())
+        .all()
+    )
+    return [_assessment_summary_out(row) for row in rows]
+
+
+@app.get("/evaluaciones/{assessment_id}", response_model=AssessmentDetailOut)
+def get_assessment(
+    assessment_id: int,
+    teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
+    assessment = db.get(Assessment, assessment_id)
+    if assessment is None or assessment.course.teacher_id != teacher.id:
+        raise HTTPException(status_code=404, detail="Evaluación no existe")
+    return _assessment_detail_out(assessment)
 
 
 @app.post("/questions/extract", response_model=list[QuestionOut])
@@ -852,7 +1167,7 @@ def list_pending_records(
     db: Session = Depends(get_db),
 ):
     """Class sessions whose block has already ended but the teacher hasn't logged."""
-    now = datetime.now()
+    now = DEMO_NOW
     rows = (
         db.query(ClassLearningRecord)
         .join(Course, ClassLearningRecord.course_id == Course.id)
