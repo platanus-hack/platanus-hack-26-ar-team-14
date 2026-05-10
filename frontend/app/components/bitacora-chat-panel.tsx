@@ -29,7 +29,7 @@ export type BitacoraPendingAttachment = {
 };
 
 const FILE_ACCEPT_DEFAULT =
-	".pdf,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.markdown,.csv,.xlsx";
+	".pdf,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.markdown,.csv,.xlsx,.xls";
 const COMPOSER_MIN_HEIGHT = 44;
 const COMPOSER_MAX_HEIGHT = 138;
 

@@ -10,6 +10,7 @@ from sqlalchemy import (
     JSON,
     Date,
     DateTime,
+    Float,
     ForeignKey,
     LargeBinary,
     String,
@@ -64,6 +65,9 @@ class Course(Base):
     alerts: Mapped[list["Alert"]] = relationship(
         back_populates="course", cascade="all, delete-orphan"
     )
+    assessments: Mapped[list["Assessment"]] = relationship(
+        back_populates="course", cascade="all, delete-orphan"
+    )
 
 
 class Student(Base):
@@ -100,6 +104,9 @@ class ClassLearningRecord(Base):
     observations: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     course: Mapped["Course"] = relationship(back_populates="learning_records")
+    assessments: Mapped[list["Assessment"]] = relationship(
+        back_populates="record", cascade="all, delete-orphan"
+    )
 
 
 class Alert(Base):
@@ -203,6 +210,125 @@ class GuiaItem(Base):
 
     guia: Mapped["Guia"] = relationship(back_populates="items")
     question: Mapped["Question"] = relationship()
+
+
+class Assessment(Base):
+    """Uploaded test evidence tied to a course and used for replanning."""
+
+    __tablename__ = "assessments"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    course_id: Mapped[int] = mapped_column(
+        ForeignKey("courses.id", ondelete="CASCADE"), index=True
+    )
+    record_id: Mapped[int | None] = mapped_column(
+        ForeignKey("class_learning_records.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    title: Mapped[str] = mapped_column(String(255))
+    status: Mapped[str] = mapped_column(
+        String(32), default="ready", server_default="ready"
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    course: Mapped["Course"] = relationship(back_populates="assessments")
+    record: Mapped["ClassLearningRecord | None"] = relationship(
+        back_populates="assessments"
+    )
+    artifacts: Mapped[list["AssessmentArtifact"]] = relationship(
+        back_populates="assessment", cascade="all, delete-orphan"
+    )
+    questions: Mapped[list["AssessmentQuestion"]] = relationship(
+        back_populates="assessment",
+        cascade="all, delete-orphan",
+        order_by="AssessmentQuestion.ordinal",
+    )
+    result_rows: Mapped[list["AssessmentResultRow"]] = relationship(
+        back_populates="assessment", cascade="all, delete-orphan"
+    )
+    oa_metrics: Mapped[list["AssessmentOaMetric"]] = relationship(
+        back_populates="assessment", cascade="all, delete-orphan"
+    )
+
+
+class AssessmentArtifact(Base):
+    """Binary files stored for an assessment upload."""
+
+    __tablename__ = "assessment_artifacts"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    assessment_id: Mapped[int] = mapped_column(
+        ForeignKey("assessments.id", ondelete="CASCADE"), index=True
+    )
+    kind: Mapped[str] = mapped_column(String(32))
+    filename: Mapped[str] = mapped_column(String(255))
+    content_type: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    data: Mapped[bytes] = mapped_column(LargeBinary)
+
+    assessment: Mapped["Assessment"] = relationship(back_populates="artifacts")
+
+
+class AssessmentQuestion(Base):
+    """Question-level structure extracted from a test PDF."""
+
+    __tablename__ = "assessment_questions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    assessment_id: Mapped[int] = mapped_column(
+        ForeignKey("assessments.id", ondelete="CASCADE"), index=True
+    )
+    ordinal: Mapped[int] = mapped_column(index=True)
+    score_key: Mapped[str] = mapped_column(String(32))
+    prompt: Mapped[str] = mapped_column(Text)
+    kind: Mapped[str] = mapped_column(String(32), default="open", server_default="open")
+    oa_codes: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
+    max_points: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+    assessment: Mapped["Assessment"] = relationship(back_populates="questions")
+
+
+class AssessmentResultRow(Base):
+    """Normalized per-student scores extracted from a spreadsheet upload."""
+
+    __tablename__ = "assessment_result_rows"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    assessment_id: Mapped[int] = mapped_column(
+        ForeignKey("assessments.id", ondelete="CASCADE"), index=True
+    )
+    student_name: Mapped[str] = mapped_column(String(255))
+    question_scores: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}")
+    total_score: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+    assessment: Mapped["Assessment"] = relationship(back_populates="result_rows")
+
+
+class AssessmentOaMetric(Base):
+    """Aggregated mastery signal for a single OA inside one assessment."""
+
+    __tablename__ = "assessment_oa_metrics"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    assessment_id: Mapped[int] = mapped_column(
+        ForeignKey("assessments.id", ondelete="CASCADE"), index=True
+    )
+    oa_code: Mapped[str] = mapped_column(String(16), index=True)
+    question_ordinals: Mapped[list] = mapped_column(
+        JSON, default=list, server_default="[]"
+    )
+    mastery_pct: Mapped[float] = mapped_column(Float)
+    average_score: Mapped[float] = mapped_column(Float)
+    max_score: Mapped[float] = mapped_column(Float)
+    student_count: Mapped[int] = mapped_column()
+    weak: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false(), index=True
+    )
+    evidence_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    assessment: Mapped["Assessment"] = relationship(back_populates="oa_metrics")
 
 
 class Material(Base):
