@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     embed_model: str = "openai/text-embedding-3-small"
     embed_base_url: str = "https://openrouter.ai/api/v1"
 
-    agent_model: str = "claude-haiku-4-5"
+    agent_model: str = "claude-sonnet-4-6"
 
     cors_origins: list[str] = [
         "http://localhost:3000",

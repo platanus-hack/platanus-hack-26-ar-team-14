@@ -65,13 +65,6 @@ class PlanAnualDraftItem(BaseModel):
             "el plan, sin resumir."
         ),
     )
-    cantidad_clases: int | None = Field(
-        default=None,
-        description=(
-            "Número de clases asignadas a esta fila si el plan lo declara "
-            "explícitamente; en planes que solo dicen 'Marzo' déjalo en None."
-        ),
-    )
 
 
 class PlanAnualDraft(BaseModel):
@@ -106,7 +99,6 @@ Reglas:
   puede deducir, devuelve null.
 - 'unidad' es la etiqueta tal cual ('Unidad 1'); si viene vacía pero la
   fila pertenece a la misma unidad anterior, repítela.
-- 'cantidad_clases' solo si el plan lo declara explícitamente.
 - Cabecera: extrae asignatura, curso, año y docente si están.
 
 Si el PDF incluye material adicional (Programa de Estudio, anexos, guías),

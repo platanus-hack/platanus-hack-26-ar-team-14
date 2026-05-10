@@ -7,11 +7,22 @@ Run from the backend directory:
 Idempotent: re-running with the same teacher email is a no-op.
 """
 
+import json
 from datetime import date, timedelta
+from pathlib import Path
 
 from app.auth import hash_password
 from app.db import SessionLocal
-from app.models import ClassLearningRecord, Course, Student, Teacher
+from app.models import (
+    ClassLearningRecord,
+    Course,
+    PlanAnual,
+    PlanAnualItem,
+    Student,
+    Teacher,
+)
+
+DEMO_PLAN_ANUAL_PATH = Path(__file__).with_name("demo_plan_anual.json")
 
 TEACHER_NAME = "Ana Pérez"
 TEACHER_EMAIL = "ana@demo.cl"
@@ -135,14 +146,38 @@ def main() -> None:
             for i, c in enumerate(COURSES)
         ]
         db.add(teacher)
+        db.flush()  # populate teacher.id for the plan FK below
+        plan_data = json.loads(DEMO_PLAN_ANUAL_PATH.read_text(encoding="utf-8"))
+        plan = PlanAnual(
+            teacher_id=teacher.id,
+            name=plan_data["name"],
+            asignatura=plan_data.get("asignatura"),
+            curso=plan_data.get("curso"),
+            anio=plan_data.get("anio"),
+            docente=plan_data.get("docente"),
+            items=[
+                PlanAnualItem(
+                    ordinal=it["ordinal"],
+                    mes=it.get("mes"),
+                    unidad=it.get("unidad"),
+                    oa_codes=list(it.get("oa_codes") or []),
+                    objetivo=it.get("objetivo") or "",
+                )
+                for it in plan_data["items"]
+            ],
+        )
+        db.add(plan)
         db.commit()
         db.refresh(teacher)
+        db.refresh(plan)
         print(
             f"Seeded teacher {teacher.email} (id={teacher.id}) with "
             f"{len(teacher.courses)} courses: "
             f"{', '.join(c.name for c in teacher.courses)}. "
             f"Pre-created {sum(len(c.learning_records) for c in teacher.courses)} "
-            f"class learning records for {school_year}."
+            f"class learning records for {school_year}. "
+            f"Seeded plan anual '{plan.name}' (id={plan.id}) with "
+            f"{len(plan.items)} items."
         )
 
 

@@ -1,3 +1,4 @@
+import asyncio
 from datetime import date, datetime
 
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
@@ -186,7 +187,6 @@ class PlanItemOut(BaseModel):
     unidad: str | None
     oa_codes: list[str]
     objetivo: str
-    cantidad_clases: int | None
 
 
 class PlanOut(BaseModel):
@@ -220,7 +220,6 @@ def _plan_out(plan: PlanAnual) -> PlanOut:
                 unidad=it.unidad,
                 oa_codes=list(it.oa_codes or []),
                 objetivo=it.objetivo,
-                cantidad_clases=it.cantidad_clases,
             )
             for it in plan.items
         ],
@@ -242,7 +241,7 @@ async def extract_planificacion(
     if not file_bytes:
         raise HTTPException(status_code=400, detail="Archivo vacío")
     try:
-        draft = extract_plan_from_pdf(file_bytes)
+        draft = await asyncio.to_thread(extract_plan_from_pdf, file_bytes)
     except Exception as e:  # noqa: BLE001
         raise HTTPException(status_code=500, detail=f"Falló la extracción: {e}") from e
 
@@ -262,7 +261,6 @@ async def extract_planificacion(
                 unidad=it.unidad,
                 oa_codes=list(it.oa_codes),
                 objetivo=it.objetivo,
-                cantidad_clases=it.cantidad_clases,
             )
         )
     db.add(plan)
