@@ -8,6 +8,9 @@ from pathlib import Path
 from fastapi import HTTPException, UploadFile
 from openpyxl import load_workbook
 
+from app.uploads import read_upload_bytes
+
+MAX_CHAT_ATTACHMENT_BYTES = 20 * 1024 * 1024
 MAX_TEXT_ATTACHMENT_CHARS = 20_000
 MAX_XLSX_SHEETS = 4
 MAX_XLSX_ROWS = 120
@@ -118,9 +121,12 @@ async def build_last_user_message_content(
         file_name = file.filename or "archivo"
         suffix = Path(file_name).suffix.lower()
         content_type = (file.content_type or "").lower()
-        file_bytes = await file.read()
-        if not file_bytes:
-            continue
+        file_bytes = await read_upload_bytes(
+            file,
+            max_bytes=MAX_CHAT_ATTACHMENT_BYTES,
+            empty_detail=f"Archivo vacío: {file_name}",
+            too_large_detail=f"Archivo demasiado grande: {file_name}",
+        )
 
         if suffix == ".pdf":
             content.append(

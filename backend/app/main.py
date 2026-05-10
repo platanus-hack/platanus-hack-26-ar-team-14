@@ -31,12 +31,16 @@ from app.models import (
 )
 from app.planificacion import extract_plan_from_pdf
 from app.transcription import transcribe_audio
+from app.uploads import read_upload_bytes
 from app.worksheets.store import ingest_pdf
 
 app = FastAPI(title="Backend API")
 
 # Keep pending-record logic aligned with the frontend dashboard demo clock.
 DEMO_NOW = datetime(2026, 5, 13, 9, 30)
+MAX_PDF_UPLOAD_BYTES = 25 * 1024 * 1024
+MAX_SPREADSHEET_UPLOAD_BYTES = 10 * 1024 * 1024
+MAX_AUDIO_UPLOAD_BYTES = 25 * 1024 * 1024
 
 app.add_middleware(
     CORSMiddleware,
@@ -277,10 +281,18 @@ async def _maybe_ingest_assessment_from_chat(
 
     test_file = pdf_files[0]
     results_file = result_files[0]
-    test_bytes = await test_file.read()
-    results_bytes = await results_file.read()
-    if not test_bytes or not results_bytes:
-        raise HTTPException(status_code=400, detail="Faltan archivos o vienen vacíos")
+    test_bytes = await read_upload_bytes(
+        test_file,
+        max_bytes=MAX_PDF_UPLOAD_BYTES,
+        empty_detail="Falta el PDF o viene vacío",
+        too_large_detail="El PDF supera el tamaño máximo permitido",
+    )
+    results_bytes = await read_upload_bytes(
+        results_file,
+        max_bytes=MAX_SPREADSHEET_UPLOAD_BYTES,
+        empty_detail="Falta la planilla o viene vacía",
+        too_large_detail="La planilla supera el tamaño máximo permitido",
+    )
 
     try:
         assessment = ingest_assessment(
@@ -487,9 +499,12 @@ async def transcribe_endpoint(
     teacher: Teacher = Depends(get_current_teacher),
 ):
     """Transcribe a short audio clip (Spanish) via OpenRouter STT."""
-    audio = await file.read()
-    if not audio:
-        raise HTTPException(status_code=400, detail="Audio vacío")
+    audio = await read_upload_bytes(
+        file,
+        max_bytes=MAX_AUDIO_UPLOAD_BYTES,
+        empty_detail="Audio vacío",
+        too_large_detail="El audio supera el tamaño máximo permitido",
+    )
     try:
         text = await transcribe_audio(
             audio_bytes=audio,
@@ -514,9 +529,12 @@ async def extract_planificacion(
     herramientas CRUD."""
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Sube un archivo .pdf")
-    file_bytes = await file.read()
-    if not file_bytes:
-        raise HTTPException(status_code=400, detail="Archivo vacío")
+    file_bytes = await read_upload_bytes(
+        file,
+        max_bytes=MAX_PDF_UPLOAD_BYTES,
+        empty_detail="Archivo vacío",
+        too_large_detail="El PDF supera el tamaño máximo permitido",
+    )
     try:
         draft = await asyncio.to_thread(extract_plan_from_pdf, file_bytes)
     except Exception as e:  # noqa: BLE001
@@ -761,10 +779,18 @@ async def upload_assessment(
             detail="Los resultados deben venir en XLSX, XLS o CSV",
         )
 
-    test_bytes = await test_pdf.read()
-    results_bytes = await results_file.read()
-    if not test_bytes or not results_bytes:
-        raise HTTPException(status_code=400, detail="Faltan archivos o vienen vacíos")
+    test_bytes = await read_upload_bytes(
+        test_pdf,
+        max_bytes=MAX_PDF_UPLOAD_BYTES,
+        empty_detail="Falta la prueba o viene vacía",
+        too_large_detail="La prueba supera el tamaño máximo permitido",
+    )
+    results_bytes = await read_upload_bytes(
+        results_file,
+        max_bytes=MAX_SPREADSHEET_UPLOAD_BYTES,
+        empty_detail="Falta la planilla de resultados o viene vacía",
+        too_large_detail="La planilla de resultados supera el tamaño máximo permitido",
+    )
 
     try:
         assessment = ingest_assessment(
@@ -828,9 +854,12 @@ async def extract_questions_from_pdf(
     to the bank (existing rows from a prior upload are returned unchanged)."""
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Sube un archivo .pdf")
-    file_bytes = await file.read()
-    if not file_bytes:
-        raise HTTPException(status_code=400, detail="Archivo vacío")
+    file_bytes = await read_upload_bytes(
+        file,
+        max_bytes=MAX_PDF_UPLOAD_BYTES,
+        empty_detail="Archivo vacío",
+        too_large_detail="El PDF supera el tamaño máximo permitido",
+    )
     try:
         rows = ingest_pdf(db, file_name=file.filename, file_bytes=file_bytes)
     except Exception as e:  # noqa: BLE001
@@ -870,7 +899,11 @@ def get_question(
 
 
 @app.get("/questions/{question_id}/image")
-def get_question_image(question_id: int, db: Session = Depends(get_db)):
+def get_question_image(
+    question_id: int,
+    _teacher: Teacher = Depends(get_current_teacher),
+    db: Session = Depends(get_db),
+):
     row = db.get(Question, question_id)
     if row is None or row.image_data is None:
         raise HTTPException(status_code=404, detail="Sin imagen")

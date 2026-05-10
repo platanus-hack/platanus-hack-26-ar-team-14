@@ -24,7 +24,7 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+psycopg://postgres:postgres@postgres:5432/app"
 
-    jwt_secret: SecretStr = SecretStr("dev-only-change-me")
+    jwt_secret: SecretStr
     jwt_algorithm: str = "HS256"
     jwt_expires_minutes: int = 60 * 24 * 7
 
